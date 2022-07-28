@@ -1,0 +1,12 @@
+# Folder
+__test__/
+.vscode/
+.github/
+test/
+src/
+
+# File
+jest.config.ts
+tsconfig.json
+.prettierrc
+*.tgz

@@ -53,7 +53,7 @@ export class ClientUser extends User {
         this.client = client;
     }
 
-    async setActivity(activity: Activity): Promise<SetActivityResponse> {
+    async setActivity(activity: Activity, pid?: number): Promise<SetActivityResponse> {
         let formattedAcitivity: any = { ...activity, timestamps: {}, party: {}, secrets: {} }
 
         if (activity.startTimestamp instanceof Date) formattedAcitivity.timestamps.start = Math.round(activity.startTimestamp.getTime());
@@ -93,10 +93,10 @@ export class ClientUser extends User {
 
         console.log(formattedAcitivity);
 
-        return (await this.client.request("SET_ACTIVITY", { pid: process.pid, activity: formattedAcitivity })).data;
+        return (await this.client.request("SET_ACTIVITY", { pid: pid || process.pid, activity: formattedAcitivity })).data;
     }
 
-    clearActivity() {
-        this.client.request("SET_ACTIVITY", { pid: process.pid });
+    clearActivity(pid?: number) {
+        this.client.request("SET_ACTIVITY", { pid: pid || process.pid });
     }
 }

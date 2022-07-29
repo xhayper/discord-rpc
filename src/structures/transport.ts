@@ -42,5 +42,5 @@ export abstract class Transport extends (EventEmitter as new () => TypedEmitter<
     abstract connect(): Promise<void>;
     abstract send(data?: object): void;
     abstract ping(): void;
-    abstract close(): void;
+    abstract close(): Promise<void>;
 }

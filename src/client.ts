@@ -1,10 +1,10 @@
 import axios, { AxiosResponse } from "axios";
-import { User } from "./structures/user";
 import { v4 as uuidv4 } from "uuid";
 import { CMD, EVT, Transport } from "./structures/transport";
 import { IPCTransport } from "./transport/ipc";
 import { EventEmitter } from "stream";
 import { ClientUser } from "./structures/clientUser";
+import TypedEmitter from "typed-emitter";
 
 export type OAuthScope = "activities.read" | "activities.write" | "applications.builds.read" | "applications.builds.upload" | "applications.commands" | "applications.commands.update" | "applications.commands.permissions.update" | "applications.entitlements" | "applications.store.update" | "bot" | "connections" | "dm_channels.read" | "email" | "gdm.join" | "guilds" | "guilds.join" | "guilds.members.read" | "identify" | "messages.read" | "relationships.read" | "rpc" | "rpc.activities.write" | "rpc.notifications.read" | "rpc.voice.read" | "rpc.voice.write" | "voice" | "webhook.incoming";
 
@@ -20,12 +20,18 @@ export interface ClientOptions {
     clientId: string,
     accessToken?: string,
     transport?: {
-        type: "ipc" | Transport // "websoclet"
+        type: "ipc" | Transport // "websocket"
         formatPath?: (id: number) => string
     }
 }
 
-export class Client extends EventEmitter {
+export type ClientEvents = {
+    ready: () => void;
+    connected: () => void;
+    disconnected: () => void;
+}
+
+export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents>) {
     clientId: string = "";
     accessToken: string = "";
     user?: ClientUser;
@@ -42,7 +48,7 @@ export class Client extends EventEmitter {
         this.clientId = clientId;
         this.accessToken = accessToken || "";
 
-        this.transport = transport && transport.type && transport.type != "ipc" ? (transport.type instanceof Transport ? transport.type : undefined /* Add WebSocket transport */) : new IPCTransport(this);
+        this.transport = transport && transport.type && transport.type != "ipc" ? (transport.type instanceof Transport ? transport.type : undefined /* Add WebSocket transport */) : new IPCTransport(this, {formatPathFunction: transport?.formatPath});
 
         this.transport?.on("message", (message) => {
             if (message.cmd === "DISPATCH" && message.evt === "READY") {
@@ -165,5 +171,9 @@ export class Client extends EventEmitter {
         if (!accessToken) return;
 
         return this.authenticate(accessToken);
+    }
+
+    async destroy() {
+        await this.transport?.close();
     }
 }

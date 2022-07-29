@@ -24,7 +24,7 @@ HANDSHAKE 40bytes  { " v " : 1 , "
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 export type IPCTransportOptions = {
-    formatPathFunction: (id: number) => string;
+    formatPathFunction?: (id: number) => string;
 }
 
 export const createPacket = (opcode: OPCODE, data?: any): Buffer => {
@@ -79,15 +79,13 @@ export class IPCTransport extends Transport {
     constructor(client: Client, options?: IPCTransportOptions) {
         super(client)
 
-        this.options = options || {
-            formatPathFunction: formatPath
-        }
+        this.options = options || {};
     }
 
     private async getSocket(): Promise<net.Socket> {
         if (this.socket) return this.socket;
 
-        const formatFunc = this.options.formatPathFunction;
+        const formatFunc = this.options.formatPathFunction || formatPath;
         return new Promise(async (resolve, reject) => {
             for (let i = 0; i < 10; i++) {
                 const socket = await createSocket(formatFunc(i)).catch(() => null);
@@ -160,8 +158,12 @@ export class IPCTransport extends Transport {
         this.send(uuidv4(), OPCODE.PING);
     }
 
-    close(): void {
-        throw new Error("Method not implemented.");
+    close(): Promise<void> {
+        return new Promise((resolve) => {
+            this.once('close', resolve);
+            this.send({}, OPCodes.CLOSE);
+            this.socket.end();
+          })
     }
 
 }

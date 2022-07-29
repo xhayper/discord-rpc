@@ -5,6 +5,7 @@ import { IPCTransport } from "./transport/ipc";
 import { EventEmitter } from "stream";
 import { ClientUser } from "./structures/clientUser";
 import TypedEmitter from "typed-emitter";
+import { WebsocketTransport } from "./transport/websocket";
 
 export type OAuthScope = "activities.read" | "activities.write" | "applications.builds.read" | "applications.builds.upload" | "applications.commands" | "applications.commands.update" | "applications.commands.permissions.update" | "applications.entitlements" | "applications.store.update" | "bot" | "connections" | "dm_channels.read" | "email" | "gdm.join" | "guilds" | "guilds.join" | "guilds.members.read" | "identify" | "messages.read" | "relationships.read" | "rpc" | "rpc.activities.write" | "rpc.notifications.read" | "rpc.voice.read" | "rpc.voice.write" | "voice" | "webhook.incoming";
 
@@ -20,7 +21,7 @@ export interface ClientOptions {
     clientId: string,
     accessToken?: string,
     transport?: {
-        type: "ipc" | Transport // "websocket"
+        type: "ipc" | "websocket" | Transport
         formatPath?: (id: number) => string
     }
 }
@@ -48,7 +49,7 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
         this.clientId = clientId;
         this.accessToken = accessToken || "";
 
-        this.transport = transport && transport.type && transport.type != "ipc" ? (transport.type instanceof Transport ? transport.type : undefined /* Add WebSocket transport */) : new IPCTransport(this, {formatPathFunction: transport?.formatPath});
+        this.transport = transport && transport.type && transport.type != "ipc" ? (transport.type === "websocket" ? new WebsocketTransport(this) : transport.type) : new IPCTransport(this, {formatPathFunction: transport?.formatPath});
 
         this.transport?.on("message", (message) => {
             if (message.cmd === "DISPATCH" && message.evt === "READY") {

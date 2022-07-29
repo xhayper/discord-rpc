@@ -1,10 +1,10 @@
 import { Client } from "..";
-import { CMD, EVT, Transport } from "../structures/transport";
+import { CMD, CommandIncoming, EVT, Transport } from "../structures/transport";
 import fs from "fs";
 import path from "path";
 import net from "net";
 import { v4 as uuidv4 } from "uuid";
-import { json } from "stream/consumers";
+import axios from "axios";
 
 export enum OPCODE {
     HANDSHAKE,
@@ -27,8 +27,8 @@ export type IPCTransportOptions = {
     formatPathFunction: (id: number) => string;
 }
 
-export const createPacket = (opcode: OPCODE, data?: object): Buffer => {
-    const dataBuffer = Buffer.from(data ? JSON.stringify(data) : "");
+export const createPacket = (opcode: OPCODE, data?: any): Buffer => {
+    const dataBuffer = data ? Buffer.from(JSON.stringify(data)) : Buffer.alloc(0);
 
     const packet = Buffer.alloc(8);
     packet.writeUInt32LE(opcode, 0);
@@ -37,7 +37,7 @@ export const createPacket = (opcode: OPCODE, data?: object): Buffer => {
     return Buffer.concat([packet, dataBuffer]);
 }
 
-export const parsePacket = (packet: Buffer): { op: OPCODE, length: number, data?: object } => {
+export const parsePacket = (packet: Buffer): { op: OPCODE, length: number, data?: CommandIncoming } => {
     const op = packet.readUInt32LE(0);
     const length = packet.readUInt32LE(4);
     const data = length > 0 ? JSON.parse(packet.subarray(8).toString()) : null;
@@ -54,13 +54,20 @@ const formatPath = (id: number): string => {
 }
 
 const createSocket = async (path: string): Promise<net.Socket> => {
-    return await new Promise((resolve, reject) => {
-        const onError = () => reject();
+    return new Promise((resolve, reject) => {
+        const onError = () => {
+            socket.removeListener("conect", onConnect);
+            reject();
+        };
 
-        const socket = net.createConnection(path, () => {
+        const onConnect = () => {
             socket.removeListener("error", onError);
             resolve(socket);
-        });
+        }
+
+        const socket = net.createConnection(path);
+
+        socket.once("connect", onConnect)
         socket.once("error", onError);
     });
 };
@@ -84,6 +91,7 @@ export class IPCTransport extends Transport {
         return new Promise(async (resolve, reject) => {
             for (let i = 0; i < 10; i++) {
                 const socket = await createSocket(formatFunc(i)).catch(() => null);
+
                 if (socket) {
                     resolve(socket);
                     return;
@@ -99,24 +107,33 @@ export class IPCTransport extends Transport {
 
         this.emit("open");
 
-        this.socket.write(createPacket(OPCODE.HANDSHAKE, {
+        this.send({
             v: 1,
             client_id: this.client.clientId,
-        }));
+        }, OPCODE.HANDSHAKE);
 
         this.socket.pause();
 
-        this.socket.on("readable", () => {
+        this.socket.on("readable", async () => {
             if (!this.socket) return;
 
             const data = this.socket.read();
             if (!data) return;
 
             const packet = parsePacket(data);
+            console.log(packet);
 
             switch (packet.op) {
                 case OPCODE.FRAME: {
                     if (!packet.data) break;
+
+                    if (packet.data.cmd === 'AUTHORIZE' && packet.data.evt !== 'ERROR') {
+                        for (let i = 0; i < 10; i++) {
+                            const response = await axios.get(`http://127.0.0.1:${6463 + i}`).catch(() => null);
+                            if (!response || response.status == 404) continue;
+                            this.client.endPoint = `http://127.0.0.1:${6463 + i}`;
+                        }
+                    }
 
                     this.emit("message", packet.data);
                     break;
@@ -126,7 +143,7 @@ export class IPCTransport extends Transport {
                     break;
                 }
                 case OPCODE.PING: {
-                    this.send(packet.data ? Buffer.from(JSON.stringify(packet.data)) : undefined, OPCODE.PONG);
+                    this.send(packet.data, OPCODE.PONG);
                     this.emit("ping");
                     break;
                 }
@@ -134,12 +151,13 @@ export class IPCTransport extends Transport {
         });
     }
 
-    send(message?: Buffer, op: OPCODE = OPCODE.FRAME): void {
-        this.socket?.write(createPacket(op, message || Buffer.alloc(0)));
+    send(message?: any, op: OPCODE = OPCODE.FRAME): void {
+        console.log(message, op);
+        this.socket?.write(createPacket(op, message));
     }
 
     ping(): void {
-        this.send(Buffer.from(uuidv4()), OPCODE.PING);
+        this.send(uuidv4(), OPCODE.PING);
     }
 
     close(): void {

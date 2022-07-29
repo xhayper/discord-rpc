@@ -6,3 +6,4 @@ a fork of [discordjs/RPC](https://github.com/discordjs/RPC)
 
 - Figure out how to test Websocket transport
 - Add more feature
+- Work on documentation

@@ -39,6 +39,7 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
 
     transport?: Transport;
     endPoint: string = "https://discord.com/api";
+    origin: string = "https://localhost";
 
     private connectionPromoise?: Promise<void>;
     private _nonceMap = new Map<string, { resolve: (value: any) => void, reject: (reason?: any) => void }>();
@@ -136,6 +137,7 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
         this.connectionPromoise = new Promise((resolve, reject) => {
             const timeout = setTimeout(() => reject(new Error('RPC_CONNECTION_TIMEOUT')), 10e3);
             timeout.unref();
+
             this.once('connected', () => {
                 clearTimeout(timeout);
                 resolve();

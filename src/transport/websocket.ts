@@ -1,4 +1,3 @@
-import { Client } from "../client";
 import { Transport } from "../structures/transport";
 import { WebSocket } from "ws";
 export class WebsocketTransport extends Transport {
@@ -9,16 +8,18 @@ export class WebsocketTransport extends Transport {
         return new Promise(async (resolve, reject) => {
             for (let i = 0; i < 10; i++) {
                 const ws = await (new Promise<WebSocket>((resolve, reject) => {
-                    const socket = new WebSocket(`ws://127.0.0.1:${6463 + i}/?v=1&client_id=${this.client.clientId}`);
+                    const socket = new WebSocket(`ws://127.0.0.1:${6463 + i}/?v=1&client_id=${this.client.clientId}&encoding=json`, {
+                        origin: this.client.origin
+                    });
 
-                    socket.onopen = function () {
+                    socket.onopen = function (event) {
                         socket.onclose = null;
                         socket.onopen = null;
 
                         resolve(socket);
                     };
 
-                    socket.onerror = function () {
+                    socket.onerror = function (event) {
                         socket.onclose = null;
                         socket.onopen = null;
 
@@ -39,7 +40,8 @@ export class WebsocketTransport extends Transport {
                 this.emit("message", JSON.parse(event.data.toString()));
             };
 
-            this.ws!.onclose = () => {
+            this.ws!.onclose = (event) => {
+                if (!event.wasClean) return;
                 this.emit("close");
             };
 
@@ -50,6 +52,8 @@ export class WebsocketTransport extends Transport {
 
                 throw event.error;
             };
+
+            this.emit("open");
         });
     }
 

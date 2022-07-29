@@ -23,6 +23,12 @@
     /* Completeness */
     "skipLibCheck": true /* Skip type checking all .d.ts files. */
   },
+  "typedocOptions": {
+    "includeVersion": true,
+    "entryPointStrategy": "expand",
+    "entryPoints": "src/",
+    "out": "docs"
+  },
   "include": [
     "src/**/*"
   ]

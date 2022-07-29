@@ -1,4 +1,5 @@
 import { Client } from "../src/index";
+import { ActivityType } from "../src/structures/clientUser";
 
 (async () => {
     const client = new Client({clientId: "964574770807058472"});

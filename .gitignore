@@ -283,3 +283,6 @@ $RECYCLE.BIN/
 # lock files
 package-lock.json
 yarn.lock
+
+# docs
+docs/

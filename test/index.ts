@@ -14,7 +14,8 @@ import { ActivityType } from "../src/structures/clientUser";
                     "label": "Hi!",
                     "url": "https://github.com/xhayper"
                 }
-            ]
+            ],
+            startTimestamp: new Date()
         })
     });
 

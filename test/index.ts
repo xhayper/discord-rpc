@@ -1,7 +1,7 @@
 import { Client } from "../src/index";
 
 (async () => {
-    const client = new Client({clientId: "964574770807058472"});
+    const client = new Client({clientId: "964574770807058472", transport: {type: "websocket"}});
 
     client.on("ready", () => {
         client.user?.setActivity({
@@ -16,5 +16,5 @@ import { Client } from "../src/index";
         });
     });
 
-    client.login();
+    client.login({ scopes: ["rpc"]});
 })();

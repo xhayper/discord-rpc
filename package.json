@@ -7,7 +7,8 @@
   "license": "ISC",
   "types": "dist/index.d.ts",
   "contributors": [
-    "discord.js - discordjs/rpc"
+    "discord.js - discordjs/rpc",
+    "JakeMakesStuff - snap support"
   ],
   "scripts": {
     "build": "rimraf dist && npx tsc",

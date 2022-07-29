@@ -24,7 +24,7 @@ HANDSHAKE 40bytes  { " v " : 1 , "
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 export type IPCTransportOptions = {
-    formatPathFunction?: (id: number) => string;
+    formatPathFunction?: (id: number, snap?: boolean) => string;
 }
 
 export const createPacket = (opcode: OPCODE, data?: any): Buffer => {
@@ -45,12 +45,12 @@ export const parsePacket = (packet: Buffer): { op: OPCODE, length: number, data?
     return { op, length, data };
 }
 
-const formatPath = (id: number): string => {
+const formatPath = (id: number, snap: boolean = false): string => {
     if (process.platform === 'win32') return `\\\\?\\pipe\\discord-ipc-${id}`;
 
     const { env: { XDG_RUNTIME_DIR, TMPDIR, TMP, TEMP } } = process;
     const prefix = fs.realpathSync(XDG_RUNTIME_DIR || TMPDIR || TMP || TEMP || `${path.sep}tmp`);
-    return `${prefix}${path.sep}discord-ipc-${id}`;
+    return `${prefix}${snap ? `${path.sep}snap.discord` : ""}${path.sep}discord-ipc-${id}`;
 }
 
 const createSocket = async (path: string): Promise<net.Socket> => {
@@ -88,10 +88,14 @@ export class IPCTransport extends Transport {
         const formatFunc = this.options.formatPathFunction || formatPath;
         return new Promise(async (resolve, reject) => {
             for (let i = 0; i < 10; i++) {
-                const socket = await createSocket(formatFunc(i)).catch(() => null);
+                let socket = await createSocket(formatFunc(i)).catch(() => null);
 
                 if (socket) {
                     resolve(socket);
+                    return;
+                } else if (process.platform === 'linux') {
+                    socket = await createSocket(formatFunc(i, true)).catch(() => null);
+                    if (socket) resolve(socket);
                     return;
                 }
             }

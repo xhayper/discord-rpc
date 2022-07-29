@@ -54,7 +54,7 @@ export class ClientUser extends User {
     }
 
     async setActivity(activity: Activity, pid?: number): Promise<SetActivityResponse> {
-        let formattedAcitivity: any = { ...activity, timestamps: {}, party: {}, secrets: {} }
+        let formattedAcitivity: any = { ...activity, assets: {}, timestamps: {}, party: {}, secrets: {} }
 
         if (activity.startTimestamp instanceof Date) formattedAcitivity.timestamps.start = Math.round(activity.startTimestamp.getTime());
         if (activity.endTimestamp instanceof Date) formattedAcitivity.timestamps.end = Math.round(activity.endTimestamp.getTime());
@@ -71,6 +71,7 @@ export class ClientUser extends User {
         if (activity.spectateSecret) formattedAcitivity.secrets.spectate = activity.spectateSecret;
         if (activity.matchSecret) formattedAcitivity.secrets.match = activity.matchSecret;
 
+        if (Object.keys(formattedAcitivity.assets).length === 0) delete formattedAcitivity["assets"];
         if (Object.keys(formattedAcitivity.timestamps).length === 0) delete formattedAcitivity["timestamps"];
         if (Object.keys(formattedAcitivity.party).length === 0) delete formattedAcitivity["party"];
         if (Object.keys(formattedAcitivity.secrets).length === 0) delete formattedAcitivity["secrets"];

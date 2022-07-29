@@ -6,6 +6,15 @@ export type ActivityButton = {
     url: string,
 }
 
+export enum ActivityType {
+    PLAYING,
+    STREAMING,
+    LISTENING,
+    WATCHING,
+    CUSTOM,
+    COMPETING
+}
+
 export type Activity = {
     state?: string;
     details?: string;
@@ -30,7 +39,7 @@ export type SetActivityResponse = {
     buttons?: string[],
     name: string,
     application_id: string,
-    type: number,
+    type: ActivityType,
     metadata: {
         button_urls?: string[]
     }

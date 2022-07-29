@@ -6,6 +6,9 @@
   "author": "xhayper",
   "license": "ISC",
   "types": "dist/index.d.ts",
+  "contributors": [
+    "discord.js - discordjs/rpc"
+  ],
   "scripts": {
     "build": "rimraf dist && npx tsc",
     "prepack": "npm run build",

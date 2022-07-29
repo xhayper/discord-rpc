@@ -1,6 +1,10 @@
 import axios, { AxiosResponse } from "axios";
 import { User } from "./structures/user";
 import { v4 as uuidv4 } from "uuid";
+import { CMD, EVT, Transport } from "./structures/transport";
+import { IPCTransport } from "./transport/ipc";
+import { EventEmitter } from "stream";
+import { ClientUser } from "./structures/clientUser";
 
 export type OAuthScope = "activities.read" | "activities.write" | "applications.builds.read" | "applications.builds.upload" | "applications.commands" | "applications.commands.update" | "applications.commands.permissions.update" | "applications.entitlements" | "applications.store.update" | "bot" | "connections" | "dm_channels.read" | "email" | "gdm.join" | "guilds" | "guilds.join" | "guilds.members.read" | "identify" | "messages.read" | "relationships.read" | "rpc" | "rpc.activities.write" | "rpc.notifications.read" | "rpc.voice.read" | "rpc.voice.write" | "voice" | "webhook.incoming";
 
@@ -12,39 +16,93 @@ export type AuthorizeOptions = {
     prompt?: string
 }
 
-export class Client {
+export interface ClientOptions {
+    clientId: string,
+    accessToken?: string,
+    transport?: {
+        type: "ipc" | Transport // "websoclet"
+        formatPath?: (id: number) => string
+    }
+}
+
+export class Client extends EventEmitter {
     clientId: string = "";
     accessToken: string = "";
-    user?: User;
+    user?: ClientUser;
 
-    private fetch: (method: 'GET' | 'DELETE' | 'HEAD' | 'OPTIONS' | 'POST' | 'PUT' | 'PATCH' | 'PURGE' | 'LINK' | 'UNLINK', path: string, { data, query }: { data?: object, query?: string }) => Promise<AxiosResponse<any, any>>;
-    private request?: () => void;
+    transport?: Transport;
+    endPoint: string = "https://discord.com/api";
 
-    constructor(clientId: string, accessToken?: string) {
+    private connectionPromoise?: Promise<void>;
+    private _nonceMap = new Map<string, { resolve: (value: any) => void, reject: (reason?: any) => void }>();
+
+    constructor({ clientId, accessToken, transport }: ClientOptions) {
+        super();
+
         this.clientId = clientId;
         this.accessToken = accessToken || "";
 
-        this.fetch = async (method: 'GET' | 'DELETE' | 'HEAD' | 'OPTIONS' | 'POST' | 'PUT' | 'PATCH' | 'PURGE' | 'LINK' | 'UNLINK', path: string, { data, query }: { data?: object, query?: string }) => {
+        this.transport = transport && transport.type && transport.type != "ipc" ? (transport.type instanceof Transport ? transport.type : undefined /* Add WebSocket transport */) : new IPCTransport(this);
 
-            return axios.request({
-                method,
-                url: `https://discordapp.com/api${path}${query ? new URLSearchParams(query) : ''}`,
-                headers: {
-                    Authorization: `Bearer ${this.accessToken}`,
-                },
-            })
-        };
+        this.transport?.on("message", (message) => {
+            if (message.cmd === "DISPATCH" && message.evt === "READY") {
+                if (message.data.user) {
+                    this.user = new ClientUser(this, message.data.user);
+                }
+                this.emit('connected');
+            } else {
+                if (this._nonceMap.has(message.nonce)) {
+                    this._nonceMap.get(message.nonce)?.resolve(message);
+                    this._nonceMap.delete(message.nonce);
+                }
+
+                this.emit(message.evt, message.data);
+            }
+        });
+    }
+
+    async fetch(method: 'GET' | 'DELETE' | 'HEAD' | 'OPTIONS' | 'POST' | 'PUT' | 'PATCH' | 'PURGE' | 'LINK' | 'UNLINK', path: string, { data, query }: { data?: object, query?: string }) {
+        return await axios.request({
+            method,
+            url: `${this.endPoint}${path}${query ? new URLSearchParams(query) : ''}`,
+            data,
+            headers: {
+                Authorization: `Bearer ${this.accessToken}`,
+            },
+        })
+    };
+
+    async request(cmd: CMD, args?: object, evt?: EVT): Promise<any> {
+        if (!this.transport) return;
+
+        return new Promise((resolve, reject) => {
+            const nonce = uuidv4();
+
+            this.transport!.send({ cmd, args, evt, nonce });
+            this._nonceMap.set(nonce, { resolve, reject });
+        });
+    }
+
+    authenticate(accessToken: string) {
+        return this.request('AUTHENTICATE', { access_token: accessToken })
+            .then(({ application, user }) => {
+                this.accessToken = accessToken;
+                // this.application = application;
+                this.user = user;
+                this.emit('ready');
+                return this;
+            });
     }
 
     async authorize({ scopes, clientSecret, rpcToken, redirectUri, prompt }: AuthorizeOptions = {}) {
         if (clientSecret && rpcToken === true) {
-            const body = await this.fetch('POST', '/oauth2/token/rpc', {
+            const data = (await this.fetch('POST', '/oauth2/token/rpc', {
                 data: {
                     client_id: this.clientId,
                     client_secret: clientSecret,
                 },
-            });
-            rpcToken = (body as any).rpc_token;
+            })).data;
+            rpcToken = (data as any).rpc_token;
         }
 
         const { code } = await this.request('AUTHORIZE', {
@@ -52,18 +110,60 @@ export class Client {
             client_id: this.clientId,
             prompt,
             rpc_token: rpcToken,
+            redirect_uri: redirectUri
         });
 
-        const response = await this.fetch('POST', '/oauth2/token', {
+        const response = (await this.fetch('POST', '/oauth2/token', {
             data: {
                 client_id: this.clientId,
                 client_secret: clientSecret,
                 code,
                 grant_type: 'authorization_code',
-                redirect_uri: redirectUri,
+                redirect_uri: redirectUri
             },
+        })).data;
+
+        return response.access_token;
+    }
+
+    async connect(): Promise<void> {
+        if (this.connectionPromoise) return this.connectionPromoise;
+
+        this.connectionPromoise = new Promise((resolve, reject) => {
+            const timeout = setTimeout(() => reject(new Error('RPC_CONNECTION_TIMEOUT')), 10e3);
+            timeout.unref();
+            this.once('connected', () => {
+                clearTimeout(timeout);
+                resolve();
+            });
+
+            this.transport?.once('close', () => {
+                this._nonceMap.forEach((promise) => {
+                    promise.reject(new Error('connection closed'));
+                });
+                this.emit('disconnected');
+                reject(new Error('connection closed'));
+            });
+
+            this.transport?.connect();
         });
 
-        return (response as any).access_token;
+        return this.connectionPromoise;
+    }
+
+    async login(options: { accessToken?: string } & AuthorizeOptions = {}) {
+        let { accessToken, scopes } = options;
+
+        await this.connect();
+
+        if (!scopes) {
+            this.emit('ready');
+            return this;
+        }
+
+        if (!accessToken) accessToken = await this.authorize({ scopes });
+        if (!accessToken) return;
+
+        return this.authenticate(accessToken);
     }
 }

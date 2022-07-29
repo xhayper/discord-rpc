@@ -13,6 +13,7 @@ export interface CommandOutgoing {
     nonce: string;
     args: object;
     evt?: EVT;
+    none: string | null;
 }
 
 export interface CommandIncoming {
@@ -24,7 +25,7 @@ export interface CommandIncoming {
 }
 
 export type TransportEvents = {
-    message: (message: object) => void;
+    message: (message: CommandIncoming & any) => void;
     ping: () => void,
     open: () => void,
     close: () => void
@@ -39,7 +40,7 @@ export abstract class Transport extends (EventEmitter as new () => TypedEmitter<
     }
 
     abstract connect(): Promise<void>;
-    abstract send(data: Buffer): void;
+    abstract send(data?: object): void;
     abstract ping(): void;
     abstract close(): void;
 }

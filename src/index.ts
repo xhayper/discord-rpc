@@ -1,16 +1,23 @@
 export { Client } from "./client";
 
 import { Client } from "./client";
-import { IPCTransport } from "./transport/ipc";
 
-(async() => {
-    const client = new Client();
+(async () => {
+    const client = new Client({clientId: "964574770807058472"});
 
-    client.clientId = "964574770807058472"
+    client.on("ready", () => {
+        console.log(client.user, client.user?.tag);
 
-    const transport = new IPCTransport(client);
-    
-    transport.on("message", console.log);
+        client.user?.setActivity({
+            state: "Hello, world!",
+            buttons: [
+                {
+                    "label": "Hi!",
+                    "url": "https://github.com/xhayper"
+                }
+            ]
+        })
+    });
 
-    await transport.connect();
+    client.login();
 })();

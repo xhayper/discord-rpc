@@ -140,9 +140,11 @@ export class IPCTransport extends Transport {
 
                     if (packet.data.cmd === "AUTHORIZE" && packet.data.evt !== "ERROR") {
                         for (let i = 0; i < 10; i++) {
-                            const response = await axios.get(`http://127.0.0.1:${6463 + i}`).catch(() => null);
+                            const url = `http://127.0.0.1:${6463 + i}`;
+
+                            const response = await axios.get(url).catch(() => null);
                             if (!response || response.status == 404) continue;
-                            this.client.endPoint = `http://127.0.0.1:${6463 + i}`;
+                            this.client.endPoint = url;
                         }
                     }
 

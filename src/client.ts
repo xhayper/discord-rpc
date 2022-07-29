@@ -89,15 +89,12 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
         });
     }
 
-    authenticate(accessToken: string) {
-        return this.request('AUTHENTICATE', { access_token: accessToken })
-            .then(({ application, user }) => {
-                this.accessToken = accessToken;
-                // this.application = application;
-                this.user = user;
-                this.emit('ready');
-                return this;
-            });
+    async authenticate(accessToken: string) {
+        const { application, user } = (await this.request('AUTHENTICATE', { access_token: accessToken })).data;
+        this.accessToken = accessToken;
+        // this.application = application;
+        this.user = user;
+        this.emit('ready');
     }
 
     async authorize({ scopes, clientSecret, rpcToken, redirectUri, prompt }: AuthorizeOptions = {}) {

@@ -56,8 +56,8 @@ export class ClientUser extends User {
     async setActivity(activity: Activity): Promise<SetActivityResponse> {
         let formattedAcitivity: any = { ...activity, timestamps: {}, party: {}, secrets: {} }
 
-        if (activity.startTimestamp instanceof Date) formattedAcitivity.timestamps.startTimestamp = Math.round(activity.startTimestamp.getTime());
-        if (activity.endTimestamp instanceof Date) formattedAcitivity.timestamps.endTimestamp = Math.round(activity.endTimestamp.getTime());
+        if (activity.startTimestamp instanceof Date) formattedAcitivity.timestamps.start = Math.round(activity.startTimestamp.getTime());
+        if (activity.endTimestamp instanceof Date) formattedAcitivity.timestamps.end = Math.round(activity.endTimestamp.getTime());
 
         if (activity.largeImageKey) formattedAcitivity.assets.large_image = activity.largeImageKey;
         if (activity.smallImageKey) formattedAcitivity.assets.small_image = activity.smallImageKey;

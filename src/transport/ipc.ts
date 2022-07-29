@@ -95,8 +95,7 @@ export class IPCTransport extends Transport {
                     return;
                 } else if (process.platform === 'linux') {
                     socket = await createSocket(formatFunc(i, true)).catch(() => null);
-                    if (socket) resolve(socket);
-                    return;
+                    if (socket) { resolve(socket); return; }
                 }
             }
 

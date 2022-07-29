@@ -161,9 +161,9 @@ export class IPCTransport extends Transport {
     close(): Promise<void> {
         return new Promise((resolve) => {
             this.once('close', resolve);
-            this.send({}, OPCodes.CLOSE);
-            this.socket.end();
-          })
+            this.send({}, OPCODE.CLOSE);
+            this.socket?.end();
+        })
     }
 
 }

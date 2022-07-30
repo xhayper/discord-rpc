@@ -2,6 +2,7 @@
 __test__/
 .vscode/
 .github/
+.husky/
 docs/
 test/
 src/

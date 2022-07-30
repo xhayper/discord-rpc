@@ -51,6 +51,7 @@ const formatPath = (id: number, snap: boolean = false): string => {
     const {
         env: { XDG_RUNTIME_DIR, TMPDIR, TMP, TEMP }
     } = process;
+
     const prefix = fs.realpathSync(XDG_RUNTIME_DIR || TMPDIR || TMP || TEMP || `${path.sep}tmp`);
     return `${prefix}${snap ? `${path.sep}snap.discord` : ""}${path.sep}discord-ipc-${id}`;
 };

@@ -6,6 +6,12 @@
     "author": "xhayper",
     "license": "ISC",
     "types": "dist/index.d.ts",
+    "keywords": [
+        "discord",
+        "rpc",
+        "discord-rpc",
+        "ipc"
+    ],
     "contributors": [
         "discord.js - discordjs/rpc",
         "JakeMakesStuff - snap support"

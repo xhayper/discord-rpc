@@ -7,10 +7,12 @@
     "license": "ISC",
     "types": "dist/index.d.ts",
     "keywords": [
+        "typescript",
         "discord",
+        "ipc",
         "rpc",
-        "discord-rpc",
-        "ipc"
+        "rich-presence",
+        "discord-rpc"
     ],
     "contributors": [
         "discord.js - discordjs/rpc",

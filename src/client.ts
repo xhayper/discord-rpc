@@ -6,39 +6,10 @@ import { EventEmitter } from "stream";
 import { ClientUser } from "./structures/ClientUser";
 import TypedEmitter from "typed-emitter";
 import { WebsocketTransport } from "./transport/websocket";
-import { APIApplication } from "discord-api-types/v10";
-
-export type OAuthScope =
-    | "activities.read"
-    | "activities.write"
-    | "applications.builds.read"
-    | "applications.builds.upload"
-    | "applications.commands"
-    | "applications.commands.update"
-    | "applications.commands.permissions.update"
-    | "applications.entitlements"
-    | "applications.store.update"
-    | "bot"
-    | "connections"
-    | "dm_channels.read"
-    | "email"
-    | "gdm.join"
-    | "guilds"
-    | "guilds.join"
-    | "guilds.members.read"
-    | "identify"
-    | "messages.read"
-    | "relationships.read"
-    | "rpc"
-    | "rpc.activities.write"
-    | "rpc.notifications.read"
-    | "rpc.voice.read"
-    | "rpc.voice.write"
-    | "voice"
-    | "webhook.incoming";
+import { APIApplication, OAuth2Scopes } from "discord-api-types/v10";
 
 export type AuthorizeOptions = {
-    scopes?: OAuthScope[];
+    scopes?: (OAuth2Scopes | OAuth2Scopes[keyof OAuth2Scopes])[];
     clientSecret?: string;
     rpcToken?: boolean;
     redirectUri?: string;

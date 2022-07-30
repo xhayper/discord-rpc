@@ -5,7 +5,7 @@ const client = new Client({
 });
 
 client.on("ready", async () => {
-    await client.user!.setActivity({
+    await client.user?.setActivity({
         state: "Hello, world!",
         buttons: [
             {
@@ -16,7 +16,7 @@ client.on("ready", async () => {
         startTimestamp: new Date()
     });
 
-    await client.user!.getRelationships();
+    console.log(await client.user?.getRelationships());
 });
 
 client.login();

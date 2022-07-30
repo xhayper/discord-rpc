@@ -16,11 +16,11 @@ export type AuthorizeOptions = {
     prompt?: string;
 };
 
-export interface ClientOptions {
+export interface ClientOptions<T extends Transport = Transport> {
     clientId: string;
     accessToken?: string;
     transport?: {
-        type: "ipc" | "websocket" | Transport;
+        type: "ipc" | "websocket" | { new (client: Client): T };
         formatPath?: (id: number) => string;
     };
 }
@@ -54,7 +54,7 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
             transport && transport.type && transport.type != "ipc"
                 ? transport.type === "websocket"
                     ? new WebsocketTransport(this)
-                    : transport.type
+                    : new transport.type(this)
                 : new IPCTransport(this, {
                       formatPathFunction: transport?.formatPath
                   });

@@ -1,10 +1,10 @@
+import axios from "axios";
+import fs from "fs";
+import net from "net";
+import path from "path";
+import { v4 as uuidv4 } from "uuid";
 import { Client } from "../client";
 import { CommandIncoming, Transport } from "../structures/Transport";
-import fs from "fs";
-import path from "path";
-import net from "net";
-import { v4 as uuidv4 } from "uuid";
-import axios from "axios";
 
 export enum OPCODE {
     HANDSHAKE,

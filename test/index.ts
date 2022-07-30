@@ -4,17 +4,19 @@ const client = new Client({
     clientId: "964574770807058472"
 });
 
-client.on("ready", () => {
-    client.user?.setActivity({
+client.on("ready", async () => {
+    await client.user!.setActivity({
         state: "Hello, world!",
         buttons: [
             {
                 label: "Hi!",
-                url: "https://github.com/xhayper"
+                url: "https://github.com/xhayper/discord-rpc"
             }
         ],
         startTimestamp: new Date()
     });
+
+    await client.user!.getRelationships();
 });
 
 client.login();

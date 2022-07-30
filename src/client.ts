@@ -1,11 +1,12 @@
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
-import { CMD, EVT, Transport } from "./structures/transport";
+import { CMD, EVT, Transport } from "./structures/Transport";
 import { IPCTransport } from "./transport/ipc";
 import { EventEmitter } from "stream";
-import { ClientUser } from "./structures/clientUser";
+import { ClientUser } from "./structures/ClientUser";
 import TypedEmitter from "typed-emitter";
 import { WebsocketTransport } from "./transport/websocket";
+import { APIApplication } from "discord-api-types/v10";
 
 export type OAuthScope =
     | "activities.read"
@@ -63,6 +64,7 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
     clientId: string = "";
     accessToken: string = "";
     user?: ClientUser;
+    application?: APIApplication;
 
     transport?: Transport;
     endPoint: string = "https://discord.com/api";
@@ -88,9 +90,7 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
 
         this.transport?.on("message", (message) => {
             if (message.cmd === "DISPATCH" && message.evt === "READY") {
-                if (message.data.user) {
-                    this.user = new ClientUser(this, message.data.user);
-                }
+                if (message.data.user) this.user = new ClientUser(this, message.data.user);
                 this.emit("connected");
             } else {
                 if (this._nonceMap.has(message.nonce)) {
@@ -132,7 +132,7 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
     async authenticate(accessToken: string) {
         const { application, user } = (await this.request("AUTHENTICATE", { access_token: accessToken })).data;
         this.accessToken = accessToken;
-        // this.application = application;
+        this.application = application;
         this.user = user;
         this.emit("ready");
     }

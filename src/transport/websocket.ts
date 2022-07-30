@@ -1,4 +1,4 @@
-import { Transport } from "../structures/transport";
+import { Transport } from "../structures/Transport";
 import { WebSocket } from "ws";
 export class WebsocketTransport extends Transport {
     private ws?: WebSocket;

@@ -1,5 +1,5 @@
 import { Client } from "../client";
-import { CommandIncoming, Transport } from "../structures/transport";
+import { CommandIncoming, Transport } from "../structures/Transport";
 import fs from "fs";
 import path from "path";
 import net from "net";

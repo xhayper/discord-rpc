@@ -1,21 +1,7 @@
-import { Client } from "../client";
-import { User } from "./user";
+import Payload from "discord-api-types/payloads/v10";
+import { User } from "./User";
 
-export type ActivityButton = {
-    label: string;
-    url: string;
-};
-
-export enum ActivityType {
-    PLAYING,
-    STREAMING,
-    LISTENING,
-    WATCHING,
-    CUSTOM,
-    COMPETING
-}
-
-export type Activity = {
+export type SetActivity = {
     state?: string;
     details?: string;
     startTimestamp?: number | Date;
@@ -31,7 +17,7 @@ export type Activity = {
     joinSecret?: string;
     spectateSecret?: string;
     instance?: boolean;
-    buttons?: Array<ActivityButton>;
+    buttons?: Array<Payload.GatewayActivityButton>;
 };
 
 export type SetActivityResponse = {
@@ -39,21 +25,20 @@ export type SetActivityResponse = {
     buttons?: string[];
     name: string;
     application_id: string;
-    type: ActivityType;
+    type: Payload.ActivityType;
     metadata: {
         button_urls?: string[];
     };
 };
 
 export class ClientUser extends User {
-    client: Client;
-
-    constructor(client: Client, props: object) {
-        super(props);
-        this.client = client;
+    async getRelationships(): Promise<Array<User>> {
+        return (await this.client.request("GET_RELATIONSHIPS")).data.relationships.map((data: any) => {
+            return new User(this.client, { ...data.user, presence: data.presence });
+        });
     }
 
-    async setActivity(activity: Activity, pid?: number): Promise<SetActivityResponse> {
+    async setActivity(activity: SetActivity, pid?: number): Promise<SetActivityResponse> {
         let formattedAcitivity: any = {
             ...activity,
             assets: {},

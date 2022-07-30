@@ -1,12 +1,12 @@
 import axios from "axios";
+import { APIApplication, OAuth2Scopes } from "discord-api-types/v10";
+import { EventEmitter } from "stream";
+import TypedEmitter from "typed-emitter";
 import { v4 as uuidv4 } from "uuid";
+import { ClientUser } from "./structures/ClientUser";
 import { CMD, EVT, Transport } from "./structures/Transport";
 import { IPCTransport } from "./transport/ipc";
-import { EventEmitter } from "stream";
-import { ClientUser } from "./structures/ClientUser";
-import TypedEmitter from "typed-emitter";
 import { WebsocketTransport } from "./transport/websocket";
-import { APIApplication, OAuth2Scopes } from "discord-api-types/v10";
 
 export type AuthorizeOptions = {
     scopes?: (OAuth2Scopes | OAuth2Scopes[keyof OAuth2Scopes])[];

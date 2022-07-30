@@ -9,14 +9,16 @@ client.on("ready", async () => {
         state: "Hello, world!",
         buttons: [
             {
-                label: "Hi!",
+                label: "Link Test",
                 url: "https://github.com/xhayper/discord-rpc"
+            },
+            {
+                label: "Protocol Test",
+                url: `discord://-/users/${client.user!.id}`
             }
         ],
         startTimestamp: new Date()
     });
-
-    console.log(await client.user?.getRelationships());
 });
 
 client.login();

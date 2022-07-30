@@ -1,7 +1,7 @@
 <!-- markdownlint-disable -->
 <div align="center">
     <br />
-    <h2>discord-rpc</h2>
+    <h3>discord-rpc</h3>
     <br />
     <p>
         <a hrf="https://www.npmjs.com/package/@xhayper/discord-rpc" target="_blank"

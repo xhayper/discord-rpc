@@ -110,22 +110,21 @@ export type EVT =
 
 export interface CommandOutgoing {
     cmd: CMD;
-    nonce: string;
-    args: object;
+    nonce: string | undefined;
+    args: { [key: string]: any };
     evt?: EVT;
-    none: string | null;
 }
 
 export interface CommandIncoming {
     cmd: CMD;
-    nonce: string | null;
-    args?: object;
-    data: object;
+    nonce: string | undefined;
+    args?: { [key: string]: any };
+    data: { [key: string]: any };
     evt?: EVT;
 }
 
 export type TransportEvents = {
-    message: (message: CommandIncoming & any) => void;
+    message: (message: CommandIncoming) => void;
     ping: () => void;
     open: () => void;
     close: () => void;
@@ -140,7 +139,7 @@ export abstract class Transport extends (EventEmitter as new () => TypedEmitter<
     }
 
     abstract connect(): Promise<void>;
-    abstract send(data?: object): void;
+    abstract send(data?: any): void;
     abstract ping(): void;
     abstract close(): Promise<void>;
 }

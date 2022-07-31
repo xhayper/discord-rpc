@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { Method } from "axios";
 import { APIApplication, OAuth2Scopes } from "discord-api-types/v10";
 import { EventEmitter } from "stream";
 import TypedEmitter from "typed-emitter";
@@ -66,21 +66,17 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
                 if (message.data.user) this.user = new ClientUser(this, message.data.user);
                 this.emit("connected");
             } else {
-                if (this._nonceMap.has(message.nonce)) {
+                if (message.nonce && this._nonceMap.has(message.nonce)) {
                     this._nonceMap.get(message.nonce)?.resolve(message);
                     this._nonceMap.delete(message.nonce);
                 }
 
-                this.emit(message.evt, message.data);
+                this.emit((message as any).evt, message.data);
             }
         });
     }
 
-    async fetch(
-        method: "GET" | "DELETE" | "HEAD" | "OPTIONS" | "POST" | "PUT" | "PATCH" | "PURGE" | "LINK" | "UNLINK",
-        path: string,
-        { data, query }: { data?: object; query?: string }
-    ) {
+    async fetch(method: Method | string, path: string, { data, query }: { data?: object; query?: string }) {
         return await axios.request({
             method,
             url: `${this.endPoint}${path}${query ? new URLSearchParams(query) : ""}`,
@@ -120,7 +116,7 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
                     }
                 })
             ).data;
-            rpcToken = (data as any).rpc_token;
+            rpcToken = data.rpc_token;
         }
 
         const { code } = await this.request("AUTHORIZE", {
@@ -150,7 +146,7 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
         if (this.connectionPromoise) return this.connectionPromoise;
 
         this.connectionPromoise = new Promise((resolve, reject) => {
-            const timeout = setTimeout(() => reject(new Error("RPC_CONNECTION_TIMEOUT")), 10e3);
+            const timeout = setTimeout(() => reject(new Error("TRANSPORT_CONNECTION_TIMEOUT")), 10e3);
             timeout.unref();
 
             this.once("connected", () => {
@@ -179,13 +175,13 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
 
         if (!scopes) {
             this.emit("ready");
-            return this;
+            return;
         }
 
         if (!accessToken) accessToken = await this.authorize({ scopes });
         if (!accessToken) return;
 
-        return this.authenticate(accessToken);
+        await this.authenticate(accessToken);
     }
 
     async destroy() {

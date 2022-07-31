@@ -1,23 +1,20 @@
-import { Client } from "../src/index";
+const { Client } = require("@xhayper/discord-rpc");
 
 const client = new Client({
     clientId: "964574770807058472"
 });
 
-client.on("ready", async () => {
-    await client.user?.setActivity({
-        state: "Hello, world!",
+client.on("ready", () => {
+    client.user?.setActivity({
+        state: "Suffering with my life",
+        details: "Pain and Suffering",
+        startTimestamp: new Date(),
         buttons: [
-            {
-                label: "Link Test",
-                url: "https://github.com/xhayper/discord-rpc"
-            },
-            {
-                label: "Protocol Test",
-                url: `discord://-/users/${client.user!.id}`
-            }
+            { label: "Twitter", url: "https://twitter.com/hayper1919" },
+            { label: "Github", url: "https://github.com/xhayper" }
         ],
-        startTimestamp: new Date()
+        largeImageKey: "main",
+        largeImageText: "me irl"
     });
 });
 

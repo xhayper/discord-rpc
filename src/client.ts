@@ -1,10 +1,10 @@
-import axios, { Method } from "axios";
+import axios, { AxiosResponse, Method } from "axios";
 import { APIApplication, OAuth2Scopes } from "discord-api-types/v10";
 import { EventEmitter } from "stream";
 import TypedEmitter from "typed-emitter";
 import { v4 as uuidv4 } from "uuid";
 import { ClientUser } from "./structures/ClientUser";
-import { CMD, EVT, Transport } from "./structures/Transport";
+import { CMD, CommandIncoming, EVT, Transport } from "./structures/Transport";
 import { IPCTransport } from "./transport/ipc";
 import { WebsocketTransport } from "./transport/websocket";
 
@@ -76,7 +76,11 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
         });
     }
 
-    async fetch(method: Method | string, path: string, { data, query }: { data?: object; query?: string }) {
+    async fetch(
+        method: Method | string,
+        path: string,
+        { data, query }: { data?: { [key: string]: any }; query?: string }
+    ): Promise<AxiosResponse<any>> {
         return await axios.request({
             method,
             url: `${this.endPoint}${path}${query ? new URLSearchParams(query) : ""}`,
@@ -87,9 +91,7 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
         });
     }
 
-    async request(cmd: CMD, args?: object, evt?: EVT): Promise<any> {
-        if (!this.transport) return;
-
+    async request(cmd: CMD, args?: { [key: string]: any }, evt?: EVT): Promise<CommandIncoming> {
         return new Promise((resolve, reject) => {
             const nonce = uuidv4();
 
@@ -98,7 +100,7 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
         });
     }
 
-    async authenticate(accessToken: string) {
+    async authenticate(accessToken: string): Promise<void> {
         const { application, user } = (await this.request("AUTHENTICATE", { access_token: accessToken })).data;
         this.accessToken = accessToken;
         this.application = application;
@@ -106,7 +108,7 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
         this.emit("ready");
     }
 
-    async authorize({ scopes, clientSecret, rpcToken, redirectUri, prompt }: AuthorizeOptions = {}) {
+    async authorize({ scopes, clientSecret, rpcToken, redirectUri, prompt }: AuthorizeOptions = {}): Promise<string> {
         if (clientSecret && rpcToken === true) {
             const data = (
                 await this.fetch("POST", "/oauth2/token/rpc", {
@@ -119,13 +121,13 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
             rpcToken = data.rpc_token;
         }
 
-        const { code } = await this.request("AUTHORIZE", {
+        const { code } = (await this.request("AUTHORIZE", {
             scopes,
             client_id: this.clientId,
             prompt,
             rpc_token: rpcToken,
             redirect_uri: redirectUri
-        });
+        })) as { [key: string]: any };
 
         const response = (
             await this.fetch("POST", "/oauth2/token", {
@@ -168,7 +170,7 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
         return this.connectionPromoise;
     }
 
-    async login(options: { accessToken?: string } & AuthorizeOptions = {}) {
+    async login(options: { accessToken?: string } & AuthorizeOptions = {}): Promise<void> {
         let { accessToken, scopes } = options;
 
         await this.connect();
@@ -184,7 +186,7 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
         await this.authenticate(accessToken);
     }
 
-    async destroy() {
+    async destroy(): Promise<void> {
         await this.transport.close();
     }
 }

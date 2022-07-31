@@ -16,11 +16,11 @@ export type AuthorizeOptions = {
     prompt?: string;
 };
 
-export interface ClientOptions<T extends Transport = Transport> {
+export interface ClientOptions {
     clientId: string;
     accessToken?: string;
     transport?: {
-        type: "ipc" | "websocket" | { new (client: Client): T };
+        type?: "ipc" | "websocket" | { new (client: Client, ...args: any): Transport };
         formatPath?: (id: number) => string;
     };
 }

@@ -32,17 +32,19 @@ export type ClientEvents = {
 };
 
 export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents>) {
-    clientId: string = "";
-    accessToken: string = "";
+    clientId: string;
+    accessToken: string;
+
+    readonly transport: Transport;
+
     user?: ClientUser;
     application?: APIApplication;
 
-    transport?: Transport;
     endPoint: string = "https://discord.com/api";
     origin: string = "https://localhost";
 
     private connectionPromoise?: Promise<void>;
-    private _nonceMap = new Map<string, { resolve: (value: any) => void; reject: (reason?: any) => void }>();
+    private _nonceMap = new Map<string, { resolve: (value?: any) => void; reject: (reason?: any) => void }>();
 
     constructor({ clientId, accessToken, transport }: ClientOptions) {
         super();
@@ -59,7 +61,7 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
                       formatPathFunction: transport?.formatPath
                   });
 
-        this.transport?.on("message", (message) => {
+        this.transport.on("message", (message) => {
             if (message.cmd === "DISPATCH" && message.evt === "READY") {
                 if (message.data.user) this.user = new ClientUser(this, message.data.user);
                 this.emit("connected");
@@ -95,7 +97,7 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
         return new Promise((resolve, reject) => {
             const nonce = uuidv4();
 
-            this.transport!.send({ cmd, args, evt, nonce });
+            this.transport.send({ cmd, args, evt, nonce });
             this._nonceMap.set(nonce, { resolve, reject });
         });
     }
@@ -156,7 +158,7 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
                 resolve();
             });
 
-            this.transport?.once("close", () => {
+            this.transport.once("close", () => {
                 this._nonceMap.forEach((promise) => {
                     promise.reject(new Error("connection closed"));
                 });
@@ -164,7 +166,7 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
                 reject(new Error("connection closed"));
             });
 
-            this.transport?.connect();
+            this.transport.connect();
         });
 
         return this.connectionPromoise;
@@ -187,6 +189,6 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
     }
 
     async destroy() {
-        await this.transport?.close();
+        await this.transport.close();
     }
 }

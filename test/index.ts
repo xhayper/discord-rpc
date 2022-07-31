@@ -1,4 +1,4 @@
-const { Client } = require("@xhayper/discord-rpc");
+import { Client } from "../src/index";
 
 const client = new Client({
     clientId: "964574770807058472"

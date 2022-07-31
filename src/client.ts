@@ -79,7 +79,7 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
     async fetch(
         method: Method | string,
         path: string,
-        { data, query }: { data?: { [key: string]: any }; query?: string }
+        { data, query }: { data?: any; query?: string }
     ): Promise<AxiosResponse<any>> {
         return await axios.request({
             method,
@@ -91,7 +91,7 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
         });
     }
 
-    async request(cmd: CMD, args?: { [key: string]: any }, evt?: EVT): Promise<CommandIncoming> {
+    async request(cmd: CMD, args?: any, evt?: EVT): Promise<CommandIncoming> {
         return new Promise((resolve, reject) => {
             const nonce = uuidv4();
 

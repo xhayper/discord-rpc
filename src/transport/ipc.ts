@@ -133,7 +133,7 @@ export class IPCTransport extends Transport {
             if (!data) return;
 
             const packet = parsePacket(data);
-            console.log(packet);
+            if (this.client.debug) console.debug(packet);
 
             switch (packet.op) {
                 case OPCODE.FRAME: {
@@ -166,7 +166,8 @@ export class IPCTransport extends Transport {
     }
 
     send(message?: any, op: OPCODE = OPCODE.FRAME): void {
-        console.log(message, op);
+        if (this.client.debug) console.debug(message, op);
+
         this.socket?.write(createPacket(op, message));
     }
 

@@ -1,7 +1,8 @@
 import { Client } from "../src/index";
 
 const client = new Client({
-    clientId: "964574770807058472"
+    clientId: "964574770807058472",
+    debug: true
 });
 
 client.on("ready", () => {

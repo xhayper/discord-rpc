@@ -1,6 +1,6 @@
 {
     "name": "@xhayper/discord-rpc",
-    "version": "0.0.2-beta",
+    "version": "0.0.3-beta",
     "description": "a fork of discordjs/RPC",
     "main": "dist/index.js",
     "repository": "https://github.com/xhayper/discord-rpc",

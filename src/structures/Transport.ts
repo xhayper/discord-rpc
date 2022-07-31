@@ -110,14 +110,14 @@ export type EVT =
 
 export interface CommandOutgoing {
     cmd: CMD;
-    nonce: string | undefined;
+    nonce: string | null;
     args: { [key: string]: any };
     evt?: EVT;
 }
 
 export interface CommandIncoming {
     cmd: CMD;
-    nonce: string | undefined;
+    nonce: string | null;
     args?: { [key: string]: any };
     data: { [key: string]: any };
     evt?: EVT;

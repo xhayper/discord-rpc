@@ -23,6 +23,7 @@ export interface ClientOptions {
         type?: "ipc" | "websocket" | { new (client: Client, ...args: any): Transport };
         formatPath?: (id: number) => string;
     };
+    debug?: boolean;
 }
 
 export type ClientEvents = {
@@ -36,6 +37,7 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
     accessToken: string;
 
     readonly transport: Transport;
+    readonly debug: boolean;
 
     user?: ClientUser;
     application?: APIApplication;
@@ -46,11 +48,13 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
     private connectionPromoise?: Promise<void>;
     private _nonceMap = new Map<string, { resolve: (value?: any) => void; reject: (reason?: any) => void }>();
 
-    constructor({ clientId, accessToken, transport }: ClientOptions) {
+    constructor({ clientId, accessToken, transport, debug }: ClientOptions) {
         super();
 
         this.clientId = clientId;
         this.accessToken = accessToken || "";
+
+        this.debug = !!debug; // Funky Javascript :)
 
         this.transport =
             transport && transport.type && transport.type != "ipc"

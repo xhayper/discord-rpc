@@ -5,8 +5,8 @@ const client = new Client({
     debug: true
 });
 
-client.on("ready", () => {
-    client.user?.setActivity({
+client.on("ready", async () => {
+    await client.user?.setActivity({
         state: "Suffering with my life",
         details: "Pain and Suffering",
         startTimestamp: new Date(),
@@ -17,6 +17,8 @@ client.on("ready", () => {
         largeImageKey: "main",
         largeImageText: "me irl"
     });
+
+    console.debug(await client.user?.getRelationships());
 });
 
 client.login();

@@ -124,13 +124,24 @@ export class IPCTransport extends Transport {
             OPCODE.HANDSHAKE
         );
 
-        this.socket.pause();
-
+        let chunk = Buffer.alloc(0);
         this.socket.on("readable", async () => {
             if (!this.socket) return;
 
-            const data = this.socket.read();
-            if (!data) return;
+            let data = this.socket?.read();
+            if (!data || 0 >= data.length) return;
+
+            try {
+                const fullData = chunk.length > 0 ? Buffer.concat([chunk, data]) : data;
+
+                JSON.parse(fullData.subarray(8).toString());
+                data = fullData;
+                chunk = Buffer.alloc(0);
+            } catch (err) {
+                // Data is in-complete, Wait for next round.
+                chunk = Buffer.concat([chunk, data]);
+                return;
+            }
 
             const packet = parsePacket(data);
             if (this.client.debug) console.debug(`SERVER => CLIENT | OPCODE.${OPCODE[packet.op]} |`, packet.data);

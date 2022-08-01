@@ -37,6 +37,6 @@ client.login();
 
 | TODO                                       | Status | Note                     |
 | ------------------------------------------ | ------ | ------------------------ |
-| Figure out how to test WebSocket transport | ❌     | Any help is appericated! |
-| Add more feature                           | 🛠      |                          |
-| Clean up the code                          | 🛠      |                          |
+| Figure out how to test WebSocket transport | N      | Any help is appericated! |
+| Add more feature                           | W      |                          |
+| Clean up the code                          | W      |                          |

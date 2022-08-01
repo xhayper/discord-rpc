@@ -1,2 +1,2 @@
-export { Client } from "./client";
-export { Transport } from "./structures/Transport";
+export * from "./structures/Transport";
+export * from "./client";

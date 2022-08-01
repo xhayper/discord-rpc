@@ -3,10 +3,13 @@
     "version": "0.0.4-beta",
     "description": "a fork of discordjs/RPC",
     "main": "dist/index.js",
-    "repository": "https://github.com/xhayper/discord-rpc",
     "author": "xhayper",
     "license": "ISC",
     "types": "dist/index.d.ts",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/xhayper/discord-rpc.git"
+    },
     "keywords": [
         "typescript",
         "discord",

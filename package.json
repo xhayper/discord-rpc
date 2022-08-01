@@ -16,7 +16,8 @@
         "ipc",
         "rpc",
         "rich-presence",
-        "discord-rpc"
+        "discord-rpc",
+        "discord-ipc"
     ],
     "contributors": [
         "discord.js - discsordj/rpc",

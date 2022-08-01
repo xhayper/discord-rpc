@@ -27,24 +27,6 @@ export type IPCTransportOptions = {
     formatPathFunction?: (id: number, snap?: boolean) => string;
 };
 
-export const createPacket = (opcode: OPCODE, data?: any): Buffer => {
-    const dataBuffer = data ? Buffer.from(JSON.stringify(data)) : Buffer.alloc(0);
-
-    const packet = Buffer.alloc(8);
-    packet.writeUInt32LE(opcode, 0);
-    packet.writeUInt32LE(dataBuffer.length, 4);
-
-    return Buffer.concat([packet, dataBuffer]);
-};
-
-export const parsePacket = (packet: Buffer): { op: OPCODE; length: number; data?: CommandIncoming } => {
-    const op = packet.readUInt32LE(0);
-    const length = packet.readUInt32LE(4);
-    const data = length > 0 ? JSON.parse(packet.subarray(8).toString()) : null;
-
-    return { op, length, data };
-};
-
 const formatPath = (id: number, snap: boolean = false): string => {
     if (process.platform === "win32") return `\\\\?\\pipe\\discord-ipc-${id}`;
 
@@ -130,22 +112,28 @@ export class IPCTransport extends Transport {
         this.socket.on("readable", async () => {
             if (!this.socket) return;
 
-            let data = this.socket?.read();
+            let data = this.socket?.read() as Buffer;
             if (!data || 0 >= data.length) return;
 
-            try {
-                const fullData = chunk.length > 0 ? Buffer.concat([chunk, data]) : data;
+            data = chunk.length > 0 ? Buffer.concat([chunk, data]) : data;
 
-                JSON.parse(fullData.subarray(8).toString());
-                data = fullData;
-                chunk = Buffer.alloc(0);
-            } catch (err) {
-                // Data is in-complete, Wait for next round.
-                chunk = Buffer.concat([chunk, data]);
+            const length = data.readUInt32LE(4);
+            const packetLength = length + 8;
+
+            if (data.length != packetLength) {
+                if (data.length > packetLength) throw new Error("Recieved a packet bigger than expected");
+                chunk = data;
                 return;
+            } else {
+                chunk = Buffer.alloc(0);
             }
 
-            const packet = parsePacket(data);
+            const packet = {
+                op: data.readUInt32LE(0),
+                length: length,
+                data: length > 0 ? JSON.parse(data.subarray(8).toString()) : null // Should not error at all, If it does, open a Issue on GitHub
+            };
+
             if (this.client.debug) console.debug(`SERVER => CLIENT | OPCODE.${OPCODE[packet.op]} |`, packet.data);
 
             switch (packet.op) {
@@ -158,7 +146,9 @@ export class IPCTransport extends Transport {
 
                             const response = await axios.get(url).catch(() => null);
                             if (!response || response.status == 404) continue;
+
                             this.client.endPoint = url;
+                            break;
                         }
                     }
 
@@ -181,7 +171,14 @@ export class IPCTransport extends Transport {
     send(message?: any, op: OPCODE = OPCODE.FRAME): void {
         if (this.client.debug) console.debug(`CLIENT => SERVER | OPCODE.${OPCODE[op]} |`, message);
 
-        this.socket?.write(createPacket(op, message));
+        const dataBuffer = message ? Buffer.from(JSON.stringify(message)) : Buffer.alloc(0);
+
+        const packet = Buffer.alloc(8);
+        packet.writeUInt32LE(op, 0);
+        packet.writeUInt32LE(dataBuffer.length, 4);
+
+        // this.socket?.write(createPacket(op, message));
+        this.socket?.write(Buffer.concat([packet, dataBuffer]));
     }
 
     ping(): void {

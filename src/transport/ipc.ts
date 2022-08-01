@@ -4,7 +4,7 @@ import net from "net";
 import path from "path";
 import { v4 as uuidv4 } from "uuid";
 import { Client } from "../client";
-import { CommandIncoming, Transport } from "../structures/Transport";
+import { Transport } from "../structures/Transport";
 
 export enum OPCODE {
     HANDSHAKE,

@@ -45,7 +45,7 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
     endPoint: string = "https://discord.com/api";
     origin: string = "https://localhost";
 
-    private connectionPromoise?: Promise<void>;
+    private connectionPromise?: Promise<void>;
     private _nonceMap = new Map<string, { resolve: (value?: any) => void; reject: (reason?: any) => void }>();
 
     constructor({ clientId, accessToken, transport, debug }: ClientOptions) {
@@ -149,9 +149,9 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
     }
 
     async connect(): Promise<void> {
-        if (this.connectionPromoise) return this.connectionPromoise;
+        if (this.connectionPromise) return this.connectionPromise;
 
-        this.connectionPromoise = new Promise((resolve, reject) => {
+        this.connectionPromise = new Promise((resolve, reject) => {
             const timeout = setTimeout(() => reject(new Error("TRANSPORT_CONNECTION_TIMEOUT")), 10e3);
             timeout.unref();
 
@@ -171,7 +171,7 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
             this.transport.connect();
         });
 
-        return this.connectionPromoise;
+        return this.connectionPromise;
     }
 
     async login(options: { accessToken?: string } & AuthorizeOptions = {}): Promise<void> {

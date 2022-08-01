@@ -18,7 +18,7 @@ client.on("ready", async () => {
         largeImageText: "me irl"
     });
 
-    await client.user?.getRelationships();
+    await client.user!.getRelationships();
 });
 
 client.login();

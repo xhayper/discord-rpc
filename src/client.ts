@@ -21,7 +21,7 @@ export interface ClientOptions {
     accessToken?: string;
     transport?: {
         type?: "ipc" | "websocket" | { new (client: Client, ...args: any): Transport };
-        formatPath?: (id: number) => string;
+        formatPath?: (id: number, snap?: boolean) => string;
     };
     debug?: boolean;
 }

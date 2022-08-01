@@ -4,13 +4,13 @@
     <h3>discord-rpc</h3>
     <br />
     <p>
-        <a href="https://www.npmjs.com/package/@xhayper/discord-rpc" target="_blank"
+        <a href="https://www.npmjs.com/package/@xhayper/discord-rpc"
             ><img src="https://img.shields.io/github/package-json/v/xhayper/discord-rpc/main" alt="Version"
         /></a>
-        <a href="https://discord.com/invite/xTAR8nUs2g" target="_blank"
+        <a href="https://discord.com/invite/xTAR8nUs2g"
             ><img src="https://img.shields.io/discord/965168309731487805" alt="Discord"
         /></a>
-        <a href="https://github.com/xhayper/discord-rpc/blob/main/LICENSE" target="_blank"
+        <a href="https://github.com/xhayper/discord-rpc/blob/main/LICENSE"
             ><img src="https://img.shields.io/github/license/xhayper/discord-rpc" alt="License"
         /></a>
     </p>

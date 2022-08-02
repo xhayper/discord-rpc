@@ -23,20 +23,45 @@ HANDSHAKE 40bytes  { " v " : 1 , "
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+export type FormatFunction = (id: number) => string;
+
 export type IPCTransportOptions = {
-    formatPathFunction?: (id: number, snap?: boolean) => string;
+    pathList?: FormatFunction[];
 };
 
-const formatPath = (id: number, snap: boolean = false): string => {
-    if (process.platform === "win32") return `\\\\?\\pipe\\discord-ipc-${id}`;
+// https://github.com/discordjs/RPC/pull/152
+// https://github.com/Snazzah/SublimeDiscordRP/blob/c13e60cdbc5de8147881bb232f2339722c2b46b4/discord_ipc/__init__.py#L208
+const defaultPathList: FormatFunction[] = [
+    (id: number): string => {
+        // Normal path
+        if (process.platform === "win32") return `\\\\?\\pipe\\discord-ipc-${id}`;
 
-    const {
-        env: { XDG_RUNTIME_DIR, TMPDIR, TMP, TEMP }
-    } = process;
+        const {
+            env: { XDG_RUNTIME_DIR, TMPDIR, TMP, TEMP }
+        } = process;
 
-    const prefix = fs.realpathSync(XDG_RUNTIME_DIR || TMPDIR || TMP || TEMP || `${path.sep}tmp`);
-    return `${prefix}${snap ? `${path.sep}snap.discord` : ""}${path.sep}discord-ipc-${id}`;
-};
+        const prefix = fs.realpathSync(XDG_RUNTIME_DIR || TMPDIR || TMP || TEMP || `${path.sep}tmp`);
+        return path.join(prefix, `discord-ipc-${id}`);
+    },
+    (id: number): string => {
+        // Snap path
+        const {
+            env: { XDG_RUNTIME_DIR, TMPDIR, TMP, TEMP }
+        } = process;
+
+        const prefix = fs.realpathSync(XDG_RUNTIME_DIR || TMPDIR || TMP || TEMP || `${path.sep}tmp`);
+        return path.join(prefix, "snap.discord", `discord-ipc-${id}`);
+    },
+    (id: number): string => {
+        // Alternative snap path
+        const {
+            env: { XDG_RUNTIME_DIR, TMPDIR, TMP, TEMP }
+        } = process;
+
+        const prefix = fs.realpathSync(XDG_RUNTIME_DIR || TMPDIR || TMP || TEMP || `${path.sep}tmp`);
+        return path.join(prefix, "app", "com.discordapp.Discord", `discord-ipc-${id}`);
+    }
+];
 
 const createSocket = async (path: string): Promise<net.Socket> => {
     return new Promise((resolve, reject) => {
@@ -70,16 +95,13 @@ export class IPCTransport extends Transport {
     private async getSocket(): Promise<net.Socket> {
         if (this.socket) return this.socket;
 
-        const formatFunc = this.options.formatPathFunction || formatPath;
+        const pathList = this.options.pathList || defaultPathList;
         return new Promise(async (resolve, reject) => {
-            for (let i = 0; i < 10; i++) {
-                let socket = await createSocket(formatFunc(i)).catch(() => null);
+            for (const formatFunc of pathList) {
+                if (!fs.existsSync(path.dirname(formatFunc(0)))) continue;
 
-                if (socket) {
-                    resolve(socket);
-                    return;
-                } else if (process.platform === "linux") {
-                    socket = await createSocket(formatFunc(i, true)).catch(() => null);
+                for (let i = 0; i < 10; i++) {
+                    const socket = await createSocket(formatFunc(i)).catch(() => null);
                     if (socket) {
                         resolve(socket);
                         return;
@@ -131,7 +153,7 @@ export class IPCTransport extends Transport {
             const packet = {
                 op: data.readUInt32LE(0),
                 length: length,
-                data: length > 0 ? JSON.parse(data.subarray(8).toString()) : null // Should not error at all, If it does, open a Issue on GitHub
+                data: length > 0 ? JSON.parse(data.subarray(8).toString()) : null // Should not error at all, If it does, open an Issue on GitHub.
             };
 
             if (this.client.debug) console.debug(`SERVER => CLIENT | OPCODE.${OPCODE[packet.op]} |`, packet.data);
@@ -177,7 +199,6 @@ export class IPCTransport extends Transport {
         packet.writeUInt32LE(op, 0);
         packet.writeUInt32LE(dataBuffer.length, 4);
 
-        // this.socket?.write(createPacket(op, message));
         this.socket?.write(Buffer.concat([packet, dataBuffer]));
     }
 

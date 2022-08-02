@@ -5,7 +5,7 @@ import TypedEmitter from "typed-emitter";
 import { v4 as uuidv4 } from "uuid";
 import { ClientUser } from "./structures/ClientUser";
 import { CMD, CommandIncoming, EVT, Transport } from "./structures/Transport";
-import { IPCTransport } from "./transport/ipc";
+import { FormatFunction, IPCTransport } from "./transport/ipc";
 import { WebsocketTransport } from "./transport/websocket";
 
 export type AuthorizeOptions = {
@@ -21,7 +21,7 @@ export interface ClientOptions {
     accessToken?: string;
     transport?: {
         type?: "ipc" | "websocket" | { new (client: Client, ...args: any): Transport };
-        formatPath?: (id: number, snap?: boolean) => string;
+        pathList?: FormatFunction[];
     };
     debug?: boolean;
 }
@@ -62,7 +62,7 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
                     ? new WebsocketTransport(this)
                     : new transport.type(this)
                 : new IPCTransport(this, {
-                      formatPathFunction: transport?.formatPath
+                      pathList: transport?.pathList
                   });
 
         this.transport.on("message", (message) => {

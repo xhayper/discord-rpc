@@ -1,6 +1,6 @@
 {
     "name": "@xhayper/discord-rpc",
-    "version": "0.0.4-beta",
+    "version": "0.0.5-beta",
     "description": "a fork of discordjs/RPC",
     "main": "dist/index.js",
     "author": "xhayper",
@@ -18,10 +18,6 @@
         "rich-presence",
         "discord-rpc",
         "discord-ipc"
-    ],
-    "contributors": [
-        "discord.js - discsordj/rpc",
-        "JakeMakesStuff - snap support"
     ],
     "scripts": {
         "build": "rimraf dist && npx tsc",

@@ -1,8 +1,9 @@
 import { WebSocket } from "ws";
 import { Transport } from "../structures/Transport";
 
-export class WebsocketTransport extends Transport {
+export class WebSocketTransport extends Transport {
     private ws?: WebSocket;
+
     connect(): Promise<void> {
         return new Promise(async (resolve, reject) => {
             for (let i = 0; i < 10; i++) {

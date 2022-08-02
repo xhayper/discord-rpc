@@ -130,12 +130,16 @@ export type TransportEvents = {
     close: () => void;
 };
 
+export type TransportOptions = {
+    client: Client;
+};
+
 export abstract class Transport extends (EventEmitter as new () => TypedEmitter<TransportEvents>) {
     readonly client: Client;
 
-    constructor(client: Client) {
+    constructor(options: TransportOptions) {
         super();
-        this.client = client;
+        this.client = options.client;
     }
 
     abstract connect(): Promise<void>;

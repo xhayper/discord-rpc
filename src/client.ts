@@ -4,9 +4,9 @@ import { EventEmitter } from "stream";
 import TypedEmitter from "typed-emitter";
 import { v4 as uuidv4 } from "uuid";
 import { ClientUser } from "./structures/ClientUser";
-import { CMD, CommandIncoming, EVT, Transport } from "./structures/Transport";
+import { CMD, CommandIncoming, EVT, Transport, TransportOptions } from "./structures/Transport";
 import { FormatFunction, IPCTransport } from "./transport/ipc";
-import { WebsocketTransport } from "./transport/websocket";
+import { WebSocketTransport } from "./transport/websocket";
 
 export type AuthorizeOptions = {
     scopes?: (OAuth2Scopes | OAuth2Scopes[keyof OAuth2Scopes])[];
@@ -19,8 +19,9 @@ export type AuthorizeOptions = {
 export interface ClientOptions {
     clientId: string;
     accessToken?: string;
+    instanceId?: number;
     transport?: {
-        type?: "ipc" | "websocket" | { new (client: Client, ...args: any): Transport };
+        type?: "ipc" | "websocket" | { new (options: TransportOptions): Transport };
         pathList?: FormatFunction[];
     };
     debug?: boolean;
@@ -35,6 +36,7 @@ export type ClientEvents = {
 export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents>) {
     clientId: string;
     accessToken: string;
+    instanceId?: number;
 
     readonly transport: Transport;
     readonly debug: boolean;
@@ -48,21 +50,23 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
     private connectionPromise?: Promise<void>;
     private _nonceMap = new Map<string, { resolve: (value?: any) => void; reject: (reason?: any) => void }>();
 
-    constructor({ clientId, accessToken, transport, debug }: ClientOptions) {
+    constructor(options: ClientOptions) {
         super();
 
-        this.clientId = clientId;
-        this.accessToken = accessToken || "";
+        this.clientId = options.clientId;
+        this.accessToken = options.accessToken || "";
+        this.instanceId = options.instanceId;
 
-        this.debug = !!debug; // Funky Javascript :)
+        this.debug = !!options.debug; // Funky Javascript :)
 
         this.transport =
-            transport && transport.type && transport.type != "ipc"
-                ? transport.type === "websocket"
-                    ? new WebsocketTransport(this)
-                    : new transport.type(this)
-                : new IPCTransport(this, {
-                      pathList: transport?.pathList
+            options.transport && options.transport.type && options.transport.type != "ipc"
+                ? options.transport.type === "websocket"
+                    ? new WebSocketTransport({ client: this })
+                    : new options.transport.type({ client: this })
+                : new IPCTransport({
+                      client: this,
+                      pathList: options.transport?.pathList
                   });
 
         this.transport.on("message", (message) => {
@@ -112,35 +116,35 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
         this.emit("ready");
     }
 
-    async authorize({ scopes, clientSecret, rpcToken, redirectUri, prompt }: AuthorizeOptions = {}): Promise<string> {
-        if (clientSecret && rpcToken === true) {
+    async authorize(options: AuthorizeOptions = {}): Promise<string> {
+        if (options.clientSecret && options.rpcToken === true) {
             const data = (
                 await this.fetch("POST", "/oauth2/token/rpc", {
                     data: {
                         client_id: this.clientId,
-                        client_secret: clientSecret
+                        client_secret: options.clientSecret
                     }
                 })
             ).data;
-            rpcToken = data.rpc_token;
+            options.rpcToken = data.rpc_token;
         }
 
         const { code } = (await this.request("AUTHORIZE", {
-            scopes,
+            scopes: options.scopes,
             client_id: this.clientId,
             prompt,
-            rpc_token: rpcToken,
-            redirect_uri: redirectUri
-        })) as { [key: string]: any };
+            rpc_token: options.rpcToken,
+            redirect_uri: options.redirectUri
+        })) as any;
 
         const response = (
             await this.fetch("POST", "/oauth2/token", {
                 data: {
                     client_id: this.clientId,
-                    client_secret: clientSecret,
+                    client_secret: options.clientSecret,
                     code,
                     grant_type: "authorization_code",
-                    redirect_uri: redirectUri
+                    redirect_uri: options.redirectUri
                 }
             })
         ).data;

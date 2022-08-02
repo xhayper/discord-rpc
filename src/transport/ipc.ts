@@ -3,8 +3,7 @@ import fs from "fs";
 import net from "net";
 import path from "path";
 import { v4 as uuidv4 } from "uuid";
-import { Client } from "../client";
-import { Transport } from "../structures/Transport";
+import { Transport, TransportOptions } from "../structures/Transport";
 
 export enum OPCODE {
     HANDSHAKE,
@@ -27,14 +26,18 @@ export type FormatFunction = (id: number) => string;
 
 export type IPCTransportOptions = {
     pathList?: FormatFunction[];
-};
+} & TransportOptions;
 
 // https://github.com/discordjs/RPC/pull/152
 // https://github.com/Snazzah/SublimeDiscordRP/blob/c13e60cdbc5de8147881bb232f2339722c2b46b4/discord_ipc/__init__.py#L208
 const defaultPathList: FormatFunction[] = [
     (id: number): string => {
-        // Normal path
-        if (process.platform === "win32") return `\\\\?\\pipe\\discord-ipc-${id}`;
+        // Windows path
+
+        return process.platform === "win32" ? `\\\\?\\pipe\\discord-ipc-${id}` : "";
+    },
+    (id: number): string => {
+        // macOS/Linux path
 
         const {
             env: { XDG_RUNTIME_DIR, TMPDIR, TMP, TEMP }
@@ -45,6 +48,7 @@ const defaultPathList: FormatFunction[] = [
     },
     (id: number): string => {
         // Snap path
+
         const {
             env: { XDG_RUNTIME_DIR, TMPDIR, TMP, TEMP }
         } = process;
@@ -54,6 +58,7 @@ const defaultPathList: FormatFunction[] = [
     },
     (id: number): string => {
         // Alternative snap path
+
         const {
             env: { XDG_RUNTIME_DIR, TMPDIR, TMP, TEMP }
         } = process;
@@ -83,28 +88,37 @@ const createSocket = async (path: string): Promise<net.Socket> => {
 };
 
 export class IPCTransport extends Transport {
-    options: IPCTransportOptions;
+    pathList: FormatFunction[] = defaultPathList;
+
     private socket?: net.Socket;
 
-    constructor(client: Client, options?: IPCTransportOptions) {
-        super(client);
+    constructor(options: IPCTransportOptions) {
+        super(options);
 
-        this.options = options || {};
+        if (options.pathList) this.pathList = options.pathList;
     }
 
     private async getSocket(): Promise<net.Socket> {
         if (this.socket) return this.socket;
 
-        const pathList = this.options.pathList || defaultPathList;
+        const pathList = this.pathList;
         return new Promise(async (resolve, reject) => {
             for (const formatFunc of pathList) {
                 if (!fs.existsSync(path.dirname(formatFunc(0)))) continue;
 
-                for (let i = 0; i < 10; i++) {
-                    const socket = await createSocket(formatFunc(i)).catch(() => null);
+                const tryCreateSocket = async (id: number) => {
+                    const socket = await createSocket(formatFunc(id)).catch(() => null);
                     if (socket) {
                         resolve(socket);
                         return;
+                    }
+                };
+
+                if (this.client.instanceId) {
+                    await tryCreateSocket(this.client.instanceId);
+                } else {
+                    for (let i = 0; i < 10; i++) {
+                        await tryCreateSocket(i);
                     }
                 }
             }

@@ -39,6 +39,8 @@ const defaultPathList: FormatFunction[] = [
     (id: number): string => {
         // macOS/Linux path
 
+        if (process.platform === "win32") return "";
+
         const {
             env: { XDG_RUNTIME_DIR, TMPDIR, TMP, TEMP }
         } = process;
@@ -49,6 +51,8 @@ const defaultPathList: FormatFunction[] = [
     (id: number): string => {
         // Snap path
 
+        if (process.platform === "win32") return "";
+
         const {
             env: { XDG_RUNTIME_DIR, TMPDIR, TMP, TEMP }
         } = process;
@@ -58,6 +62,8 @@ const defaultPathList: FormatFunction[] = [
     },
     (id: number): string => {
         // Alternative snap path
+
+        if (process.platform === "win32") return "";
 
         const {
             env: { XDG_RUNTIME_DIR, TMPDIR, TMP, TEMP }

@@ -45,7 +45,7 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
     application?: APIApplication;
 
     endPoint: string = "https://discord.com/api";
-    origin: string = "https://localhost";
+    origin: string = "http://localhost";
 
     private connectionPromise?: Promise<void>;
     private _nonceMap = new Map<string, { resolve: (value?: any) => void; reject: (reason?: any) => void }>();

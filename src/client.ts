@@ -44,8 +44,9 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
     user?: ClientUser;
     application?: APIApplication;
 
-    endPoint: string = "https://discord.com/api";
+    endpoint: string = "https://discord.com/api";
     origin: string = "http://localhost";
+    cdnHost: string = "https://cdn.discordapp.com";
 
     private connectionPromise?: Promise<void>;
     private _nonceMap = new Map<string, { resolve: (value?: any) => void; reject: (reason?: any) => void }>();
@@ -72,6 +73,8 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
         this.transport.on("message", (message) => {
             if (message.cmd === "DISPATCH" && message.evt === "READY") {
                 if (message.data.user) this.user = new ClientUser(this, message.data.user);
+                if (message.data.config && message.data.config.cdn_host)
+                    this.cdnHost = `https://${message.data.config.cdn_host}`;
                 this.emit("connected");
             } else {
                 if (message.nonce && this._nonceMap.has(message.nonce)) {
@@ -91,7 +94,7 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
     ): Promise<AxiosResponse<any>> {
         return await axios.request({
             method,
-            url: `${this.endPoint}${path}${query ? new URLSearchParams(query) : ""}`,
+            url: `${this.endpoint}${path}${query ? new URLSearchParams(query) : ""}`,
             data,
             headers: {
                 Authorization: `Bearer ${this.accessToken}`

@@ -22,7 +22,7 @@ HANDSHAKE 40bytes  { " v " : 1 , "
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-export type FormatFunction = (id: number) => string;
+export type FormatFunction = (id: number) => [path: string, skipCheck?: boolean];
 
 export type IPCTransportOptions = {
     pathList?: FormatFunction[];
@@ -31,46 +31,48 @@ export type IPCTransportOptions = {
 // https://github.com/discordjs/RPC/pull/152
 // https://github.com/Snazzah/SublimeDiscordRP/blob/c13e60cdbc5de8147881bb232f2339722c2b46b4/discord_ipc/__init__.py#L208
 const defaultPathList: FormatFunction[] = [
-    (id: number): string => {
+    (id: number): [string, boolean] => {
         // Windows path
 
-        return process.platform === "win32" ? `\\\\?\\pipe\\discord-ipc-${id}` : "";
+        const isWindows = process.platform === "win32";
+
+        return [isWindows ? `\\\\?\\pipe\\discord-ipc-${id}` : "", isWindows];
     },
-    (id: number): string => {
+    (id: number): [string] => {
         // macOS/Linux path
 
-        if (process.platform === "win32") return "";
+        if (process.platform === "win32") return [""];
 
         const {
             env: { XDG_RUNTIME_DIR, TMPDIR, TMP, TEMP }
         } = process;
 
         const prefix = fs.realpathSync(XDG_RUNTIME_DIR || TMPDIR || TMP || TEMP || `${path.sep}tmp`);
-        return path.join(prefix, `discord-ipc-${id}`);
+        return [path.join(prefix, `discord-ipc-${id}`)];
     },
-    (id: number): string => {
+    (id: number): [string] => {
         // Snap path
 
-        if (process.platform === "win32") return "";
+        if (process.platform === "win32") return [""];
 
         const {
             env: { XDG_RUNTIME_DIR, TMPDIR, TMP, TEMP }
         } = process;
 
         const prefix = fs.realpathSync(XDG_RUNTIME_DIR || TMPDIR || TMP || TEMP || `${path.sep}tmp`);
-        return path.join(prefix, "snap.discord", `discord-ipc-${id}`);
+        return [path.join(prefix, "snap.discord", `discord-ipc-${id}`)];
     },
-    (id: number): string => {
+    (id: number): [string] => {
         // Alternative snap path
 
-        if (process.platform === "win32") return "";
+        if (process.platform === "win32") return [""];
 
         const {
             env: { XDG_RUNTIME_DIR, TMPDIR, TMP, TEMP }
         } = process;
 
         const prefix = fs.realpathSync(XDG_RUNTIME_DIR || TMPDIR || TMP || TEMP || `${path.sep}tmp`);
-        return path.join(prefix, "app", "com.discordapp.Discord", `discord-ipc-${id}`);
+        return [path.join(prefix, "app", "com.discordapp.Discord", `discord-ipc-${id}`)];
     }
 ];
 
@@ -110,21 +112,33 @@ export class IPCTransport extends Transport {
         const pathList = this.pathList;
         return new Promise(async (resolve, reject) => {
             for (const formatFunc of pathList) {
-                if (!fs.existsSync(path.dirname(formatFunc(0)))) continue;
+                const tryCreateSocket = async (path: string) => {
+                    const socket = await createSocket(path).catch(() => null);
+                    return socket;
+                };
 
-                const tryCreateSocket = async (id: number) => {
-                    const socket = await createSocket(formatFunc(id)).catch(() => null);
-                    if (socket) {
-                        resolve(socket);
-                        return;
-                    }
+                const handleSocketId = async (id: number): Promise<net.Socket | null> => {
+                    const [socketPath, skipCheck] = formatFunc(id);
+
+                    if (!skipCheck && !fs.existsSync(path.dirname(socketPath))) return null;
+
+                    const socket = await tryCreateSocket(socketPath);
+                    return socket;
                 };
 
                 if (this.client.instanceId) {
-                    await tryCreateSocket(this.client.instanceId);
+                    const socket = await handleSocketId(this.client.instanceId);
+                    if (socket) {
+                        resolve(socket);
+                        break;
+                    }
                 } else {
                     for (let i = 0; i < 10; i++) {
-                        await tryCreateSocket(i);
+                        const socket = await handleSocketId(i);
+                        if (socket) {
+                            resolve(socket);
+                            break;
+                        }
                     }
                 }
             }

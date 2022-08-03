@@ -150,30 +150,41 @@ export class IPCTransport extends Transport {
             OPCODE.HANDSHAKE
         );
 
-        let chunk = Buffer.alloc(0);
-        this.socket.on("readable", async () => {
+        let chunk: Buffer | null;
+        let sizeRemaining: number | null;
+
+        const onData = async (data: Buffer) => {
             if (!this.socket) return;
 
-            let data = this.socket?.read() as Buffer;
-            if (!data || 0 >= data.length) return;
+            const wholeData = chunk ? Buffer.concat([chunk, data.subarray(0, sizeRemaining!)]) : data;
+            const remainingData = sizeRemaining ? data.subarray(sizeRemaining) : null; // Fail-safe, this happened while testing but never came back again
 
-            data = chunk.length > 0 ? Buffer.concat([chunk, data]) : data;
+            const length = wholeData.readUInt32LE(4);
+            const jsonData = wholeData.subarray(8);
 
-            const length = data.readUInt32LE(4);
-            const packetLength = length + 8;
+            sizeRemaining = length - jsonData.length;
 
-            if (data.length != packetLength) {
-                if (data.length > packetLength) throw new Error("Recieved a packet bigger than expected");
-                chunk = data;
+            if (this.client.debug)
+                console.log(
+                    `SERVER => CLIENT | Recieved ${
+                        data.length
+                    } bytes, missing ${sizeRemaining} bytes | Whole packet length: ${
+                        wholeData.length
+                    }, Required packet length: ${length + 8}`
+                );
+
+            if (sizeRemaining && sizeRemaining > 0) {
+                chunk = wholeData;
                 return;
             } else {
-                chunk = Buffer.alloc(0);
+                chunk = null;
+                sizeRemaining = null;
             }
 
             const packet = {
-                op: data.readUInt32LE(0),
+                op: wholeData.readUInt32LE(0),
                 length: length,
-                data: length > 0 ? JSON.parse(data.subarray(8).toString()) : null // Should not error at all, If it does, open an Issue on GitHub.
+                data: length > 0 ? JSON.parse(jsonData.toString()) : null // Should not error at all, If it does, open an Issue on GitHub.
             };
 
             if (this.client.debug) console.debug(`SERVER => CLIENT | OPCODE.${OPCODE[packet.op]} |`, packet.data);
@@ -207,7 +218,11 @@ export class IPCTransport extends Transport {
                     break;
                 }
             }
-        });
+
+            if (remainingData && remainingData.length > 0) onData(remainingData);
+        };
+
+        this.socket.on("data", onData);
     }
 
     send(message?: any, op: OPCODE = OPCODE.FRAME): void {

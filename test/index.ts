@@ -19,8 +19,7 @@ client.on("ready", async () => {
     });
 
     await client.user?.getRelationships();
-
-    console.log(await client.subscribe("RELATIONSHIP_UPDATE"));
+    await client.subscribe("RELATIONSHIP_UPDATE");
 });
 
 client.login();

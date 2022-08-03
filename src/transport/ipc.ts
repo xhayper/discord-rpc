@@ -166,11 +166,9 @@ export class IPCTransport extends Transport {
 
             if (this.client.debug)
                 console.log(
-                    `SERVER => CLIENT | Recieved ${
-                        data.length
-                    } bytes, missing ${sizeRemaining} bytes | Whole packet length: ${
-                        wholeData.length
-                    }, Required packet length: ${length + 8}`
+                    `SERVER => CLIENT | Recieved ${data.length} bytes, missing ${sizeRemaining} bytes, left over ${
+                        remainingData?.length || 0
+                    } bytes | Whole packet length: ${wholeData.length}, Required packet length: ${length + 8}`
                 );
 
             if (sizeRemaining && sizeRemaining > 0) {

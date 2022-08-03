@@ -189,7 +189,7 @@ export class IPCTransport extends Transport {
                             const response = await axios.get(url).catch(() => null);
                             if (!response || response.status == 404) continue;
 
-                            this.client.endPoint = url;
+                            this.client.endpoint = url;
                             break;
                         }
                     }

@@ -43,12 +43,12 @@ export class User extends Base implements Payload.APIUser {
     get avatarUrl() {
         const isAnimated = this.avatar && this.avatar.startsWith("a_");
         return this.avatar
-            ? `https://cdn.discordapp.com/avatars/${this.id}/${this.avatar}${isAnimated ? ".gif" : ".png"}`
+            ? `${this.client.cdnHost}/avatars/${this.id}/${this.avatar}${isAnimated ? ".gif" : ".png"}`
             : this.defaultAvatarUrl;
     }
 
     get defaultAvatarUrl() {
-        return `https://cdn.discordapp.com/embed/avatars/${parseInt(this.discriminator.substring(1)) % 5}.png`;
+        return `${this.client.cdnHost}/embed/avatars/${parseInt(this.discriminator.substring(1)) % 5}.png`;
     }
 
     get tag() {

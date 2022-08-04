@@ -108,18 +108,18 @@ export type EVT =
     | "READY"
     | "ERROR";
 
-export interface CommandOutgoing {
+export interface CommandOutgoing<A = any> {
     cmd: CMD;
     nonce: string | null;
-    args: any;
+    args: A;
     evt?: EVT;
 }
 
-export interface CommandIncoming {
+export interface CommandIncoming<A = any, D = any> {
     cmd: CMD;
     nonce: string | null;
-    args?: any;
-    data: any;
+    args?: A;
+    data: D;
     evt?: EVT;
 }
 

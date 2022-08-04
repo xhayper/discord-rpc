@@ -101,7 +101,7 @@ export class ClientUser extends User {
         ).data;
     }
 
-    clearActivity(pid?: number) {
-        this.client.request("SET_ACTIVITY", { pid: pid ?? process ? process.pid ?? 0 : 0 });
+    async clearActivity(pid?: number): Promise<void> {
+        await this.client.request("SET_ACTIVITY", { pid: pid ?? process ? process.pid ?? 0 : 0 });
     }
 }

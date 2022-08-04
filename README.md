@@ -47,11 +47,3 @@ client.login();
 
 Q: It throws "Couldn't Connect" error!<br>
 A: Could mean that it can't find discord IPC path / WebSocket path, If you are using the IPC transport, you can implement your own path logic.
-
-## TODO
-
-| TODO                                       | Status | Note                     |
-| ------------------------------------------ | ------ | ------------------------ |
-| Figure out how to test WebSocket transport | N      | Any help is appericated! |
-| Add more feature                           | W      |                          |
-| Clean up the code                          | W      |                          |

@@ -9,16 +9,13 @@ import { FormatFunction, IPCTransport } from "./transport/ipc";
 import { WebSocketTransport } from "./transport/websocket";
 
 export type AuthorizeOptions = {
-    scopes?: (OAuth2Scopes | OAuth2Scopes[keyof OAuth2Scopes])[];
-    clientSecret?: string;
-    rpcToken?: boolean;
-    redirectUri?: string;
-    prompt?: string;
+    scopes: (OAuth2Scopes | OAuth2Scopes[keyof OAuth2Scopes])[];
+    useRPCToken?: boolean;
 };
 
 export interface ClientOptions {
     clientId: string;
-    accessToken?: string;
+    clientSecret?: string;
     instanceId?: number;
     transport?: {
         type?: "ipc" | "websocket" | { new (options: TransportOptions): Transport };
@@ -35,8 +32,13 @@ export type ClientEvents = {
 
 export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents>) {
     clientId: string;
-    accessToken: string;
+    clientSecret?: string;
+
     instanceId?: number;
+
+    private accessToken?: string;
+    private refreshToken?: string;
+    private tokenType = "Bearer";
 
     readonly transport: Transport;
     readonly debug: boolean;
@@ -44,10 +46,10 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
     user?: ClientUser;
     application?: APIApplication;
 
-    endpoint: string = "https://discord.com/api";
-    origin: string = "http://localhost";
     cdnHost: string = "https://cdn.discordapp.com";
+    origin: string = "https://localhost";
 
+    private refrestTimeout?: NodeJS.Timer;
     private connectionPromise?: Promise<void>;
     private _nonceMap = new Map<string, { resolve: (value?: any) => void; reject: (reason?: any) => void }>();
 
@@ -55,7 +57,8 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
         super();
 
         this.clientId = options.clientId;
-        this.accessToken = options.accessToken ?? "";
+        this.clientSecret = options.clientSecret;
+
         this.instanceId = options.instanceId;
 
         this.debug = !!options.debug; // Funky Javascript :)
@@ -90,14 +93,15 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
     async fetch<R = any>(
         method: Method | string,
         path: string,
-        { data, query }: { data?: any; query?: string }
+        { data, query, headers }: { data?: any; query?: string; headers?: any }
     ): Promise<AxiosResponse<R>> {
         return await axios.request({
             method,
-            url: `${this.endpoint}${path}${query ? new URLSearchParams(query) : ""}`,
+            url: `https://discord.com/api${path}${query ? new URLSearchParams(query) : ""}`,
             data,
             headers: {
-                Authorization: `Bearer ${this.accessToken}`
+                ...(headers ?? {}),
+                ...(this.accessToken ? { Authorization: `${this.tokenType} ${this.accessToken}` } : {})
             }
         });
     }
@@ -111,48 +115,73 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
         });
     }
 
-    async authenticate(accessToken: string): Promise<void> {
-        const { application, user } = (await this.request("AUTHENTICATE", { access_token: accessToken })).data;
-        this.accessToken = accessToken;
+    async authenticate(): Promise<void> {
+        const { application, user } = (await this.request("AUTHENTICATE", { access_token: this.accessToken ?? "" }))
+            .data;
         this.application = application;
-        this.user = user;
+        this.user = new ClientUser(this, user);
         this.emit("ready");
     }
 
-    async authorize(options: AuthorizeOptions = {}): Promise<string> {
-        if (options.clientSecret && options.rpcToken === true) {
-            const data = (
-                await this.fetch("POST", "/oauth2/token/rpc", {
-                    data: {
+    private async refreshAccessToken(): Promise<void> {
+        if (this.debug) console.log("CLIENT | Refreshing access token!");
+
+        this.hanleAccessTokenResponse(
+            (
+                await this.fetch("POST", "/oauth2/token", {
+                    data: new URLSearchParams({
                         client_id: this.clientId,
-                        client_secret: options.clientSecret
-                    }
+                        client_secret: this.clientSecret ?? "",
+                        grant_type: "refresh_token",
+                        refresh_token: this.refreshToken ?? ""
+                    })
                 })
-            ).data;
-            options.rpcToken = data.rpc_token;
+            ).data
+        );
+    }
+
+    private hanleAccessTokenResponse(data: any): void {
+        this.accessToken = data.access_token;
+        this.refreshToken = data.refresh_token;
+        this.tokenType = data.token_type;
+
+        this.refrestTimeout = setTimeout(() => this.refreshAccessToken(), data.expires_in - 5000);
+    }
+
+    async authorize(options: AuthorizeOptions): Promise<void> {
+        let rpcToken;
+
+        if (options.useRPCToken) {
+            rpcToken = (
+                await this.fetch("POST", "/oauth2/token/rpc", {
+                    data: new URLSearchParams({
+                        client_id: this.clientId,
+                        client_secret: this.clientSecret ?? ""
+                    })
+                })
+            ).data.rpc_token;
         }
 
-        const { code } = (await this.request("AUTHORIZE", {
-            scopes: options.scopes,
-            client_id: this.clientId,
-            prompt,
-            rpc_token: options.rpcToken,
-            redirect_uri: options.redirectUri
-        })) as any;
-
-        const response = (
-            await this.fetch("POST", "/oauth2/token", {
-                data: {
-                    client_id: this.clientId,
-                    client_secret: options.clientSecret,
-                    code,
-                    grant_type: "authorization_code",
-                    redirect_uri: options.redirectUri
-                }
+        const { code } = (
+            await this.request("AUTHORIZE", {
+                scopes: options.scopes,
+                client_id: this.clientId,
+                rpc_token: options.useRPCToken ? rpcToken : undefined
             })
         ).data;
 
-        return response.access_token;
+        this.hanleAccessTokenResponse(
+            (
+                await this.fetch("POST", "/oauth2/token", {
+                    data: new URLSearchParams({
+                        client_id: this.clientId,
+                        client_secret: this.clientSecret ?? "",
+                        grant_type: "authorization_code",
+                        code
+                    })
+                })
+            ).data
+        );
     }
 
     async connect(): Promise<void> {
@@ -181,20 +210,16 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
         return this.connectionPromise;
     }
 
-    async login(options: { accessToken?: string } & AuthorizeOptions = {}): Promise<void> {
-        let { accessToken, scopes } = options;
-
+    async login(options?: AuthorizeOptions): Promise<void> {
         await this.connect();
 
-        if (!scopes) {
+        if (!options || !options.scopes) {
             this.emit("ready");
             return;
         }
 
-        if (!accessToken) accessToken = await this.authorize({ scopes });
-        if (!accessToken) return;
-
-        await this.authenticate(accessToken);
+        await this.authorize(options);
+        await this.authenticate();
     }
 
     async subscribe(event: Exclude<EVT, "ERROR">, args?: any): Promise<{ unsubscribe: () => void }> {
@@ -205,6 +230,11 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
     }
 
     async destroy(): Promise<void> {
+        if (this.refrestTimeout) {
+            clearTimeout(this.refrestTimeout);
+            this.refrestTimeout = undefined;
+        }
+
         await this.transport.close();
     }
 }

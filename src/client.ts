@@ -87,11 +87,11 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
         });
     }
 
-    async fetch(
+    async fetch<R = any>(
         method: Method | string,
         path: string,
         { data, query }: { data?: any; query?: string }
-    ): Promise<AxiosResponse<any>> {
+    ): Promise<AxiosResponse<R>> {
         return await axios.request({
             method,
             url: `${this.endpoint}${path}${query ? new URLSearchParams(query) : ""}`,
@@ -102,7 +102,7 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
         });
     }
 
-    async request(cmd: CMD, args?: any, evt?: EVT): Promise<CommandIncoming> {
+    async request<A = any, D = any>(cmd: CMD, args?: any, evt?: EVT): Promise<CommandIncoming<A, D>> {
         return new Promise((resolve, reject) => {
             const nonce = uuidv4();
 
@@ -169,10 +169,10 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
 
             this.transport.once("close", () => {
                 this._nonceMap.forEach((promise) => {
-                    promise.reject(new Error("connection closed"));
+                    promise.reject(new Error("TRANSPORT_CONNECTION_CLOSE"));
                 });
                 this.emit("disconnected");
-                reject(new Error("connection closed"));
+                reject(new Error("TRANSPORT_CONNECTION_CLOSE"));
             });
 
             this.transport.connect();
@@ -197,7 +197,7 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
         await this.authenticate(accessToken);
     }
 
-    async subscribe(event: Exclude<EVT, "ERROR">, args?: any): Promise<any> {
+    async subscribe(event: Exclude<EVT, "ERROR">, args?: any): Promise<{ unsubscribe: () => void }> {
         await this.request("SUBSCRIBE", args, event);
         return {
             unsubscribe: () => this.request("UNSUBSCRIBE", args, event)

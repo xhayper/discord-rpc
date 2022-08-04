@@ -20,6 +20,8 @@ client.on("ready", async () => {
 
     await client.user?.getRelationships();
     await client.subscribe("RELATIONSHIP_UPDATE");
+
+    console.log(await client.user?.clearActivity());
 });
 
 client.login();

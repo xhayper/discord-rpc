@@ -10,6 +10,8 @@ import { WebSocketTransport } from "./transport/websocket";
 
 export type AuthorizeOptions = {
     scopes: (OAuth2Scopes | OAuth2Scopes[keyof OAuth2Scopes])[];
+    redirect_uri?: string;
+    prompt?: "consent" | "none";
     useRPCToken?: boolean;
 };
 
@@ -156,7 +158,8 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
                 await this.fetch("POST", "/oauth2/token/rpc", {
                     data: new URLSearchParams({
                         client_id: this.clientId,
-                        client_secret: this.clientSecret ?? ""
+                        client_secret: this.clientSecret ?? "",
+                        prompt: options.prompt ?? "consent"
                     })
                 })
             ).data.rpc_token;
@@ -166,7 +169,8 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
             await this.request("AUTHORIZE", {
                 scopes: options.scopes,
                 client_id: this.clientId,
-                rpc_token: options.useRPCToken ? rpcToken : undefined
+                rpc_token: options.useRPCToken ? rpcToken : undefined,
+                redirect_uri: options.redirect_uri ?? undefined
             })
         ).data;
 
@@ -176,6 +180,7 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
                     data: new URLSearchParams({
                         client_id: this.clientId,
                         client_secret: this.clientSecret ?? "",
+                        redirect_uri: options.redirect_uri ?? "",
                         grant_type: "authorization_code",
                         code
                     })

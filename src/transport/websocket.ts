@@ -15,14 +15,14 @@ export class WebSocketTransport extends Transport {
                         }
                     );
 
-                    socket.onopen = function () {
+                    socket.onopen = () => {
                         socket.onclose = null;
                         socket.onopen = null;
 
                         resolve(socket);
                     };
 
-                    socket.onerror = function () {
+                    socket.onerror = () => {
                         socket.onclose = null;
                         socket.onopen = null;
 

@@ -19,7 +19,6 @@ client.on("ready", async () => {
     });
 
     await client.user?.getRelationships();
-    await client.subscribe("RELATIONSHIP_UPDATE");
 });
 
 client.login();

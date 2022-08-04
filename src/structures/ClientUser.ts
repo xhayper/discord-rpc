@@ -47,10 +47,17 @@ export class ClientUser extends User {
             secrets: {}
         };
 
-        if (activity.startTimestamp instanceof Date)
+        if (activity.startTimestamp instanceof Date) {
             formattedAcitivity.timestamps.start = Math.round(activity.startTimestamp.getTime());
-        if (activity.endTimestamp instanceof Date)
+        } else if (typeof activity.startTimestamp === "number") {
+            formattedAcitivity.timestamps.start = activity.startTimestamp;
+        }
+
+        if (activity.endTimestamp instanceof Date) {
             formattedAcitivity.timestamps.end = Math.round(activity.endTimestamp.getTime());
+        } else if (typeof activity.endTimestamp === "number") {
+            formattedAcitivity.timestamps.end = activity.endTimestamp;
+        }
 
         if (activity.largeImageKey) formattedAcitivity.assets.large_image = activity.largeImageKey;
         if (activity.smallImageKey) formattedAcitivity.assets.small_image = activity.smallImageKey;

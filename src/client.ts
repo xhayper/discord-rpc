@@ -55,7 +55,7 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
         super();
 
         this.clientId = options.clientId;
-        this.accessToken = options.accessToken || "";
+        this.accessToken = options.accessToken ?? "";
         this.instanceId = options.instanceId;
 
         this.debug = !!options.debug; // Funky Javascript :)

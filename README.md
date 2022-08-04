@@ -33,6 +33,21 @@ client.on("ready", () => {
 client.login();
 ```
 
+## Complatibility
+
+| OS      | Normal | Snap |
+| ------- | ------ | ---- |
+| Windows | Y      | -    |
+| macOS   | Y      | -    |
+| Linux   | Y      | Y    |
+
+-   Linux is tested on Kubuntu 22.04
+
+## FAQ
+
+Q: It throws "Couldn't Connect" error!<br>
+A: Could mean that it can't find discord IPC path / WebSocket path, If you are using the IPC transport, you can implement your own path logic.
+
 ## TODO
 
 | TODO                                       | Status | Note                     |

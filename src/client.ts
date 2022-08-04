@@ -197,7 +197,7 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
         await this.authenticate(accessToken);
     }
 
-    async subscribe(event: EVT, args?: any): Promise<any> {
+    async subscribe(event: Exclude<EVT, "ERROR">, args?: any): Promise<any> {
         await this.request("SUBSCRIBE", args, event);
         return {
             unsubscribe: () => this.request("UNSUBSCRIBE", args, event)

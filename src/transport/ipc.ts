@@ -47,7 +47,7 @@ const defaultPathList: FormatFunction[] = [
             env: { XDG_RUNTIME_DIR, TMPDIR, TMP, TEMP }
         } = process;
 
-        const prefix = fs.realpathSync(XDG_RUNTIME_DIR || TMPDIR || TMP || TEMP || `${path.sep}tmp`);
+        const prefix = fs.realpathSync(XDG_RUNTIME_DIR ?? TMPDIR ?? TMP ?? TEMP ?? `${path.sep}tmp`);
         return [path.join(prefix, `discord-ipc-${id}`)];
     },
     (id: number): [string] => {
@@ -59,7 +59,7 @@ const defaultPathList: FormatFunction[] = [
             env: { XDG_RUNTIME_DIR, TMPDIR, TMP, TEMP }
         } = process;
 
-        const prefix = fs.realpathSync(XDG_RUNTIME_DIR || TMPDIR || TMP || TEMP || `${path.sep}tmp`);
+        const prefix = fs.realpathSync(XDG_RUNTIME_DIR ?? TMPDIR ?? TMP ?? TEMP ?? `${path.sep}tmp`);
         return [path.join(prefix, "snap.discord", `discord-ipc-${id}`)];
     },
     (id: number): [string] => {
@@ -71,7 +71,7 @@ const defaultPathList: FormatFunction[] = [
             env: { XDG_RUNTIME_DIR, TMPDIR, TMP, TEMP }
         } = process;
 
-        const prefix = fs.realpathSync(XDG_RUNTIME_DIR || TMPDIR || TMP || TEMP || `${path.sep}tmp`);
+        const prefix = fs.realpathSync(XDG_RUNTIME_DIR ?? TMPDIR ?? TMP ?? TEMP ?? `${path.sep}tmp`);
         return [path.join(prefix, "app", "com.discordapp.Discord", `discord-ipc-${id}`)];
     }
 ];
@@ -181,7 +181,7 @@ export class IPCTransport extends Transport {
             if (this.client.debug)
                 console.log(
                     `SERVER => CLIENT | Recieved ${data.length} bytes, missing ${sizeRemaining} bytes, left over ${
-                        remainingData?.length || 0
+                        remainingData?.length ?? 0
                     } bytes | Whole packet length: ${wholeData.length}, Required packet length: ${length + 8}`
                 );
 

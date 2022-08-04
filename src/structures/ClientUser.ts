@@ -88,13 +88,13 @@ export class ClientUser extends User {
 
         return (
             await this.client.request("SET_ACTIVITY", {
-                pid: pid || process.pid,
+                pid: pid ?? process ? process.pid ?? 0 : 0,
                 activity: formattedAcitivity
             })
         ).data;
     }
 
     clearActivity(pid?: number) {
-        this.client.request("SET_ACTIVITY", { pid: pid || process.pid });
+        this.client.request("SET_ACTIVITY", { pid: pid ?? process ? process.pid ?? 0 : 0 });
     }
 }

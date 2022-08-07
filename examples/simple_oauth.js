@@ -15,4 +15,17 @@ client.on("ready", async () => {
     });
 });
 
-client.login({ scopes: ["rpc", "guilds", "messages.read"] }); // These are the allowed scopes for unapproved app.
+client.login({
+    scopes: [
+        "connections",
+        "email",
+        "identify",
+        "guilds",
+        "guilds.join",
+        "guilds.members.read",
+        "gdm.join",
+        "messages.read",
+        "rpc",
+        "rpc.notifications.read"
+    ]
+}); // These are the allowed scopes for unapproved app.

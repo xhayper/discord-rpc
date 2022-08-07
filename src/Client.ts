@@ -5,11 +5,11 @@ import TypedEmitter from "typed-emitter";
 import { v4 as uuidv4 } from "uuid";
 import { ClientUser } from "./structures/ClientUser";
 import { CMD, CommandIncoming, EVT, Transport, TransportOptions } from "./structures/Transport";
-import { FormatFunction, IPCTransport } from "./transport/ipc";
-import { WebSocketTransport } from "./transport/websocket";
+import { FormatFunction, IPCTransport } from "./transport/IPC";
+import { WebSocketTransport } from "./transport/WebSocket";
 
 export type AuthorizeOptions = {
-    scopes: (OAuth2Scopes | OAuth2Scopes[keyof OAuth2Scopes])[];
+    scopes: (OAuth2Scopes | `${OAuth2Scopes}`)[];
     redirect_uri?: string;
     prompt?: "consent" | "none";
     useRPCToken?: boolean;
@@ -95,14 +95,14 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
     async fetch<R = any>(
         method: Method | string,
         path: string,
-        { data, query, headers }: { data?: any; query?: string; headers?: any }
+        requst?: { data?: any; query?: string; headers?: any }
     ): Promise<AxiosResponse<R>> {
         return await axios.request({
             method,
-            url: `https://discord.com/api${path}${query ? new URLSearchParams(query) : ""}`,
-            data,
+            url: `https://discord.com/api${path}${requst?.query ? new URLSearchParams(requst?.query) : ""}`,
+            data: requst?.data,
             headers: {
-                ...(headers ?? {}),
+                ...(requst?.headers ?? {}),
                 ...(this.accessToken ? { Authorization: `${this.tokenType} ${this.accessToken}` } : {})
             }
         });

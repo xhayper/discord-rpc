@@ -1,6 +1,6 @@
 import { EventEmitter } from "events";
 import TypedEmitter from "typed-emitter";
-import { Client } from "../client";
+import { Client } from "../Client";
 
 // https://robins.one/notes/discord-rpc-documentation.html
 

@@ -1,5 +1,5 @@
 import Payload from "discord-api-types/payloads/v10";
-import { Client } from "../client";
+import { Client } from "../Client";
 import { Base } from "./Base";
 
 export class User extends Base implements Payload.APIUser {

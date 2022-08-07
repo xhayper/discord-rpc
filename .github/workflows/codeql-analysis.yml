@@ -30,7 +30,7 @@ jobs:
       uses: github/codeql-action/init@v2
       with:
         languages: ${{ matrix.language }}
-        packs: codeql/javascript-all
+        packs: codeql/javascript-queries
         config-file: ./.github/codeql/codeql-config.yml
 
     - name: Perform CodeQL Analysis

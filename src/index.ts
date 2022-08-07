@@ -7,4 +7,6 @@ export * from "./structures/VoiceSettings";
 export * from "./structures/Transport";
 export * from "./structures/Message";
 
+export type { SetActivity, SetActivityResponse } from "./structures/ClientUser";
+
 export { FormatFunction } from "./transport/IPC";

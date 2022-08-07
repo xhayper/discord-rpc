@@ -158,8 +158,7 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
                 await this.fetch("POST", "/oauth2/token/rpc", {
                     data: new URLSearchParams({
                         client_id: this.clientId,
-                        client_secret: this.clientSecret ?? "",
-                        prompt: options.prompt ?? "consent"
+                        client_secret: this.clientSecret ?? ""
                     })
                 })
             ).data.rpc_token;
@@ -170,7 +169,8 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
                 scopes: options.scopes,
                 client_id: this.clientId,
                 rpc_token: options.useRPCToken ? rpcToken : undefined,
-                redirect_uri: options.redirect_uri ?? undefined
+                redirect_uri: options.redirect_uri ?? undefined,
+                prompt: options.prompt ?? "consent"
             })
         ).data;
 

@@ -1,6 +1,10 @@
 export * from "./Client";
+export * from "./structures/CertifiedDevice";
+export * from "./structures/Channel";
+export * from "./structures/Guild";
+export * from "./structures/User";
+export * from "./structures/VoiceSettings";
+export * from "./structures/Transport";
+export * from "./structures/Message";
 
-export { User } from "./structures/User";
-export { ClientUser, SetActivity, SetActivityResponse } from "./structures/ClientUser";
-export { Transport, TransportOptions, CMD, EVT, CommandOutgoing, CommandIncoming } from "./structures/Transport";
 export { FormatFunction } from "./transport/IPC";

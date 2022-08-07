@@ -110,12 +110,8 @@ export class ClientUser extends User {
         return new VoiceSettings(this.client, response.data);
     }
 
-    async setCeritfiedDevices(devices: CertifiedDevice[]): Promise<void | null> {
-        const response = await this.client.request("SET_CERTIFIED_DEVICES", { devices });
-
-        if (response.evt == "ERROR") return null;
-
-        return;
+    async setCeritfiedDevices(devices: CertifiedDevice[]): Promise<any | null> {
+        return (await this.client.request("SET_CERTIFIED_DEVICES", { devices })).data;
     }
 
     async sendJoinInvite(userId: string): Promise<any> {
@@ -134,37 +130,39 @@ export class ClientUser extends User {
         return new Channel(this.client, response.data);
     }
 
-    async createLobby(type: string, capacity: number, metadata: any): Promise<any> {
-        return (await this.client.request("CREATE_LOBBY", { type, capacity, metadata })).data;
-    }
+    // TODO: Strict type these functions before uncommenting it in production
 
-    async updateLobby(
-        lobbyId: string,
-        options?: { type: string; owner_id: string; capacity: number; metadata: any }
-    ): Promise<any> {
-        return (await this.client.request("UPDATE_LOBBY", { id: lobbyId, ...options })).data;
-    }
+    // async createLobby(type: string, capacity: number, metadata: any): Promise<any> {
+    //     return (await this.client.request("CREATE_LOBBY", { type, capacity, metadata })).data;
+    // }
 
-    async deleteLobby(lobbyId: string): Promise<any> {
-        return (await this.client.request("DELETE_LOBBY", { id: lobbyId })).data;
-    }
+    // async updateLobby(
+    //     lobbyId: string,
+    //     options?: { type: string; owner_id: string; capacity: number; metadata: any }
+    // ): Promise<any> {
+    //     return (await this.client.request("UPDATE_LOBBY", { id: lobbyId, ...options })).data;
+    // }
 
-    async connectToLobby(lobbyId: string, secret: string): Promise<any> {
-        return (await this.client.request("CONNECT_TO_LOBBY", { id: lobbyId, secret })).data;
-    }
+    // async deleteLobby(lobbyId: string): Promise<any> {
+    //     return (await this.client.request("DELETE_LOBBY", { id: lobbyId })).data;
+    // }
 
-    async sendToLobby(lobbyId: string, data: any): Promise<any> {
-        return (await this.client.request("SEND_TO_LOBBY", { id: lobbyId, data })).data;
-    }
+    // async connectToLobby(lobbyId: string, secret: string): Promise<any> {
+    //     return (await this.client.request("CONNECT_TO_LOBBY", { id: lobbyId, secret })).data;
+    // }
 
-    async disconnectFromLobby(lobbyId: string): Promise<any> {
-        return (await this.client.request("DISCONNECT_FROM_LOBBY", { id: lobbyId })).data;
-    }
+    // async sendToLobby(lobbyId: string, data: any): Promise<any> {
+    //     return (await this.client.request("SEND_TO_LOBBY", { id: lobbyId, data })).data;
+    // }
 
-    async updateLobbyMember(lobbyId: string, userId: string, metadata: any): Promise<any> {
-        return (await this.client.request("UPDATE_LOBBY_MEMBER", { lobby_id: lobbyId, user_id: userId, metadata }))
-            .data;
-    }
+    // async disconnectFromLobby(lobbyId: string): Promise<any> {
+    //     return (await this.client.request("DISCONNECT_FROM_LOBBY", { id: lobbyId })).data;
+    // }
+
+    // async updateLobbyMember(lobbyId: string, userId: string, metadata: any): Promise<any> {
+    //     return (await this.client.request("UPDATE_LOBBY_MEMBER", { lobby_id: lobbyId, user_id: userId, metadata }))
+    //         .data;
+    // }
 
     async getRelationships(): Promise<Array<User>> {
         return (await this.client.request("GET_RELATIONSHIPS")).data.relationships.map((data: any) => {

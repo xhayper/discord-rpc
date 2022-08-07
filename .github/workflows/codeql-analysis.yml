@@ -30,7 +30,6 @@ jobs:
       uses: github/codeql-action/init@v2
       with:
         languages: ${{ matrix.language }}
-        packs: 'codeql/javascript-all'
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2

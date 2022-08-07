@@ -47,6 +47,3 @@ client.login();
 
 Q: It throws "Couldn't Connect" error!<br>
 A: Could mean that it can't find discord IPC path / WebSocket path, If you are using the IPC transport, you can implement your own path logic.
-
-
-[![Verified on Openbase](https://badges.openbase.com/js/verified/@xhayper/discord-rpc.svg?token=uOAFJCwslTM82DCaLEi/DNKVX+r5CIanNokFzC7c0Xg=)](https://openbase.com/js/@xhayper/discord-rpc?utm_source=embedded&amp;utm_medium=badge&amp;utm_campaign=rate-badge)

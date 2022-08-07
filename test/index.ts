@@ -9,7 +9,7 @@ client.on("ready", async () => {
     await client.user?.setActivity({
         state: "Suffering with my life",
         details: "Pain and Suffering",
-        startTimestamp: 100000,
+        startTimestamp: Date.now(),
         buttons: [
             { label: "Twitter", url: "https://twitter.com/hayper1919" },
             { label: "Github", url: "https://github.com/xhayper" }

@@ -27,5 +27,6 @@ client.login({
         "messages.read",
         "rpc",
         "rpc.notifications.read"
-    ]
+    ],
+    prompt: "none" // Only prompt once
 }); // These are the allowed scopes for unapproved app.

@@ -2,6 +2,7 @@ import { Client } from "../src/index";
 
 const client = new Client({
     clientId: "964574770807058472",
+    clientSecret: "G4DNVEHxFI5iJEmoKxXvgdRY66M0AttQ",
     debug: true
 });
 
@@ -17,8 +18,6 @@ client.on("ready", async () => {
         largeImageKey: "main",
         largeImageText: "me irl"
     });
-
-    await client.user?.getRelationships();
 });
 
-client.login();
+client.login({ scopes: ["guilds"], prompt: "consent" });

@@ -3,8 +3,11 @@ import { APIApplication, OAuth2Scopes } from "discord-api-types/v10";
 import { EventEmitter } from "stream";
 import TypedEmitter from "typed-emitter";
 import { v4 as uuidv4 } from "uuid";
+import { Channel } from "./structures/Channel";
 import { ClientUser } from "./structures/ClientUser";
+import { Guild } from "./structures/Guild";
 import { CMD, CommandIncoming, EVT, Transport, TransportOptions } from "./structures/Transport";
+import { User } from "./structures/User";
 import { FormatFunction, IPCTransport } from "./transport/IPC";
 import { WebSocketTransport } from "./transport/WebSocket";
 
@@ -92,6 +95,8 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
         });
     }
 
+    // #region Request Handlers
+
     async fetch<R = any>(
         method: Method | string,
         path: string,
@@ -116,6 +121,10 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
             this._nonceMap.set(nonce, { resolve, reject });
         });
     }
+
+    // #endregion
+
+    // #region Authorization handlers
 
     async authenticate(): Promise<void> {
         const { application, user } = (await this.request("AUTHENTICATE", { access_token: this.accessToken ?? "" }))
@@ -189,6 +198,17 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
         );
     }
 
+    // #endregion
+
+    async subscribe(event: Exclude<EVT, "ERROR">, args?: any): Promise<{ unsubscribe: () => void }> {
+        await this.request("SUBSCRIBE", args, event);
+        return {
+            unsubscribe: () => this.request("UNSUBSCRIBE", args, event)
+        };
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     async connect(): Promise<void> {
         if (this.connectionPromise) return this.connectionPromise;
 
@@ -225,13 +245,6 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
 
         await this.authorize(options);
         await this.authenticate();
-    }
-
-    async subscribe(event: Exclude<EVT, "ERROR">, args?: any): Promise<{ unsubscribe: () => void }> {
-        await this.request("SUBSCRIBE", args, event);
-        return {
-            unsubscribe: () => this.request("UNSUBSCRIBE", args, event)
-        };
     }
 
     async destroy(): Promise<void> {

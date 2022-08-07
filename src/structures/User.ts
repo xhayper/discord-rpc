@@ -22,14 +22,13 @@ export class User extends Base {
 
     constructor(client: Client, props: any) {
         super(client);
+        Object.assign(this, props);
 
         // word can't explains how much i hate this
         this.id = props.id;
         this.username = props.username;
         this.discriminator = props.discriminator;
         this.avatar = props.avatar;
-
-        Object.assign(this, props);
     }
 
     get avatarUrl() {

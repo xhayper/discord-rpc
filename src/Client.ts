@@ -4,9 +4,18 @@ import { EventEmitter } from "stream";
 import TypedEmitter from "typed-emitter";
 import { v4 as uuidv4 } from "uuid";
 import { ClientUser } from "./structures/ClientUser";
-import { RPC_CMD, CommandIncoming, RPC_EVT, Transport, TransportOptions } from "./structures/Transport";
+import {
+    RPC_CMD,
+    CommandIncoming,
+    RPC_EVT,
+    Transport,
+    TransportOptions,
+    RPC_ERROR_CODE,
+    CUSTOM_RPC_ERROR_CODE
+} from "./structures/Transport";
 import { FormatFunction, IPCTransport } from "./transport/IPC";
 import { WebSocketTransport } from "./transport/WebSocket";
+import { RPCError } from "./utils/RPCError";
 
 export type AuthorizeOptions = {
     scopes: (OAuth2Scopes | `${OAuth2Scopes}`)[];
@@ -16,39 +25,96 @@ export type AuthorizeOptions = {
 };
 
 export interface ClientOptions {
+    /**
+     * application id
+     */
     clientId: string;
+    /**
+     * application secret
+     */
     clientSecret?: string;
+    /**
+     * pipe id
+     */
     instanceId?: number;
+    /**
+     * transport configs
+     */
     transport?: {
+        /**
+         * transport type
+         */
         type?: "ipc" | "websocket" | { new (options: TransportOptions): Transport };
+        /**
+         * ipc transport's path list
+         */
         pathList?: FormatFunction[];
     };
+    /**
+     * debug mode
+     */
     debug?: boolean;
 }
 
 export type ClientEvents = {
+    /**
+     * fired when the client is ready
+     */
     ready: () => void;
+    /**
+     * fired when the client is connected to local rpc server
+     */
     connected: () => void;
+    /**
+     * fired when the client is disconnected from the local rpc server
+     */
     disconnected: () => void;
 };
 
 export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents>) {
+    /**
+     * application id
+     */
     clientId: string;
+    /**
+     * application secret
+     */
     clientSecret?: string;
 
+    /**
+     * pipe id
+     */
     instanceId?: number;
 
     private accessToken?: string;
     private refreshToken?: string;
     private tokenType = "Bearer";
 
+    /**
+     * transport instance
+     */
     readonly transport: Transport;
+    /**
+     * debug mode
+     */
     readonly debug: boolean;
 
+    /**
+     * current user
+     */
     user?: ClientUser;
+    /**
+     * current application
+     */
     application?: APIApplication;
 
+    /**
+     * @hidden
+     */
     cdnHost: string = "https://cdn.discordapp.com";
+    /**
+     * @hidden
+     */
     origin: string = "https://localhost";
 
     private refrestTimeout?: NodeJS.Timer;
@@ -92,8 +158,26 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
         });
     }
 
+    private throwRPCError(ctx: { code: RPC_ERROR_CODE; message?: string }) {
+        throw new RPCError(ctx.code, ctx.message);
+    }
+
+    /**
+     * @hidden
+     */
+    async requestWithError<A = any, D = any>(cmd: RPC_CMD, args?: any, evt?: RPC_EVT): Promise<CommandIncoming<A, D>> {
+        const response = await this.request<A, D>(cmd, args, evt);
+
+        if (response.evt == "ERROR") this.throwRPCError(response.data as any);
+
+        return response;
+    }
+
     // #region Request Handlers
 
+    /**
+     * @hidden
+     */
     async fetch<R = any>(
         method: Method | string,
         path: string,
@@ -110,6 +194,9 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
         });
     }
 
+    /**
+     * @hidden
+     */
     async request<A = any, D = any>(cmd: RPC_CMD, args?: any, evt?: RPC_EVT): Promise<CommandIncoming<A, D>> {
         return new Promise((resolve, reject) => {
             const nonce = uuidv4();
@@ -123,9 +210,10 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
 
     // #region Authorization handlers
 
-    async authenticate(): Promise<void> {
-        const { application, user } = (await this.request("AUTHENTICATE", { access_token: this.accessToken ?? "" }))
-            .data;
+    private async authenticate(): Promise<void> {
+        const { application, user } = (
+            await this.requestWithError("AUTHENTICATE", { access_token: this.accessToken ?? "" })
+        ).data;
         this.application = application;
         this.user = new ClientUser(this, user);
         this.emit("ready");
@@ -156,7 +244,7 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
         this.refrestTimeout = setTimeout(() => this.refreshAccessToken(), data.expires_in - 5000);
     }
 
-    async authorize(options: AuthorizeOptions): Promise<void> {
+    private async authorize(options: AuthorizeOptions): Promise<void> {
         let rpcToken;
 
         if (options.useRPCToken) {
@@ -171,7 +259,7 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
         }
 
         const { code } = (
-            await this.request("AUTHORIZE", {
+            await this.requestWithError("AUTHORIZE", {
                 scopes: options.scopes,
                 client_id: this.clientId,
                 rpc_token: options.useRPCToken ? rpcToken : undefined,
@@ -197,20 +285,35 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
 
     // #endregion
 
-    async subscribe(event: Exclude<RPC_EVT, "ERROR">, args?: any): Promise<{ unsubscribe: () => void }> {
-        await this.request("SUBSCRIBE", args, event);
+    /**
+     * Used to subscribe to events. `evt` of the payload should be set to the event being subscribed to. `args` of the payload should be set to the args needed for the event.
+     * @param event event name now subscribed to
+     * @param args args for the event
+     * @returns an object to unsubscribe from the event
+     */
+    async subscribe(event: Exclude<RPC_EVT, "READY" | "ERROR">, args?: any): Promise<{ unsubscribe: () => void }> {
+        await this.requestWithError("SUBSCRIBE", args, event);
         return {
-            unsubscribe: () => this.request("UNSUBSCRIBE", args, event)
+            /**
+             * Unsubscribes from the event
+             */
+            unsubscribe: () => this.requestWithError("UNSUBSCRIBE", args, event)
         };
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    /**
+     * connect to the local rpc server
+     */
     async connect(): Promise<void> {
         if (this.connectionPromise) return this.connectionPromise;
 
         this.connectionPromise = new Promise((resolve, reject) => {
-            const timeout = setTimeout(() => reject(new Error("TRANSPORT_CONNECTION_TIMEOUT")), 10e3);
+            const timeout = setTimeout(
+                () => reject(new RPCError(CUSTOM_RPC_ERROR_CODE.RPC_CONNECTION_TIMEOUT, "Connection timed out")),
+                10e3
+            );
             timeout.unref();
 
             this.once("connected", () => {
@@ -220,10 +323,12 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
 
             this.transport.once("close", () => {
                 this._nonceMap.forEach((promise) => {
-                    promise.reject(new Error("TRANSPORT_CONNECTION_CLOSE"));
+                    promise.reject(new RPCError(CUSTOM_RPC_ERROR_CODE.RPC_CONNECTION_ENDED, "Connection ended"));
                 });
                 this.emit("disconnected");
-                reject(new Error("TRANSPORT_CONNECTION_CLOSE"));
+                reject(
+                    new RPCError(CUSTOM_RPC_ERROR_CODE.RPC_CONNECTION_ENDED, "[RPC_CONNECTION_ENDED]: Connection ended")
+                );
             });
 
             this.transport.connect();
@@ -232,6 +337,10 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
         return this.connectionPromise;
     }
 
+    /**
+     * will try to authorize if a scope is specified, else it's the same as `connect()`
+     * @param options options for the authorization
+     */
     async login(options?: AuthorizeOptions): Promise<void> {
         await this.connect();
 
@@ -244,6 +353,9 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
         await this.authenticate();
     }
 
+    /**
+     * disconnects from the local rpc server
+     */
     async destroy(): Promise<void> {
         if (this.refrestTimeout) {
             clearTimeout(this.refrestTimeout);

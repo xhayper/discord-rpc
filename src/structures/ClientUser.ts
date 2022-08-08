@@ -38,129 +38,196 @@ export type SetActivityResponse = {
 export class ClientUser extends User {
     // #region Helper function
 
-    async fetchUser(userId: string): Promise<User | null> {
-        const response = await this.client.request("GET_USER", { id: userId });
-
-        if (response.evt == "ERROR") return null;
-
-        return new User(this.client, response.data);
+    async fetchUser(userId: string): Promise<User> {
+        return new User(this.client, (await this.client.requestWithError("GET_USER", { id: userId })).data);
     }
 
-    async fetchGuild(guildId: string, timeout?: number): Promise<Guild | null> {
-        const response = await this.client.request("GET_GUILD", { guild_id: guildId, timeout });
-
-        if (response.evt == "ERROR") return null;
-
-        return new Guild(this.client, response.data);
+    /**
+     * Used to get a guild the client is in.
+     *
+     * @param guildId - id of the guild to get
+     * @param timeout - asynchronously get guild with time to wait before timing out
+     * @returns partial guild
+     */
+    async fetchGuild(guildId: string, timeout?: number): Promise<Guild> {
+        return new Guild(
+            this.client,
+            (await this.client.requestWithError("GET_GUILD", { guild_id: guildId, timeout })).data
+        );
     }
 
-    async fetchGuilds(): Promise<Guild[] | null> {
-        const response = await this.client.request("GET_GUILDS");
-
-        if (response.evt == "ERROR") return null;
-
-        return response.data.guilds.map((guildData: any) => new Guild(this.client, guildData));
+    /**
+     * Used to get a list of guilds the client is in.
+     * @returns the guilds the user is in
+     */
+    async fetchGuilds(): Promise<Guild[]> {
+        return (await this.client.requestWithError("GET_GUILDS")).data.guilds.map(
+            (guildData: any) => new Guild(this.client, guildData)
+        );
     }
 
-    async fetchChannel(channelId: string): Promise<Channel | null> {
-        const response = await this.client.request("GET_CHANNEL", { channel_id: channelId });
-
-        if (response.evt == "ERROR") return null;
-
-        return new Channel(this.client, response.data);
+    /**
+     * Used to get a channel the client is in.
+     * @param channelId - id of the channel to get
+     * @returns partial channel
+     */
+    async fetchChannel(channelId: string): Promise<Channel> {
+        return new Channel(
+            this.client,
+            (await this.client.requestWithError("GET_CHANNEL", { channel_id: channelId })).data
+        );
     }
 
-    async fetchChannels(guildId: string): Promise<Channel | null> {
-        const response = await this.client.request("GET_CHANNELS", { guild_id: guildId });
-
-        if (response.evt == "ERROR") return null;
-
-        return response.data.channels.map((channelData: any) => new Channel(this.client, channelData));
+    /**
+     * Used to get a guild's channels the client is in.
+     * @param guildId - id of the guild to get channels for
+     * @returns guild channels the user is in
+     */
+    async fetchChannels(guildId: string): Promise<Channel> {
+        return (await this.client.requestWithError("GET_CHANNELS", { guild_id: guildId })).data.channels.map(
+            (channelData: any) => new Channel(this.client, channelData)
+        );
     }
 
+    /**
+     * Used to get the client's current voice channel. There are no arguments for this command. Returns the [Get Channel](https://discord.com/developers/docs/topics/rpc#getchannel) response, or `null` if none.
+     * @returns the client's current voice channel, `null` if none
+     */
     async getSelectedVoiceChannel(): Promise<Channel | null> {
-        const response = await this.client.request("GET_SELECTED_VOICE_CHANNEL");
-
-        if (response.evt == "ERROR") return null;
-
+        const response = await this.client.requestWithError("GET_SELECTED_VOICE_CHANNEL");
         return response.data != null ? new Channel(this.client, response.data) : null;
     }
 
-    async selectVoiceChannel(channelId: string | null, timeout?: number, force?: boolean): Promise<Channel | null> {
-        const response = await this.client.request("SELECT_VOICE_CHANNEL", { channel_id: channelId, timeout, force });
-
-        if (response.evt == "ERROR") return null;
-
-        return response.data != null ? new Channel(this.client, response.data) : null;
+    /**
+     * Used to join voice channels, group dms, or dms. Returns the [Get Channel](https://discord.com/developers/docs/topics/rpc#getchannel) response, `null` if none.
+     * @param channelId - channel id to join
+     * @param timeout - asynchronously join channel with time to wait before timing out
+     * @param force - forces a user to join a voice channel
+     * @returns the channel that the user joined, `null` if none
+     */
+    async selectVoiceChannel(channelId: string, timeout?: number, force?: boolean): Promise<Channel> {
+        return new Channel(
+            this.client,
+            (
+                await this.client.requestWithError("SELECT_VOICE_CHANNEL", {
+                    channel_id: channelId,
+                    timeout,
+                    force
+                })
+            ).data
+        );
     }
 
-    async getVoiceSettings(): Promise<VoiceSettings | null> {
-        const response = await this.client.request("GET_VOICE_SETTINGS");
-
-        if (response.evt == "ERROR") return null;
-
-        return new VoiceSettings(this.client, response.data);
+    /**
+     * Used to leave voice channels, group dms, or dms
+     * @param timeout - asynchronously join channel with time to wait before timing out
+     * @param force - forces a user to join a voice channel
+     */
+    async leaveVoiceChannel(timeout?: number, force?: boolean): Promise<void> {
+        await this.client.requestWithError("SELECT_VOICE_CHANNEL", {
+            channel_id: null,
+            timeout,
+            force
+        });
     }
 
-    async setVoiceSettings(voiceSettings: Partial<VoiceSettings>): Promise<VoiceSettings | null> {
-        const response = await this.client.request("SET_VOICE_SETTINGS", voiceSettings);
-
-        if (response.evt == "ERROR") return null;
-
-        return new VoiceSettings(this.client, response.data);
+    /**
+     * Used to get current client's voice settings
+     * @returns the voice setting
+     */
+    async getVoiceSettings(): Promise<VoiceSettings> {
+        return new VoiceSettings(this.client, (await this.client.requestWithError("GET_VOICE_SETTINGS")).data);
     }
 
-    async setCeritfiedDevices(devices: CertifiedDevice[]): Promise<any | null> {
-        return (await this.client.request("SET_CERTIFIED_DEVICES", { devices })).data;
+    /**
+     * Used to change voice settings of users in voice channels
+     * @param voiceSettings - the settings
+     * @returns the settings that have been set
+     */
+    async setVoiceSettings(voiceSettings: Partial<VoiceSettings>): Promise<VoiceSettings> {
+        return new VoiceSettings(
+            this.client,
+            (await this.client.requestWithError("SET_VOICE_SETTINGS", voiceSettings)).data
+        );
     }
 
-    async sendJoinInvite(userId: string): Promise<any> {
-        return (await this.client.request("SEND_ACTIVITY_JOIN_INVITE", { user_id: userId })).data;
+    /**
+     * Used by hardware manufacturers to send information about the current state of their certified devices that are connected to Discord.
+     * @param devices - a list of devices for your manufacturer, in order of priority
+     * @returns
+     */
+    async setCeritfiedDevices(devices: CertifiedDevice[]): Promise<void> {
+        await this.client.requestWithError("SET_CERTIFIED_DEVICES", { devices });
     }
 
-    async closeJoinRequest(userId: string): Promise<any> {
-        return (await this.client.request("CLOSE_ACTIVITY_JOIN_REQUEST", { user_id: userId })).data;
+    /**
+     * Used to accept an Ask to Join request.
+     * @param userId - the id of the requesting user
+     */
+    async sendJoinInvite(userId: string): Promise<void> {
+        await this.client.requestWithError("SEND_ACTIVITY_JOIN_INVITE", { user_id: userId });
     }
 
+    /**
+     * Used to reject an Ask to Join request.
+     * @param userId - the id of the requesting user
+     */
+    async closeJoinRequest(userId: string): Promise<void> {
+        await this.client.requestWithError("CLOSE_ACTIVITY_JOIN_REQUEST", { user_id: userId });
+    }
+
+    /**
+     * Used to join text channels, group dms, or dms. Returns the [Get Channel](https://discord.com/developers/docs/topics/rpc#getchannel) response, or `null` if none.
+     * @param channelId - channel id to join
+     * @param timeout - asynchronously join channel with time to wait before timing out
+     * @returns the text channel that user joined
+     */
     async selectTextChannel(channelId: string, timeout?: number): Promise<Channel | null> {
-        const response = await this.client.request("SELECT_TEXT_CHANNEL", { channel_id: channelId, timeout });
+        return new Channel(
+            this.client,
+            (await this.client.requestWithError("SELECT_TEXT_CHANNEL", { channel_id: channelId, timeout })).data
+        );
+    }
 
-        if (response.evt == "ERROR") return null;
-
-        return new Channel(this.client, response.data);
+    /**
+     * Used to leave text channels, group dms, or dms.
+     * @param timeout - asynchronously join channel with time to wait before timing out
+     */
+    async leaveTextChannel(timeout?: number): Promise<void> {
+        await this.client.requestWithError("SELECT_TEXT_CHANNEL", { channel_id: null, timeout });
     }
 
     // TODO: Strict type these functions before uncommenting it in production
 
     // async createLobby(type: string, capacity: number, metadata: any): Promise<any> {
-    //     return (await this.client.request("CREATE_LOBBY", { type, capacity, metadata })).data;
+    //     return (await this.client.requestWithError("CREATE_LOBBY", { type, capacity, metadata })).data;
     // }
 
     // async updateLobby(
     //     lobbyId: string,
     //     options?: { type: string; owner_id: string; capacity: number; metadata: any }
     // ): Promise<any> {
-    //     return (await this.client.request("UPDATE_LOBBY", { id: lobbyId, ...options })).data;
+    //     return (await this.client.requestWithError("UPDATE_LOBBY", { id: lobbyId, ...options })).data;
     // }
 
     // async deleteLobby(lobbyId: string): Promise<any> {
-    //     return (await this.client.request("DELETE_LOBBY", { id: lobbyId })).data;
+    //     return (await this.client.requestWithError("DELETE_LOBBY", { id: lobbyId })).data;
     // }
 
     // async connectToLobby(lobbyId: string, secret: string): Promise<any> {
-    //     return (await this.client.request("CONNECT_TO_LOBBY", { id: lobbyId, secret })).data;
+    //     return (await this.client.requestWithError("CONNECT_TO_LOBBY", { id: lobbyId, secret })).data;
     // }
 
     // async sendToLobby(lobbyId: string, data: any): Promise<any> {
-    //     return (await this.client.request("SEND_TO_LOBBY", { id: lobbyId, data })).data;
+    //     return (await this.client.requestWithError("SEND_TO_LOBBY", { id: lobbyId, data })).data;
     // }
 
     // async disconnectFromLobby(lobbyId: string): Promise<any> {
-    //     return (await this.client.request("DISCONNECT_FROM_LOBBY", { id: lobbyId })).data;
+    //     return (await this.client.requestWithError("DISCONNECT_FROM_LOBBY", { id: lobbyId })).data;
     // }
 
     // async updateLobbyMember(lobbyId: string, userId: string, metadata: any): Promise<any> {
-    //     return (await this.client.request("UPDATE_LOBBY_MEMBER", { lobby_id: lobbyId, user_id: userId, metadata }))
+    //     return (await this.client.requestWithError("UPDATE_LOBBY_MEMBER", { lobby_id: lobbyId, user_id: userId, metadata }))
     //         .data;
     // }
 
@@ -170,6 +237,13 @@ export class ClientUser extends User {
         });
     }
 
+    /**
+     * Used to update a user's Rich Presence.
+     *
+     * @param activity - the rich presence to assign to the user
+     * @param pid - the application's process id
+     * @returns The activity that have been set
+     */
     async setActivity(activity: SetActivity, pid?: number): Promise<SetActivityResponse> {
         let formattedAcitivity: any = {
             ...activity,
@@ -226,15 +300,20 @@ export class ClientUser extends User {
         delete formattedAcitivity["matchSecret"];
 
         return (
-            await this.client.request("SET_ACTIVITY", {
+            await this.client.requestWithError("SET_ACTIVITY", {
                 pid: pid ?? process ? process.pid ?? 0 : 0,
                 activity: formattedAcitivity
             })
         ).data;
     }
 
+    /**
+     * Used to clear a user's Rich Presence.
+     *
+     * @param pid - the application's process id
+     */
     async clearActivity(pid?: number): Promise<void> {
-        await this.client.request("SET_ACTIVITY", { pid: pid ?? process ? process.pid ?? 0 : 0 });
+        await this.client.requestWithError("SET_ACTIVITY", { pid: pid ?? process ? process.pid ?? 0 : 0 });
     }
 
     // #endregion

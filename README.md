@@ -1,7 +1,7 @@
 <!-- markdownlint-disable -->
 <div align="center">
     <br />
-    <h3>discord-rpc</h3>
+    <h3>@xhayper/discord-rpc</h3>
     <br />
     <p>
         <a href="https://www.npmjs.com/package/@xhayper/discord-rpc" target="_blank"><img src="https://img.shields.io/npm/v/@xhayper/discord-rpc.svg" alt="npm version"/></a>
@@ -13,7 +13,7 @@
 
 ## About
 
-`discord-rpc` is a fork of [discordjs/RPC](https://github.com/discordjs/RPC)
+`@xhayper/discord-rpc` is a fork of [discordjs/RPC](https://github.com/discordjs/RPC) with type safety and some additional features.
 
 ## Example
 
@@ -43,11 +43,9 @@ client.login();
 
 -   Linux is tested on Kubuntu 22.04
 
-## FAQ
+## Credits
 
-Q: It throws "Couldn't Connect" error!<br>
-A: Could mean that it can't find discord IPC path / WebSocket path, If you are using the IPC transport, you can implement your own path logic.
-
-<!--
-[![Verified on Openbase](https://badges.openbase.com/js/verified/@xhayper/discord-rpc.svg?token=kcR9ysbKX4fe8vEPkMdZdYpJdw9nOyt4YP/TVNC584c=)](https://openbase.com/js/@xhayper/discord-rpc?utm_source=embedded&utm_medium=badge&utm_campaign=verified-badge&utm_term=js/@xhayper/discord-rpc)
--->
+-   [discordjs](https://github.com/discordjs): Making [discordjs/RPC](https://github.com/discordjs/RPC)
+-   [JakeMakesStuff](https://github.com/JakeMakesStuff): [Snap Support](https://github.com/discordjs/RPC/pull/152)
+-   [Snazzah](https://github.com/Snazzah): [Snap Support](https://github.com/Snazzah/SublimeDiscordRP/blob/c13e60cdbc5de8147881bb232f2339722c2b46b4/discord_ipc/__init__.py#L208)
+-   [leonardssh](https://github.com/leonardssh): Making [coc-discord-rpc](https://github.com/leonardssh/coc-discord-rpc) which inspried me to make this package due to how old [discordjs/RPC](https://github.com/discordjs/RPC) is

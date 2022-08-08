@@ -12,23 +12,12 @@ export enum IPC_OPCODE {
     PONG
 }
 
-/*
-00000000  28000000 7B2276223A312C22 (trimmed)
-^^^^^^^^  ^^^^^^^^ ^^^^^^^^^^^^^^^^
-OPCODE 0   Length     JSON Data
-HANDSHAKE 40bytes  { " v " : 1 , " 
-*/
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
 export type FormatFunction = (id: number) => [path: string, skipCheck?: boolean];
 
 export type IPCTransportOptions = {
     pathList?: FormatFunction[];
 } & TransportOptions;
 
-// https://github.com/discordjs/RPC/pull/152
-// https://github.com/Snazzah/SublimeDiscordRP/blob/c13e60cdbc5de8147881bb232f2339722c2b46b4/discord_ipc/__init__.py#L208
 const defaultPathList: FormatFunction[] = [
     (id: number): [string, boolean] => {
         // Windows path

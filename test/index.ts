@@ -17,8 +17,6 @@ client.on("ready", async () => {
         largeImageKey: "main",
         largeImageText: "me irl"
     });
-
-    await client.user?.fetchGuilds();
 });
 
-client.login({ scopes: ["voice"] });
+client.login();

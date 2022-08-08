@@ -4,7 +4,7 @@ import path from "path";
 import { v4 as uuidv4 } from "uuid";
 import { Transport, TransportOptions } from "../structures/Transport";
 
-export enum OPCODE {
+export enum IPC_OPCODE {
     HANDSHAKE,
     FRAME,
     CLOSE,
@@ -12,23 +12,12 @@ export enum OPCODE {
     PONG
 }
 
-/*
-00000000  28000000 7B2276223A312C22 (trimmed)
-^^^^^^^^  ^^^^^^^^ ^^^^^^^^^^^^^^^^
-OPCODE 0   Length     JSON Data
-HANDSHAKE 40bytes  { " v " : 1 , " 
-*/
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
 export type FormatFunction = (id: number) => [path: string, skipCheck?: boolean];
 
 export type IPCTransportOptions = {
     pathList?: FormatFunction[];
 } & TransportOptions;
 
-// https://github.com/discordjs/RPC/pull/152
-// https://github.com/Snazzah/SublimeDiscordRP/blob/c13e60cdbc5de8147881bb232f2339722c2b46b4/discord_ipc/__init__.py#L208
 const defaultPathList: FormatFunction[] = [
     (id: number): [string, boolean] => {
         // Windows path
@@ -160,7 +149,7 @@ export class IPCTransport extends Transport {
                 v: 1,
                 client_id: this.client.clientId
             },
-            OPCODE.HANDSHAKE
+            IPC_OPCODE.HANDSHAKE
         );
 
         let chunk: Buffer | null;
@@ -198,21 +187,21 @@ export class IPCTransport extends Transport {
                 data: length > 0 ? JSON.parse(jsonData.toString()) : null // Should not error at all, If it does, open an Issue on GitHub.
             };
 
-            if (this.client.debug) console.debug(`SERVER => CLIENT | OPCODE.${OPCODE[packet.op]} |`, packet.data);
+            if (this.client.debug) console.debug(`SERVER => CLIENT | OPCODE.${IPC_OPCODE[packet.op]} |`, packet.data);
 
             switch (packet.op) {
-                case OPCODE.FRAME: {
+                case IPC_OPCODE.FRAME: {
                     if (!packet.data) break;
 
                     this.emit("message", packet.data);
                     break;
                 }
-                case OPCODE.CLOSE: {
+                case IPC_OPCODE.CLOSE: {
                     this.emit("close");
                     break;
                 }
-                case OPCODE.PING: {
-                    this.send(packet.data, OPCODE.PONG);
+                case IPC_OPCODE.PING: {
+                    this.send(packet.data, IPC_OPCODE.PONG);
                     this.emit("ping");
                     break;
                 }
@@ -224,8 +213,8 @@ export class IPCTransport extends Transport {
         this.socket.on("data", onData);
     }
 
-    send(message?: any, op: OPCODE = OPCODE.FRAME): void {
-        if (this.client.debug) console.debug(`CLIENT => SERVER | OPCODE.${OPCODE[op]} |`, message);
+    send(message?: any, op: IPC_OPCODE = IPC_OPCODE.FRAME): void {
+        if (this.client.debug) console.debug(`CLIENT => SERVER | OPCODE.${IPC_OPCODE[op]} |`, message);
 
         const dataBuffer = message ? Buffer.from(JSON.stringify(message)) : Buffer.alloc(0);
 
@@ -237,13 +226,13 @@ export class IPCTransport extends Transport {
     }
 
     ping(): void {
-        this.send(uuidv4(), OPCODE.PING);
+        this.send(uuidv4(), IPC_OPCODE.PING);
     }
 
     close(): Promise<void> {
         return new Promise((resolve) => {
             this.once("close", resolve);
-            this.send({}, OPCODE.CLOSE);
+            this.send({}, IPC_OPCODE.CLOSE);
             this.socket?.end();
         });
     }

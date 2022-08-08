@@ -1,7 +1,9 @@
 import Payload from "discord-api-types/payloads/v10";
+import { RPC_ERROR_CODE } from "../structures/Transport";
 import { CertifiedDevice } from "./CertifiedDevice";
 import { Channel } from "./Channel";
 import { Guild } from "./Guild";
+import { RPC_CMD, CommandIncoming, RPC_EVT } from "./Transport";
 import { User } from "./User";
 import { VoiceSettings } from "./VoiceSettings";
 
@@ -36,131 +38,116 @@ export type SetActivityResponse = {
 };
 
 export class ClientUser extends User {
+    private throwError(ctx: { code: RPC_ERROR_CODE; message?: string }) {
+        throw new Error(`[${RPC_ERROR_CODE[ctx.code]}]: ${ctx.message}`);
+    }
+
+    private async handleRequest<A = any, D = any>(
+        cmd: RPC_CMD,
+        args?: any,
+        evt?: RPC_EVT
+    ): Promise<CommandIncoming<A, D>> {
+        const response = await this.client.request<A, D>(cmd, args);
+
+        if (response.evt == "ERROR") this.throwError(response.data as any);
+
+        return response;
+    }
+
     // #region Helper function
 
-    async fetchUser(userId: string): Promise<User | null> {
-        const response = await this.client.request("GET_USER", { id: userId });
-
-        if (response.evt == "ERROR") return null;
-
-        return new User(this.client, response.data);
+    async fetchUser(userId: string): Promise<User> {
+        return new User(this.client, (await this.handleRequest("GET_USER", { id: userId })).data);
     }
 
-    async fetchGuild(guildId: string, timeout?: number): Promise<Guild | null> {
-        const response = await this.client.request("GET_GUILD", { guild_id: guildId, timeout });
-
-        if (response.evt == "ERROR") return null;
-
-        return new Guild(this.client, response.data);
+    async fetchGuild(guildId: string, timeout?: number): Promise<Guild> {
+        return new Guild(this.client, (await this.handleRequest("GET_GUILD", { guild_id: guildId, timeout })).data);
     }
 
-    async fetchGuilds(): Promise<Guild[] | null> {
-        const response = await this.client.request("GET_GUILDS");
-
-        if (response.evt == "ERROR") return null;
-
-        return response.data.guilds.map((guildData: any) => new Guild(this.client, guildData));
+    async fetchGuilds(): Promise<Guild[]> {
+        return (await this.handleRequest("GET_GUILDS")).data.guilds.map(
+            (guildData: any) => new Guild(this.client, guildData)
+        );
     }
 
-    async fetchChannel(channelId: string): Promise<Channel | null> {
-        const response = await this.client.request("GET_CHANNEL", { channel_id: channelId });
-
-        if (response.evt == "ERROR") return null;
-
-        return new Channel(this.client, response.data);
+    async fetchChannel(channelId: string): Promise<Channel> {
+        return new Channel(this.client, (await this.handleRequest("GET_CHANNEL", { channel_id: channelId })).data);
     }
 
-    async fetchChannels(guildId: string): Promise<Channel | null> {
-        const response = await this.client.request("GET_CHANNELS", { guild_id: guildId });
-
-        if (response.evt == "ERROR") return null;
-
-        return response.data.channels.map((channelData: any) => new Channel(this.client, channelData));
+    async fetchChannels(guildId: string): Promise<Channel> {
+        return (await this.handleRequest("GET_CHANNELS", { guild_id: guildId })).data.channels.map(
+            (channelData: any) => new Channel(this.client, channelData)
+        );
     }
 
     async getSelectedVoiceChannel(): Promise<Channel | null> {
-        const response = await this.client.request("GET_SELECTED_VOICE_CHANNEL");
-
-        if (response.evt == "ERROR") return null;
-
+        const response = await this.handleRequest("GET_SELECTED_VOICE_CHANNEL");
         return response.data != null ? new Channel(this.client, response.data) : null;
     }
 
     async selectVoiceChannel(channelId: string | null, timeout?: number, force?: boolean): Promise<Channel | null> {
-        const response = await this.client.request("SELECT_VOICE_CHANNEL", { channel_id: channelId, timeout, force });
-
-        if (response.evt == "ERROR") return null;
-
+        const response = await this.handleRequest("SELECT_VOICE_CHANNEL", { channel_id: channelId, timeout, force });
         return response.data != null ? new Channel(this.client, response.data) : null;
     }
 
-    async getVoiceSettings(): Promise<VoiceSettings | null> {
-        const response = await this.client.request("GET_VOICE_SETTINGS");
-
-        if (response.evt == "ERROR") return null;
-
-        return new VoiceSettings(this.client, response.data);
+    async getVoiceSettings(): Promise<VoiceSettings> {
+        return new VoiceSettings(this.client, (await this.handleRequest("GET_VOICE_SETTINGS")).data);
     }
 
-    async setVoiceSettings(voiceSettings: Partial<VoiceSettings>): Promise<VoiceSettings | null> {
-        const response = await this.client.request("SET_VOICE_SETTINGS", voiceSettings);
-
-        if (response.evt == "ERROR") return null;
-
-        return new VoiceSettings(this.client, response.data);
+    async setVoiceSettings(voiceSettings: Partial<VoiceSettings>): Promise<VoiceSettings> {
+        return new VoiceSettings(this.client, (await this.handleRequest("SET_VOICE_SETTINGS", voiceSettings)).data);
     }
 
-    async setCeritfiedDevices(devices: CertifiedDevice[]): Promise<any | null> {
-        return (await this.client.request("SET_CERTIFIED_DEVICES", { devices })).data;
+    async setCeritfiedDevices(devices: CertifiedDevice[]): Promise<null> {
+        return (await this.handleRequest("SET_CERTIFIED_DEVICES", { devices })).data;
     }
 
-    async sendJoinInvite(userId: string): Promise<any> {
-        return (await this.client.request("SEND_ACTIVITY_JOIN_INVITE", { user_id: userId })).data;
+    async sendJoinInvite(userId: string): Promise<null> {
+        return (await this.handleRequest("SEND_ACTIVITY_JOIN_INVITE", { user_id: userId })).data;
     }
 
-    async closeJoinRequest(userId: string): Promise<any> {
-        return (await this.client.request("CLOSE_ACTIVITY_JOIN_REQUEST", { user_id: userId })).data;
+    async closeJoinRequest(userId: string): Promise<null> {
+        return (await this.handleRequest("CLOSE_ACTIVITY_JOIN_REQUEST", { user_id: userId })).data;
     }
 
     async selectTextChannel(channelId: string, timeout?: number): Promise<Channel | null> {
-        const response = await this.client.request("SELECT_TEXT_CHANNEL", { channel_id: channelId, timeout });
-
-        if (response.evt == "ERROR") return null;
-
-        return new Channel(this.client, response.data);
+        return new Channel(
+            this.client,
+            (await this.handleRequest("SELECT_TEXT_CHANNEL", { channel_id: channelId, timeout })).data
+        );
     }
 
     // TODO: Strict type these functions before uncommenting it in production
 
     // async createLobby(type: string, capacity: number, metadata: any): Promise<any> {
-    //     return (await this.client.request("CREATE_LOBBY", { type, capacity, metadata })).data;
+    //     return (await this.handleRequest("CREATE_LOBBY", { type, capacity, metadata })).data;
     // }
 
     // async updateLobby(
     //     lobbyId: string,
     //     options?: { type: string; owner_id: string; capacity: number; metadata: any }
     // ): Promise<any> {
-    //     return (await this.client.request("UPDATE_LOBBY", { id: lobbyId, ...options })).data;
+    //     return (await this.handleRequest("UPDATE_LOBBY", { id: lobbyId, ...options })).data;
     // }
 
     // async deleteLobby(lobbyId: string): Promise<any> {
-    //     return (await this.client.request("DELETE_LOBBY", { id: lobbyId })).data;
+    //     return (await this.handleRequest("DELETE_LOBBY", { id: lobbyId })).data;
     // }
 
     // async connectToLobby(lobbyId: string, secret: string): Promise<any> {
-    //     return (await this.client.request("CONNECT_TO_LOBBY", { id: lobbyId, secret })).data;
+    //     return (await this.handleRequest("CONNECT_TO_LOBBY", { id: lobbyId, secret })).data;
     // }
 
     // async sendToLobby(lobbyId: string, data: any): Promise<any> {
-    //     return (await this.client.request("SEND_TO_LOBBY", { id: lobbyId, data })).data;
+    //     return (await this.handleRequest("SEND_TO_LOBBY", { id: lobbyId, data })).data;
     // }
 
     // async disconnectFromLobby(lobbyId: string): Promise<any> {
-    //     return (await this.client.request("DISCONNECT_FROM_LOBBY", { id: lobbyId })).data;
+    //     return (await this.handleRequest("DISCONNECT_FROM_LOBBY", { id: lobbyId })).data;
     // }
 
     // async updateLobbyMember(lobbyId: string, userId: string, metadata: any): Promise<any> {
-    //     return (await this.client.request("UPDATE_LOBBY_MEMBER", { lobby_id: lobbyId, user_id: userId, metadata }))
+    //     return (await this.handleRequest("UPDATE_LOBBY_MEMBER", { lobby_id: lobbyId, user_id: userId, metadata }))
     //         .data;
     // }
 
@@ -226,7 +213,7 @@ export class ClientUser extends User {
         delete formattedAcitivity["matchSecret"];
 
         return (
-            await this.client.request("SET_ACTIVITY", {
+            await this.handleRequest("SET_ACTIVITY", {
                 pid: pid ?? process ? process.pid ?? 0 : 0,
                 activity: formattedAcitivity
             })
@@ -234,7 +221,7 @@ export class ClientUser extends User {
     }
 
     async clearActivity(pid?: number): Promise<void> {
-        await this.client.request("SET_ACTIVITY", { pid: pid ?? process ? process.pid ?? 0 : 0 });
+        await this.handleRequest("SET_ACTIVITY", { pid: pid ?? process ? process.pid ?? 0 : 0 });
     }
 
     // #endregion

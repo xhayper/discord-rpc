@@ -3,11 +3,8 @@ import { APIApplication, OAuth2Scopes } from "discord-api-types/v10";
 import { EventEmitter } from "stream";
 import TypedEmitter from "typed-emitter";
 import { v4 as uuidv4 } from "uuid";
-import { Channel } from "./structures/Channel";
 import { ClientUser } from "./structures/ClientUser";
-import { Guild } from "./structures/Guild";
-import { CMD, CommandIncoming, EVT, Transport, TransportOptions } from "./structures/Transport";
-import { User } from "./structures/User";
+import { RPC_CMD, CommandIncoming, RPC_EVT, Transport, TransportOptions } from "./structures/Transport";
 import { FormatFunction, IPCTransport } from "./transport/IPC";
 import { WebSocketTransport } from "./transport/WebSocket";
 
@@ -113,7 +110,7 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
         });
     }
 
-    async request<A = any, D = any>(cmd: CMD, args?: any, evt?: EVT): Promise<CommandIncoming<A, D>> {
+    async request<A = any, D = any>(cmd: RPC_CMD, args?: any, evt?: RPC_EVT): Promise<CommandIncoming<A, D>> {
         return new Promise((resolve, reject) => {
             const nonce = uuidv4();
 
@@ -200,7 +197,7 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
 
     // #endregion
 
-    async subscribe(event: Exclude<EVT, "ERROR">, args?: any): Promise<{ unsubscribe: () => void }> {
+    async subscribe(event: Exclude<RPC_EVT, "ERROR">, args?: any): Promise<{ unsubscribe: () => void }> {
         await this.request("SUBSCRIBE", args, event);
         return {
             unsubscribe: () => this.request("UNSUBSCRIBE", args, event)

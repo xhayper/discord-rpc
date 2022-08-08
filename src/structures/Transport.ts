@@ -4,7 +4,25 @@ import { Client } from "../Client";
 
 // https://robins.one/notes/discord-rpc-documentation.html
 
-export type CMD =
+export enum RPC_ERROR_CODE {
+    RPC_UNKNOWN_ERROR = 1000,
+    RPC_INVALID_PAYLOAD = 4000,
+    RPC_INVALID_COMMAND = 4002,
+    RPC_INVALID_GUILD = 4003,
+    RPC_INVALID_EVENT = 4004,
+    RPC_INVALID_CHANNEL = 4005,
+    RPC_INVALID_PERMISSION = 4006,
+    RPC_INVALID_CLIENT_ID = 4007,
+    RPC_INVALID_ORIGIN = 4008,
+    RPC_INVALID_TOKEN = 4009,
+    RPC_INVALID_USER = 4010,
+    RPC_OAUTH_ERROR = 5000,
+    RPC_SELECT_CHANNEL_TIMEOUT = 5001,
+    RPC_GET_GUILD_TIMEOUT = 5002,
+    RPC_SELECT_VOICE_FORCE_REQUIRED = 5003
+}
+
+export type RPC_CMD =
     | "DISPATCH"
     | "AUTHORIZE"
     | "AUTHENTICATE"
@@ -68,7 +86,7 @@ export type CMD =
     | "SET_USER_ACHIEVEMENT"
     | "GET_USER_ACHIEVEMENTS";
 
-export type EVT =
+export type RPC_EVT =
     | "CURRENT_USER_UPDATE"
     | "GUILD_STATUS"
     | "GUILD_CREATE"
@@ -109,18 +127,18 @@ export type EVT =
     | "ERROR";
 
 export interface CommandOutgoing<A = any> {
-    cmd: CMD;
+    cmd: RPC_CMD;
     nonce: string | null;
     args: A;
-    evt?: EVT;
+    evt?: RPC_EVT;
 }
 
 export interface CommandIncoming<A = any, D = any> {
-    cmd: CMD;
+    cmd: RPC_CMD;
     nonce: string | null;
     args?: A;
     data: D;
-    evt?: EVT;
+    evt?: RPC_EVT;
 }
 
 export type TransportEvents = {

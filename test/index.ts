@@ -21,4 +21,4 @@ client.on("ready", async () => {
     await client.user?.fetchGuilds();
 });
 
-client.login();
+client.login({ scopes: ["voice"] });

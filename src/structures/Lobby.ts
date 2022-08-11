@@ -47,10 +47,11 @@ export class Lobby extends Base {
     }
 
     async update(type?: LobbyType, owner_id?: string, capacity?: number, locked?: boolean, metadata?: any) {
-        this.type = type || this.type;
-        this.owner_id = owner_id || this.owner_id;
-        this.capacity = capacity || this.capacity;
-        this.metadata = metadata || this.metadata;
+        this.type = type ?? this.type;
+        this.owner_id = owner_id ?? this.owner_id;
+        this.capacity = capacity ?? this.capacity;
+        this.locked = locked ?? this.locked;
+        this.metadata = metadata ?? this.metadata;
 
         return (
             await this.client.requestWithError("UPDATE_LOBBY", {

@@ -11,5 +11,4 @@ src/
 # File
 tsconfig.json
 .prettierrc
-TODO.md
 *.tgz

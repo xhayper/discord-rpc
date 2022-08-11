@@ -284,5 +284,8 @@ $RECYCLE.BIN/
 package-lock.json
 yarn.lock
 
+# tests
+test/
+
 # docs
 docs/

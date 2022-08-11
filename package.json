@@ -24,6 +24,7 @@
         "prepack": "npm run build",
         "test": "npx ts-node test/index.ts",
         "docs": "npx typedoc --options typedoc.json",
+        "pretty": "npx pretty-quick --pattern \"src/**/*\"",
         "prepare": "husky install"
     },
     "dependencies": {

@@ -2,6 +2,7 @@ import Payload from "discord-api-types/payloads/v10";
 import { CertifiedDevice } from "./CertifiedDevice";
 import { Channel } from "./Channel";
 import { Guild } from "./Guild";
+import { Lobby, LobbyType } from "./Lobby";
 import { User } from "./User";
 import { VoiceSettings } from "./VoiceSettings";
 
@@ -197,40 +198,6 @@ export class ClientUser extends User {
         await this.client.requestWithError("SELECT_TEXT_CHANNEL", { channel_id: null, timeout });
     }
 
-    // TODO: Strict type these functions before uncommenting it in production
-
-    // async createLobby(type: string, capacity: number, metadata: any): Promise<any> {
-    //     return (await this.client.requestWithError("CREATE_LOBBY", { type, capacity, metadata })).data;
-    // }
-
-    // async updateLobby(
-    //     lobbyId: string,
-    //     options?: { type: string; owner_id: string; capacity: number; metadata: any }
-    // ): Promise<any> {
-    //     return (await this.client.requestWithError("UPDATE_LOBBY", { id: lobbyId, ...options })).data;
-    // }
-
-    // async deleteLobby(lobbyId: string): Promise<any> {
-    //     return (await this.client.requestWithError("DELETE_LOBBY", { id: lobbyId })).data;
-    // }
-
-    // async connectToLobby(lobbyId: string, secret: string): Promise<any> {
-    //     return (await this.client.requestWithError("CONNECT_TO_LOBBY", { id: lobbyId, secret })).data;
-    // }
-
-    // async sendToLobby(lobbyId: string, data: any): Promise<any> {
-    //     return (await this.client.requestWithError("SEND_TO_LOBBY", { id: lobbyId, data })).data;
-    // }
-
-    // async disconnectFromLobby(lobbyId: string): Promise<any> {
-    //     return (await this.client.requestWithError("DISCONNECT_FROM_LOBBY", { id: lobbyId })).data;
-    // }
-
-    // async updateLobbyMember(lobbyId: string, userId: string, metadata: any): Promise<any> {
-    //     return (await this.client.requestWithError("UPDATE_LOBBY_MEMBER", { lobby_id: lobbyId, user_id: userId, metadata }))
-    //         .data;
-    // }
-
     async getRelationships(): Promise<Array<User>> {
         return (await this.client.request("GET_RELATIONSHIPS")).data.relationships.map((data: any) => {
             return new User(this.client, { ...data.user, presence: data.presence });
@@ -315,6 +282,68 @@ export class ClientUser extends User {
     async clearActivity(pid?: number): Promise<void> {
         await this.client.requestWithError("SET_ACTIVITY", { pid: pid ?? process ? process.pid ?? 0 : 0 });
     }
+
+    // #region Undocumented
+    // This region holds method that are not documented by Discord BUT does exist
+
+    /**
+     * Create a new lobby
+     * @param type - lobby type
+     * @param capacity - lobby size
+     * @param locked - is lobby locked
+     * @param metadata - additional data?
+     * @returns lobby that user created
+     */
+    async createLobby(type: LobbyType, capacity?: number, locked?: boolean, metadata?: any): Promise<Lobby> {
+        return new Lobby(
+            this.client,
+            (await this.client.requestWithError("CREATE_LOBBY", { type, capacity, locked, metadata })).data
+        );
+    }
+
+    /**
+     * Used to join a new lobby.
+     * @param lobbyId - the id of the lobby to join
+     * @param secret - the secret of the lobby to join
+     * @returns the lobby that the user joined
+     */
+    async connectToLobby(lobbyId: string, secret: string): Promise<Lobby> {
+        return new Lobby(
+            this.client,
+            (await this.client.requestWithError("CONNECT_TO_LOBBY", { id: lobbyId, secret })).data
+        );
+    }
+
+    /**
+     * Used to join a new lobby.
+     * @param lobbyId - the id of the lobby to join
+     * @param data - additional data to send to lobby
+     * @returns the lobby that the user joined
+     */
+    async sendToLobby(lobbyId: string, data: string): Promise<Lobby> {
+        return new Lobby(
+            this.client,
+            (await this.client.requestWithError("SEND_TO_LOBBY", { lobby_id: lobbyId, data })).data
+        );
+    }
+
+    /**
+     * Used to get a user's avatar
+     * @param userId - id of the user to get the avatar of
+     * @param format - image format
+     * @param size - image size
+     * @return base64 encoded image data
+     */
+    async getImage(
+        userId: string,
+        format: "png" | "webp" | "jpg" = "png",
+        size: 16 | 32 | 64 | 128 | 256 | 512 | 1024 = 1024
+    ): Promise<string> {
+        return (await this.client.requestWithError("GET_IMAGE", { type: "user", id: userId, format, size })).data
+            .data_url;
+    }
+
+    // #endregion
 
     // #endregion
 }

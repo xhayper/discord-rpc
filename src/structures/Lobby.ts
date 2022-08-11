@@ -38,42 +38,46 @@ export class Lobby extends Base {
         this.voice_states = props.voice_states;
     }
 
-    async joinVoice() {
+    async joinVoice(): Promise<void> {
         await this.client.requestWithError("CONNECT_TO_LOBBY_VOICE", { id: this.id });
     }
 
-    async leaveVoice() {
+    async leaveVoice(): Promise<void> {
         await this.client.requestWithError("DISCONNECT_FROM_LOBBY_VOICE", { id: this.id });
     }
 
-    async update(type?: LobbyType, owner_id?: string, capacity?: number, locked?: boolean, metadata?: any) {
+    async update(
+        type?: LobbyType,
+        owner_id?: string,
+        capacity?: number,
+        locked?: boolean,
+        metadata?: any
+    ): Promise<void> {
         this.type = type ?? this.type;
         this.owner_id = owner_id ?? this.owner_id;
         this.capacity = capacity ?? this.capacity;
         this.locked = locked ?? this.locked;
         this.metadata = metadata ?? this.metadata;
 
-        return (
-            await this.client.requestWithError("UPDATE_LOBBY", {
-                id: this.id,
-                type,
-                owner_id,
-                capacity,
-                locked,
-                metadata
-            })
-        ).data;
+        await this.client.requestWithError("UPDATE_LOBBY", {
+            id: this.id,
+            type,
+            owner_id,
+            capacity,
+            locked,
+            metadata
+        });
     }
 
-    async updateMember(userId: string, metadata?: any) {
+    async updateMember(userId: string, metadata?: any): Promise<void> {
         await this.client.requestWithError("UPDATE_LOBBY_MEMBER", { lobby_id: this.id, user_id: userId, metadata });
     }
 
-    async disconnect() {
+    async disconnect(): Promise<void> {
         await this.client.requestWithError("DISCONNECT_FROM_LOBBY", { id: this.id });
     }
 
-    async delete() {
+    async delete(): Promise<void> {
         await this.client.requestWithError("DELETE_LOBBY", { id: this.id });
     }
 }

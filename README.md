@@ -43,6 +43,11 @@ client.login();
 
 -   Linux is tested on Kubuntu 22.04
 
+## Missing Features, Need someone to contribute
+
+-   Automatically update data object (use Event Subscription)
+-   Undocumented methods
+
 ## Credits
 
 -   [discordjs](https://github.com/discordjs): Making [discordjs/RPC](https://github.com/discordjs/RPC)

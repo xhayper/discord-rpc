@@ -2,10 +2,11 @@ import { EventEmitter } from "events";
 import TypedEmitter from "typed-emitter";
 import { Client } from "../Client";
 
-/**
- * @see [Opcodes and Status Codes - Discord Developer Portal](https://discord.com/developers/docs/topics/opcodes-and-status-codes#rpc-rpc-close-event-codes)
- */
 export enum RPC_CLOSE_CODE {
+    RPC_CLOSE_NORMAL = 1000,
+    RPC_CLOSE_UNSUPPORTED = 1003,
+    RPC_CLOSE_ABNORMAL = 1006,
+
     /**
      * You connected to the RPC server with an invalid client ID.
      */
@@ -105,103 +106,42 @@ export enum CUSTOM_RPC_ERROR_CODE {
 }
 
 export type RPC_CMD =
-    /**
-     * event dispatch
-     */
     | "DISPATCH"
-    /**
-     * used to authorize a new client with your app
-     */
+    | "SET_CONFIG"
     | "AUTHORIZE"
-    /**
-     * used to authenticate an existing client with your app
-     */
     | "AUTHENTICATE"
-    /**
-     * used to retrieve guild information from the client
-     */
     | "GET_GUILD"
-    /**
-     * used to retrieve a list of guilds from the client
-     */
     | "GET_GUILDS"
-    /**
-     * used to retrieve channel information from the client
-     */
     | "GET_CHANNEL"
-    /**
-     * used to retrieve a list of channels for a guild from the client
-     */
     | "GET_CHANNELS"
     | "CREATE_CHANNEL_INVITE"
     | "GET_RELATIONSHIPS"
     | "GET_USER"
-    /**
-     * used to subscribe to an RPC event
-     */
     | "SUBSCRIBE"
-    /**
-     * used to unsubscribe from an RPC event
-     */
     | "UNSUBSCRIBE"
-    /**
-     * used to change voice settings of users in voice channels
-     */
     | "SET_USER_VOICE_SETTINGS"
-    /**
-     * used to change voice settings of users in voice channels
-     */
     | "SET_USER_VOICE_SETTINGS_2"
-    /**
-     * used to join or leave a voice channel, group dm, or dm
-     */
     | "SELECT_VOICE_CHANNEL"
-    /**
-     * used to get the current voice channel the client is in
-     */
     | "GET_SELECTED_VOICE_CHANNEL"
-    /**
-     * used to join or leave a text channel, group dm, or dm
-     */
     | "SELECT_TEXT_CHANNEL"
-    /**
-     * used to retrieve the client's voice settings
-     */
     | "GET_VOICE_SETTINGS"
-    /**
-     * used to set the client's voice settings
-     */
     | "SET_VOICE_SETTINGS_2"
-    /**
-     * used to set the client's voice settings
-     */
     | "SET_VOICE_SETTINGS"
-    | "CAPTURE_SHORTCUT"
-    /**
-     * used to update a user's Rich Presence
-     */
     | "SET_ACTIVITY"
-    /**
-     * used to consent to a Rich Presence Ask to Join request
-     */
     | "SEND_ACTIVITY_JOIN_INVITE"
-    /**
-     * used to reject a Rich Presence Ask to Join request
-     */
     | "CLOSE_ACTIVITY_JOIN_REQUEST"
     | "ACTIVITY_INVITE_USER"
     | "ACCEPT_ACTIVITY_INVITE"
+    | "OPEN_INVITE_DIALOG"
     | "INVITE_BROWSER"
     | "DEEP_LINK"
     | "CONNECTIONS_CALLBACK"
+    | "BILLING_POPUP_BRIDGE_CALLBACK"
     | "BRAINTREE_POPUP_BRIDGE_CALLBACK"
     | "GIFT_CODE_BROWSER"
     | "GUILD_TEMPLATE_BROWSER"
     | "OVERLAY"
     | "BROWSER_HANDOFF"
-    /**
-     * used to send info about certified hardware devices
-     */
     | "SET_CERTIFIED_DEVICES"
     | "GET_IMAGE"
     | "CREATE_LOBBY"
@@ -222,9 +162,7 @@ export type RPC_CMD =
     | "GET_ENTITLEMENT_TICKET"
     | "GET_APPLICATION_TICKET"
     | "START_PURCHASE"
-    /**
-     * @deprecated
-     */
+    | "START_PREMIUM_PURCHASE"
     | "GET_SKUS"
     | "GET_ENTITLEMENTS"
     | "GET_NETWORKING_CONFIG"
@@ -232,89 +170,41 @@ export type RPC_CMD =
     | "NETWORKING_PEER_METRICS"
     | "NETWORKING_CREATE_TOKEN"
     | "SET_USER_ACHIEVEMENT"
-    | "GET_USER_ACHIEVEMENTS";
+    | "GET_USER_ACHIEVEMENTS"
+    | "USER_SETTINGS_GET_LOCALE"
+    | "GET_ACTIVITY_JOIN_TICKET"
+    | "SEND_GENERIC_EVENT"
+    | "SEND_ANALYTICS_EVENT"
+    | "OPEN_EXTERNAL_LINK"
+    | "CAPTURE_LOG"
+    | "ENCOURAGE_HW_ACCELERATION"
+    | "SET_ORIENTATION_LOCK_STATE";
 
 export type RPC_EVT =
     | "CURRENT_USER_UPDATE"
-    /**
-     * sent when a subscribed server's state changes
-     */
     | "GUILD_STATUS"
-    /**
-     * sent when a guild is created/joined on the client
-     */
     | "GUILD_CREATE"
-    /**
-     * sent when a channel is created/joined on the client
-     */
     | "CHANNEL_CREATE"
     | "RELATIONSHIP_UPDATE"
-    /**
-     * sent when the client joins a voice channel
-     */
     | "VOICE_CHANNEL_SELECT"
-    /**
-     * sent when a user joins a subscribed voice channel
-     */
     | "VOICE_STATE_CREATE"
-    /**
-     * sent when a user parts a subscribed voice channel
-     */
     | "VOICE_STATE_DELETE"
-    /**
-     * sent when a user's voice state changes in a subscribed voice channel (mute, volume, etc.)
-     */
     | "VOICE_STATE_UPDATE"
-    /**
-     * sent when the client's voice settings update
-     */
     | "VOICE_SETTINGS_UPDATE"
-    /**
-     * sent when the client's voice settings update
-     */
     | "VOICE_SETTINGS_UPDATE_2"
-    /**
-     * sent when the client's voice connection status changes
-     */
     | "VOICE_CONNECTION_STATUS"
-    /**
-     * sent when a user in a subscribed voice channel speaks
-     */
     | "SPEAKING_START"
-    /**
-     * sent when a user in a subscribed voice channel stops speaking
-     */
     | "SPEAKING_STOP"
     | "GAME_JOIN"
     | "GAME_SPECTATE"
-    /**
-     * sent when the user clicks a Rich Presence join invite in chat to join a game
-     */
     | "ACTIVITY_JOIN"
-    /**
-     * sent when the user receives a Rich Presence Ask to Join request
-     */
     | "ACTIVITY_JOIN_REQUEST"
-    /**
-     * sent when the user clicks a Rich Presence spectate invite in chat to spectate a game
-     */
     | "ACTIVITY_SPECTATE"
     | "ACTIVITY_INVITE"
-    /**
-     * sent when the client receives a notification (mention or new message in eligible channels)
-     */
+    | "ACTIVITY_PIP_MODE_UPDATE"
     | "NOTIFICATION_CREATE"
-    /**
-     * sent when a message is created in a subscribed text channel
-     */
     | "MESSAGE_CREATE"
-    /**
-     * sent when a message is updated in a subscribed text channel
-     */
     | "MESSAGE_UPDATE"
-    /**
-     * sent when a message is deleted in a subscribed text channel
-     */
     | "MESSAGE_DELETE"
     | "LOBBY_DELETE"
     | "LOBBY_UPDATE"
@@ -322,19 +212,13 @@ export type RPC_EVT =
     | "LOBBY_MEMBER_DISCONNECT"
     | "LOBBY_MEMBER_UPDATE"
     | "LOBBY_MESSAGE"
-    | "CAPTURE_SHORTCUT_CHANGE"
     | "OVERLAY"
     | "OVERLAY_UPDATE"
     | "ENTITLEMENT_CREATE"
     | "ENTITLEMENT_DELETE"
     | "USER_ACHIEVEMENT_UPDATE"
-    /**
-     * non-subscription event sent immediately after connecting, contains server information
-     */
+    | "VOICE_CHANNEL_EFFECT_SEND"
     | "READY"
-    /**
-     * non-subscription event sent when there is an error, including command responses
-     */
     | "ERROR";
 
 export interface CommandOutgoing<A = any> {

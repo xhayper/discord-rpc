@@ -1,7 +1,7 @@
-import axios, { AxiosResponse, Method } from "axios";
 import { APIApplication, OAuth2Scopes } from "discord-api-types/v10";
 import { EventEmitter } from "stream";
-import TypedEmitter from "typed-emitter";
+import { request } from "undici";
+import Dispatcher from "undici/types/dispatcher";
 import { v4 as uuidv4 } from "uuid";
 import { ClientUser } from "./structures/ClientUser";
 import {
@@ -16,6 +16,7 @@ import {
 import { FormatFunction, IPCTransport } from "./transport/IPC";
 import { WebSocketTransport } from "./transport/WebSocket";
 import { RPCError } from "./utils/RPCError";
+import { TypedEmitter } from "./utils/TypedEmitter";
 
 export type AuthorizeOptions = {
     scopes: (OAuth2Scopes | `${OAuth2Scopes}`)[];
@@ -165,6 +166,19 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
     /**
      * @hidden
      */
+    createFormData(data: { [key: string]: any }): FormData {
+        const formData = new FormData();
+
+        for (const [key, value] of Object.entries(data)) {
+            formData.append(key, JSON.stringify(value));
+        }
+
+        return formData;
+    }
+
+    /**
+     * @hidden
+     */
     async requestWithError<A = any, D = any>(cmd: RPC_CMD, args?: any, evt?: RPC_EVT): Promise<CommandIncoming<A, D>> {
         const response = await this.request<A, D>(cmd, args, evt);
 
@@ -178,20 +192,22 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
     /**
      * @hidden
      */
-    async fetch<R = any>(
-        method: Method | string,
+    async fetch(
+        method: Dispatcher.HttpMethod,
         path: string,
-        requst?: { data?: any; query?: string; headers?: any }
-    ): Promise<AxiosResponse<R>> {
-        return await axios.request({
-            method,
-            url: `https://discord.com/api${path}${requst?.query ? new URLSearchParams(requst?.query) : ""}`,
-            data: requst?.data,
-            headers: {
-                ...(requst?.headers ?? {}),
-                ...(this.accessToken ? { Authorization: `${this.tokenType} ${this.accessToken}` } : {})
+        requst?: { body?: any; query?: string; headers?: any }
+    ): Promise<Dispatcher.ResponseData> {
+        return await request(
+            `https://discord.com/api${path}${requst?.query ? new URLSearchParams(requst?.query) : ""}`,
+            {
+                method,
+                body: requst?.body,
+                headers: {
+                    ...(requst?.headers ?? {}),
+                    ...(this.accessToken ? { Authorization: `${this.tokenType} ${this.accessToken}` } : {})
+                }
             }
-        });
+        );
     }
 
     /**
@@ -225,14 +241,14 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
         this.hanleAccessTokenResponse(
             (
                 await this.fetch("POST", "/oauth2/token", {
-                    data: new URLSearchParams({
+                    body: new URLSearchParams({
                         client_id: this.clientId,
                         client_secret: this.clientSecret ?? "",
                         grant_type: "refresh_token",
                         refresh_token: this.refreshToken ?? ""
                     })
                 })
-            ).data
+            ).body as Record<string, any>
         );
     }
 
@@ -249,13 +265,15 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
 
         if (options.useRPCToken) {
             rpcToken = (
-                await this.fetch("POST", "/oauth2/token/rpc", {
-                    data: new URLSearchParams({
-                        client_id: this.clientId,
-                        client_secret: this.clientSecret ?? ""
+                (
+                    await this.fetch("POST", "/oauth2/token/rpc", {
+                        body: new URLSearchParams({
+                            client_id: this.clientId,
+                            client_secret: this.clientSecret ?? ""
+                        })
                     })
-                })
-            ).data.rpc_token;
+                ).body as Record<string, any>
+            ).rpc_token;
         }
 
         const { code } = (
@@ -271,7 +289,7 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
         this.hanleAccessTokenResponse(
             (
                 await this.fetch("POST", "/oauth2/token", {
-                    data: new URLSearchParams({
+                    body: new URLSearchParams({
                         client_id: this.clientId,
                         client_secret: this.clientSecret ?? "",
                         redirect_uri: options.redirect_uri ?? "",
@@ -279,7 +297,7 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
                         code
                     })
                 })
-            ).data
+            ).body as Record<string, any>
         );
     }
 

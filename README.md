@@ -15,6 +15,8 @@
 
 `@xhayper/discord-rpc` is a fork of [discordjs/RPC](https://github.com/discordjs/RPC) with type safety and some additional features.
 
+Looking for Deno version? Check out [discord_rpc_deno](https://github.com/xhayper/discord-rpc-deno)!
+
 ## Example
 
 ```ts

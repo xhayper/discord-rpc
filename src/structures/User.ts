@@ -1,4 +1,4 @@
-import { UserFlags, UserPremiumType, PresenceUpdateStatus, GatewayActivity } from "discord-api-types/payloads/v10";
+import { UserFlags, UserPremiumType, PresenceUpdateStatus, GatewayActivity } from "discord-api-types/v10";
 import { Client } from "../Client";
 import { Base } from "./Base";
 

@@ -1,4 +1,4 @@
-import Payload from "discord-api-types/payloads/v10";
+import { ChannelType, GatewayVoiceState } from "discord-api-types/payloads/v10";
 import { Client } from "../Client";
 import { Base } from "./Base";
 import { Message } from "./Message";
@@ -19,7 +19,7 @@ export class Channel extends Base {
     /**
      * channel type (guild text: 0, guild voice: 2, dm: 1, group dm: 3)
      */
-    type: Payload.ChannelType;
+    type: ChannelType;
     /**
      * (text) channel topic
      */
@@ -39,7 +39,7 @@ export class Channel extends Base {
     /**
      * (voice) channel's voice states
      */
-    voice_states?: Payload.GatewayVoiceState[];
+    voice_states?: GatewayVoiceState[];
     /**
      * (text) channel's messages
      */

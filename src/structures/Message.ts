@@ -1,4 +1,4 @@
-import Payload from "discord-api-types/payloads/v10";
+import { APIEmbed, APIAttachment, MessageType } from "discord-api-types/payloads/v10";
 import { Client } from "../Client";
 import { Base } from "./Base";
 import { User } from "./User";
@@ -53,11 +53,11 @@ export class Message extends Base {
     /**
      * any embedded content
      */
-    embeds: Payload.APIEmbed[];
+    embeds: APIEmbed[];
     /**
      * any attached files
      */
-    attachments: Payload.APIAttachment[];
+    attachments: APIAttachment[];
     /**
      * the author of this message
      */
@@ -69,7 +69,7 @@ export class Message extends Base {
     /**
      * [type of message](https://discord.com/developers/docs/resources/channel#message-object-message-types)
      */
-    type: Payload.MessageType;
+    type: MessageType;
 
     constructor(client: Client, props: Record<string, any>) {
         super(client);

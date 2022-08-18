@@ -1,4 +1,4 @@
-import Payload from "discord-api-types/payloads/v10";
+import { ActivityType, GatewayActivityButton } from "discord-api-types/payloads/v10";
 import { CertifiedDevice } from "./CertifiedDevice";
 import { Channel } from "./Channel";
 import { Guild } from "./Guild";
@@ -22,7 +22,7 @@ export type SetActivity = {
     joinSecret?: string;
     spectateSecret?: string;
     instance?: boolean;
-    buttons?: Array<Payload.GatewayActivityButton>;
+    buttons?: Array<GatewayActivityButton>;
 };
 
 export type SetActivityResponse = {
@@ -30,7 +30,7 @@ export type SetActivityResponse = {
     buttons?: string[];
     name: string;
     application_id: string;
-    type: Payload.ActivityType;
+    type: ActivityType;
     metadata: {
         button_urls?: string[];
     };

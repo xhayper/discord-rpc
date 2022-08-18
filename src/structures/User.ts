@@ -44,7 +44,7 @@ export class User extends Base {
 
     avatar_decoration?: string | null;
 
-    constructor(client: Client, props: any) {
+    constructor(client: Client, props: Record<string, any>) {
         super(client);
         Object.assign(this, props);
 

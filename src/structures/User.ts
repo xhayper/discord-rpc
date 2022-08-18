@@ -1,4 +1,4 @@
-import Payload from "discord-api-types/payloads/v10";
+import { UserFlags, UserPremiumType, PresenceUpdateStatus, GatewayActivity } from "discord-api-types/payloads/v10";
 import { Client } from "../Client";
 import { Base } from "./Base";
 
@@ -22,23 +22,23 @@ export class User extends Base {
     /**
      * the [flags](https://discord.com/developers/docs/resources/user#user-object-user-flags) on a user's account
      */
-    flags?: Payload.UserFlags | undefined;
+    flags?: UserFlags | undefined;
     /**
      * the [type of Nitro subscription](https://discord.com/developers/docs/resources/user#user-object-premium-types) on a user's account
      */
-    premium_type?: Payload.UserPremiumType | undefined;
+    premium_type?: UserPremiumType | undefined;
     /**
      * the public [flags](https://discord.com/developers/docs/resources/user#user-object-user-flags) on a user's account
      */
-    public_flags?: Payload.UserFlags | undefined;
+    public_flags?: UserFlags | undefined;
 
     /**
      * user's rich presence
      */
     presence?:
         | {
-              status?: Payload.PresenceUpdateStatus;
-              activities?: Payload.GatewayActivity[];
+              status?: PresenceUpdateStatus;
+              activities?: GatewayActivity[];
           }
         | undefined;
 

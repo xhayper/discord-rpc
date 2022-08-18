@@ -1,4 +1,4 @@
-import { ActivityType, GatewayActivityButton } from "discord-api-types/payloads/v10";
+import { ActivityType, GatewayActivityButton } from "discord-api-types/v10";
 import { CertifiedDevice } from "./CertifiedDevice";
 import { Channel } from "./Channel";
 import { Guild } from "./Guild";

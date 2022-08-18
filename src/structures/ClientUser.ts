@@ -212,7 +212,7 @@ export class ClientUser extends User {
      * @returns The activity that have been set
      */
     async setActivity(activity: SetActivity, pid?: number): Promise<SetActivityResponse> {
-        let formattedAcitivity: any = {
+        const formattedAcitivity: any = {
             ...activity,
             assets: {},
             timestamps: {},

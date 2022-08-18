@@ -21,7 +21,7 @@ export class Lobby extends Base {
     type: LobbyType;
     voice_states: GatewayVoiceState;
 
-    constructor(client: Client, props: any) {
+    constructor(client: Client, props: Record<string, any>) {
         super(client);
         Object.assign(this, props);
 

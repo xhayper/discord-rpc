@@ -67,7 +67,7 @@ export class CertifiedDevice extends Base {
      */
     hardware_mute?: boolean;
 
-    constructor(client: Client, props: any) {
+    constructor(client: Client, props: Record<string, any>) {
         super(client);
         Object.assign(this, props);
 

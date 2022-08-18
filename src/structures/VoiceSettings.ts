@@ -123,7 +123,7 @@ export class VoiceSettings extends Base {
      */
     mute: boolean;
 
-    constructor(client: Client, props: any) {
+    constructor(client: Client, props: Record<string, any>) {
         super(client);
         Object.assign(this, props);
 

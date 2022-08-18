@@ -45,7 +45,7 @@ export class Channel extends Base {
      */
     messages?: Message[];
 
-    constructor(client: Client, props: any) {
+    constructor(client: Client, props: Record<string, any>) {
         super(client);
         Object.assign(this, props);
 

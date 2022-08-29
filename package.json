@@ -40,5 +40,9 @@
         "rimraf": "^3.0.2",
         "ts-node": "^10.9.1",
         "typescript": "^4.8.2"
-    }
+    },
+    "engines": {
+        "node": ">=12.22.12"
+    },
+    "packageManager": "yarn@3.2.3"
 }

@@ -4,11 +4,13 @@ __test__/
 .vscode/
 .github/
 .husky/
+.yarn/
 docs/
 test/
 src/
 
 # File
 tsconfig.json
+.yarnrc.yml
 .prettierrc
 *.tgz

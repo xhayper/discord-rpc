@@ -1,6 +1,6 @@
 {
     "name": "@xhayper/discord-rpc",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "description": "a fork of discordjs/RPC",
     "main": "dist/index.js",
     "author": "xhayper",
@@ -42,7 +42,7 @@
         "typescript": "^4.8.2"
     },
     "engines": {
-        "node": ">=12.22.12"
+        "node": ">=14.20.0"
     },
     "packageManager": "yarn@3.2.3"
 }

@@ -1,8 +1,8 @@
-import fs from "fs";
-import net from "net";
-import path from "path";
-import { v4 as uuidv4 } from "uuid";
 import { Transport, TransportOptions } from "../structures/Transport";
+import crypto from "node:crypto";
+import fs from "node:fs";
+import net from "node:net";
+import path from "node:path";
 
 export enum IPC_OPCODE {
     HANDSHAKE,
@@ -226,7 +226,7 @@ export class IPCTransport extends Transport {
     }
 
     ping(): void {
-        this.send(uuidv4(), IPC_OPCODE.PING);
+        this.send(crypto.randomUUID(), IPC_OPCODE.PING);
     }
 
     close(): Promise<void> {

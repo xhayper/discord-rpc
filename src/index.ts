@@ -1,4 +1,5 @@
 export * from "./Client";
+
 export * from "./structures/ClientUser";
 export * from "./structures/CertifiedDevice";
 export * from "./structures/Channel";

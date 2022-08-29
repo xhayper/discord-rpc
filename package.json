@@ -32,10 +32,6 @@
         "discord-api-types": "^0.37.5",
         "ws": "^8.8.1"
     },
-    "optionalDependencies": {
-        "bufferutil": "^4.0.6",
-        "utf-8-validate": "^5.0.9"
-    },
     "devDependencies": {
         "@knodes/typedoc-plugin-code-blocks": "^0.23.1",
         "@types/node": "^18.7.13",

@@ -17,6 +17,11 @@
 
 Looking for Deno version? Check out [discord_rpc_deno](https://github.com/xhayper/discord-rpc-deno)!
 
+## Optional packages
+
+- [bufferutil](https://www.npmjs.com/package/bufferutil)
+- [utf-8-validate](https://www.npmjs.com/package/utf-8-validate)
+
 ## Example
 
 ```ts
@@ -44,7 +49,6 @@ client.login();
 | Linux   | Y      | Y    |
 
 - Linux is tested on Kubuntu 22.04
-
 ## Credits
 
 - [discordjs](https://github.com/discordjs): Making [discordjs/RPC](https://github.com/discordjs/RPC)

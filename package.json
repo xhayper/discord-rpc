@@ -21,7 +21,7 @@
     ],
     "scripts": {
         "build": "rimraf dist && npx tsc",
-        "prepack": "npm run build",
+        "prepack": "yarn run build",
         "test": "npx ts-node test/index.ts",
         "pretty": "npx pretty-quick --pattern \"src/**/*\"",
         "prepare": "husky install"

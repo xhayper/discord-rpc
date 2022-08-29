@@ -23,7 +23,6 @@
         "build": "rimraf dist && npx tsc",
         "prepack": "npm run build",
         "test": "npx ts-node test/index.ts",
-        "docs": "npx typedoc --options typedoc.json",
         "pretty": "npx pretty-quick --pattern \"src/**/*\"",
         "prepare": "husky install"
     },
@@ -33,18 +32,13 @@
         "ws": "^8.8.1"
     },
     "devDependencies": {
-        "@knodes/typedoc-plugin-code-blocks": "^0.23.1",
         "@types/node": "^18.7.13",
-        "@types/uuid": "^8.3.4",
         "@types/ws": "^8.5.3",
         "husky": "^8.0.1",
         "prettier": "^2.7.1",
         "pretty-quick": "^3.1.3",
         "rimraf": "^3.0.2",
         "ts-node": "^10.9.1",
-        "typedoc": "^0.23.11",
-        "typedoc-plugin-rename-defaults": "^0.6.4",
-        "typedoc-theme-hierarchy": "^3.0.0",
         "typescript": "^4.8.2"
     }
 }

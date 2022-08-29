@@ -1,6 +1,6 @@
-import { EventEmitter } from "events";
 import { Client } from "../Client";
 import { TypedEmitter } from "../utils/TypedEmitter";
+import { EventEmitter } from "node:events";
 
 export enum RPC_CLOSE_CODE {
     RPC_CLOSE_NORMAL = 1000,

@@ -1,5 +1,5 @@
-import { WebSocket } from "ws";
 import { Transport } from "../structures/Transport";
+import { WebSocket } from "ws";
 
 export class WebSocketTransport extends Transport {
     private ws?: WebSocket;

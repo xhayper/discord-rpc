@@ -1,7 +1,6 @@
 {
     "semi": true,
     "tabWidth": 4,
-    "importOrder": ["^[./]"],
     "trailingComma": "none",
     "endOfLine": "auto",
     "printWidth": 120

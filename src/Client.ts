@@ -13,8 +13,8 @@ import { WebSocketTransport } from "./transport/WebSocket";
 import { RPCError } from "./utils/RPCError";
 import { TypedEmitter } from "./utils/TypedEmitter";
 import axios, { AxiosResponse, Method } from "axios";
-import { APIApplication, OAuth2Scopes } from "discord-api-types/v10";
-import { v4 as uuidv4 } from 'uuid';
+import type { APIApplication, OAuth2Scopes } from "discord-api-types/v10";
+import { v4 as uuidv4 } from "uuid";
 import { EventEmitter } from "events";
 
 export type AuthorizeOptions = {

@@ -42,11 +42,11 @@ client.login();
 
 ## Complatibility
 
-| OS      | Normal | Snap |
-| ------- | ------ | ---- |
-| Windows | Y      | -    |
-| macOS   | Y      | -    |
-| Linux   | Y      | Y    |
+| OS      | Normal | Snap | flatpak |
+| ------- | ------ | ---- | ------- |
+| Windows | Y      | -    | -       |
+| macOS   | Y      | -    | -       |
+| Linux   | Y      | Y    | Y       |
 
 - Linux is tested on Kubuntu 22.04
 ## Credits

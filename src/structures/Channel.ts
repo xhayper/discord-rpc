@@ -1,7 +1,7 @@
 import { Client } from "../Client";
 import { Base } from "./Base";
 import { Message } from "./Message";
-import { ChannelType, GatewayVoiceState } from "discord-api-types/v10";
+import type { ChannelType, GatewayVoiceState } from "discord-api-types/v10";
 
 export class Channel extends Base {
     /**

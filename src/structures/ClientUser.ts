@@ -4,7 +4,7 @@ import { Guild } from "./Guild";
 import { Lobby, LobbyType } from "./Lobby";
 import { User } from "./User";
 import { VoiceSettings } from "./VoiceSettings";
-import { ActivityType, GatewayActivityButton } from "discord-api-types/v10";
+import type { ActivityType, GatewayActivityButton } from "discord-api-types/v10";
 
 export type SetActivity = {
     state?: string;

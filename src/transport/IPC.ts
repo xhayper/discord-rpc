@@ -39,7 +39,7 @@ const defaultPathList: FormatFunction[] = [
         return [path.join(prefix, `discord-ipc-${id}`)];
     },
     (id: number): [string] => {
-        // Snap path
+        // snap
 
         if (process.platform === "win32") return [""];
 
@@ -51,7 +51,7 @@ const defaultPathList: FormatFunction[] = [
         return [path.join(prefix, "snap.discord", `discord-ipc-${id}`)];
     },
     (id: number): [string] => {
-        // Alternative snap path
+        // flatpak
 
         if (process.platform === "win32") return [""];
 

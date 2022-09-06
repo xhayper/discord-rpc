@@ -14,8 +14,8 @@ import { RPCError } from "./utils/RPCError";
 import { TypedEmitter } from "./utils/TypedEmitter";
 import axios, { AxiosResponse, Method } from "axios";
 import { APIApplication, OAuth2Scopes } from "discord-api-types/v10";
-import crypto from "node:crypto";
-import { EventEmitter } from "node:events";
+import { v4 as uuidv4 } from 'uuid';
+import { EventEmitter } from "events";
 
 export type AuthorizeOptions = {
     scopes: (OAuth2Scopes | `${OAuth2Scopes}`)[];
@@ -199,7 +199,7 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
      */
     async request<A = any, D = any>(cmd: RPC_CMD, args?: any, evt?: RPC_EVT): Promise<CommandIncoming<A, D>> {
         return new Promise((resolve, reject) => {
-            const nonce = crypto.randomUUID();
+            const nonce = uuidv4();
 
             this.transport.send({ cmd, args, evt, nonce });
             this._nonceMap.set(nonce, { resolve, reject });

@@ -1,5 +1,5 @@
 import { Transport, TransportOptions } from "../structures/Transport";
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 import fs from "fs";
 import net from "net";
 import path from "path";
@@ -170,7 +170,12 @@ export class IPCTransport extends Transport {
                 console.log(
                     `SERVER => CLIENT | Recieved ${data.length} bytes, missing ${sizeRemaining} bytes, left over ${
                         remainingData?.length ?? 0
-                    } bytes | Whole packet length: ${wholeData.length}, Required packet length: ${length + 8}`
+                    } bytes | Whole packet length: ${wholeData.length}, Required packet length: ${
+                        length + 8
+                    } | Packet data: ${jsonData
+                        .toString("hex")
+                        .match(/.{1,2}/g)
+                        ?.join(" ")}`
                 );
 
             if (sizeRemaining && sizeRemaining > 0) {

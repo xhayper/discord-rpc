@@ -23,6 +23,8 @@ export type SetActivity = {
     spectateSecret?: string;
     instance?: boolean;
     buttons?: Array<GatewayActivityButton>;
+    // Doesn't work, juse don't use it
+    type?: ActivityType.Playing | ActivityType.Watching;
 };
 
 export type SetActivityResponse = {

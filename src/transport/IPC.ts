@@ -91,7 +91,7 @@ export class IPCTransport extends Transport {
     constructor(options: IPCTransportOptions) {
         super(options);
 
-        if (options.pathList) this.pathList = options.pathList;
+        this.pathList = options.pathList ?? this.pathList;
     }
 
     private async getSocket(): Promise<net.Socket> {

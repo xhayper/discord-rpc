@@ -27,6 +27,7 @@
         "prepare": "husky install"
     },
     "dependencies": {
+        "@discordjs/builders": "^1.2.0",
         "@discordjs/collection": "^1.1.0",
         "@discordjs/rest": "^1.1.0",
         "@sapphire/snowflake": "^3.2.2",

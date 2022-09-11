@@ -18,4 +18,5 @@ export { User } from "./structures/User"
 
 // External
 export * from "discord-api-types/v10";
+export * from "@discordjs/builders";
 export * from "@discordjs/rest";

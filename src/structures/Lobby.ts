@@ -39,11 +39,11 @@ export class Lobby extends Base {
     }
 
     async joinVoice(): Promise<void> {
-        await this.client.request("CONNECT_TO_LOBBY_VOICE", { id: this.id }, undefined, this.joinVoice);
+        await this.client.request("CONNECT_TO_LOBBY_VOICE", { id: this.id });
     }
 
     async leaveVoice(): Promise<void> {
-        await this.client.request("DISCONNECT_FROM_LOBBY_VOICE", { id: this.id }, undefined, this.leaveVoice);
+        await this.client.request("DISCONNECT_FROM_LOBBY_VOICE", { id: this.id });
     }
 
     async update(
@@ -59,35 +59,25 @@ export class Lobby extends Base {
         this.locked = locked ?? this.locked;
         this.metadata = metadata ?? this.metadata;
 
-        await this.client.request(
-            "UPDATE_LOBBY",
-            {
-                id: this.id,
-                type,
-                owner_id,
-                capacity,
-                locked,
-                metadata
-            },
-            undefined,
-            this.update
-        );
+        await this.client.request("UPDATE_LOBBY", {
+            id: this.id,
+            type,
+            owner_id,
+            capacity,
+            locked,
+            metadata
+        });
     }
 
     async updateMember(userId: string, metadata?: any): Promise<void> {
-        await this.client.request(
-            "UPDATE_LOBBY_MEMBER",
-            { lobby_id: this.id, user_id: userId, metadata },
-            undefined,
-            this.updateMember
-        );
+        await this.client.request("UPDATE_LOBBY_MEMBER", { lobby_id: this.id, user_id: userId, metadata });
     }
 
     async disconnect(): Promise<void> {
-        await this.client.request("DISCONNECT_FROM_LOBBY", { id: this.id }, undefined, this.disconnect);
+        await this.client.request("DISCONNECT_FROM_LOBBY", { id: this.id });
     }
 
     async delete(): Promise<void> {
-        await this.client.request("DELETE_LOBBY", { id: this.id }, undefined, this.delete);
+        await this.client.request("DELETE_LOBBY", { id: this.id });
     }
 }

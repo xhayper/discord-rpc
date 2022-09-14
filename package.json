@@ -20,21 +20,20 @@
         "discord-ipc"
     ],
     "scripts": {
-        "build": "rimraf dist && npx tsc",
+        "build": "rimraf dist && tsc",
         "prepack": "yarn run build",
-        "test": "npx ts-node test/index.ts",
-        "pretty": "npx pretty-quick --pattern \"src/**/*\"",
+        "test": "ts-node test/index.ts",
+        "format": "pretty-quick --pattern \"src/**/*\"",
+        "lint": "prettier --check \"src/**/*\"",
         "prepare": "husky install"
     },
     "dependencies": {
         "axios": "^0.27.2",
-        "discord-api-types": "^0.37.8",
-        "uuid": "^9.0.0",
+        "discord-api-types": "^0.37.9",
         "ws": "^8.8.1"
     },
     "devDependencies": {
         "@types/node": "^14.14.31",
-        "@types/uuid": "^8.3.4",
         "@types/ws": "^8.5.3",
         "husky": "^8.0.1",
         "prettier": "^2.7.1",
@@ -44,7 +43,7 @@
         "typescript": "^4.8.3"
     },
     "engines": {
-        "node": ">=14.20.0"
+        "node": ">=14.17.0"
     },
     "packageManager": "yarn@3.2.3"
 }

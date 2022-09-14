@@ -1,21 +1,21 @@
+import type { APIApplication, OAuth2Scopes } from "discord-api-types/v10";
+import { FormatFunction, IPCTransport } from "./transport/IPC";
+import { WebSocketTransport } from "./transport/WebSocket";
 import { ClientUser } from "./structures/ClientUser";
+import axios, { AxiosResponse, Method } from "axios";
+import { TypedEmitter } from "./utils/TypedEmitter";
+import { RPCError } from "./utils/RPCError";
+import { EventEmitter } from "node:events";
+import crypto from "node:crypto";
 import {
     RPC_CMD,
     CommandIncoming,
     RPC_EVT,
     Transport,
     TransportOptions,
-    RPC_ERROR_CODE,
-    CUSTOM_RPC_ERROR_CODE
+    CUSTOM_RPC_ERROR_CODE,
+    RPC_ERROR_CODE
 } from "./structures/Transport";
-import { FormatFunction, IPCTransport } from "./transport/IPC";
-import { WebSocketTransport } from "./transport/WebSocket";
-import { RPCError } from "./utils/RPCError";
-import { TypedEmitter } from "./utils/TypedEmitter";
-import axios, { AxiosResponse, Method } from "axios";
-import type { APIApplication, OAuth2Scopes } from "discord-api-types/v10";
-import { v4 as uuidv4 } from "uuid";
-import { EventEmitter } from "events";
 
 export type AuthorizeOptions = {
     scopes: (OAuth2Scopes | `${OAuth2Scopes}`)[];
@@ -119,7 +119,10 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
 
     private refrestTimeout?: NodeJS.Timer;
     private connectionPromise?: Promise<void>;
-    private _nonceMap = new Map<string, { resolve: (value?: any) => void; reject: (reason?: any) => void }>();
+    private _nonceMap = new Map<
+        string,
+        { resolve: (value?: any) => void; reject: (reason?: any) => void; error: RPCError }
+    >();
 
     constructor(options: ClientOptions) {
         super();
@@ -149,28 +152,20 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
                 this.emit("connected");
             } else {
                 if (message.nonce && this._nonceMap.has(message.nonce)) {
-                    this._nonceMap.get(message.nonce)?.resolve(message);
+                    const nonceObj = this._nonceMap.get(message.nonce)!;
+
+                    if (message.evt == "ERROR") {
+                        nonceObj.error.code = message.data.code;
+                        nonceObj.error.message = message.data.message;
+                        nonceObj?.reject(nonceObj.error);
+                    } else nonceObj?.resolve(message);
+
                     this._nonceMap.delete(message.nonce);
                 }
 
                 this.emit((message as any).evt, message.data);
             }
         });
-    }
-
-    private throwRPCError(ctx: { code: RPC_ERROR_CODE; message?: string }) {
-        throw new RPCError(ctx.code, ctx.message);
-    }
-
-    /**
-     * @hidden
-     */
-    async requestWithError<A = any, D = any>(cmd: RPC_CMD, args?: any, evt?: RPC_EVT): Promise<CommandIncoming<A, D>> {
-        const response = await this.request<A, D>(cmd, args, evt);
-
-        if (response.evt == "ERROR") this.throwRPCError(response.data as any);
-
-        return response;
     }
 
     // #region Request Handlers
@@ -197,12 +192,20 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
     /**
      * @hidden
      */
-    async request<A = any, D = any>(cmd: RPC_CMD, args?: any, evt?: RPC_EVT): Promise<CommandIncoming<A, D>> {
+    async request<A = any, D = any>(
+        cmd: RPC_CMD,
+        args?: any,
+        evt?: RPC_EVT,
+        caller?: Function
+    ): Promise<CommandIncoming<A, D>> {
+        const error = new RPCError(RPC_ERROR_CODE.RPC_UNKNOWN_ERROR);
+        RPCError.captureStackTrace(error, caller ?? this.request);
+
         return new Promise((resolve, reject) => {
-            const nonce = uuidv4();
+            const nonce = crypto.randomUUID();
 
             this.transport.send({ cmd, args, evt, nonce });
-            this._nonceMap.set(nonce, { resolve, reject });
+            this._nonceMap.set(nonce, { resolve, reject, error });
         });
     }
 
@@ -211,9 +214,8 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
     // #region Authorization handlers
 
     private async authenticate(): Promise<void> {
-        const { application, user } = (
-            await this.requestWithError("AUTHENTICATE", { access_token: this.accessToken ?? "" })
-        ).data;
+        const { application, user } = (await this.request("AUTHENTICATE", { access_token: this.accessToken ?? "" }))
+            .data;
         this.application = application;
         this.user = new ClientUser(this, user);
         this.emit("ready");
@@ -259,7 +261,7 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
         }
 
         const { code } = (
-            await this.requestWithError("AUTHORIZE", {
+            await this.request("AUTHORIZE", {
                 scopes: options.scopes,
                 client_id: this.clientId,
                 rpc_token: options.useRPCToken ? rpcToken : undefined,
@@ -292,12 +294,12 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
      * @returns an object to unsubscribe from the event
      */
     async subscribe(event: Exclude<RPC_EVT, "READY" | "ERROR">, args?: any): Promise<{ unsubscribe: () => void }> {
-        await this.requestWithError("SUBSCRIBE", args, event);
+        await this.request("SUBSCRIBE", args, event);
         return {
             /**
              * Unsubscribes from the event
              */
-            unsubscribe: () => this.requestWithError("UNSUBSCRIBE", args, event)
+            unsubscribe: () => this.request("UNSUBSCRIBE", args, event)
         };
     }
 
@@ -326,9 +328,7 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
                     promise.reject(new RPCError(CUSTOM_RPC_ERROR_CODE.RPC_CONNECTION_ENDED, "Connection ended"));
                 });
                 this.emit("disconnected");
-                reject(
-                    new RPCError(CUSTOM_RPC_ERROR_CODE.RPC_CONNECTION_ENDED, "[RPC_CONNECTION_ENDED]: Connection ended")
-                );
+                reject(new RPCError(CUSTOM_RPC_ERROR_CODE.RPC_CONNECTION_ENDED, "Connection ended"));
             });
 
             this.transport.connect();

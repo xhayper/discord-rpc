@@ -1,6 +1,6 @@
-import { Client } from "../Client";
 import { TypedEmitter } from "../utils/TypedEmitter";
-import { EventEmitter } from "events";
+import { EventEmitter } from "node:events";
+import { Client } from "../Client";
 
 export enum RPC_CLOSE_CODE {
     RPC_CLOSE_NORMAL = 1000,
@@ -102,7 +102,8 @@ export enum RPC_ERROR_CODE {
 
 export enum CUSTOM_RPC_ERROR_CODE {
     RPC_CONNECTION_ENDED,
-    RPC_CONNECTION_TIMEOUT
+    RPC_CONNECTION_TIMEOUT,
+    RPC_COULD_NOT_CONNECT
 }
 
 export type RPC_CMD =

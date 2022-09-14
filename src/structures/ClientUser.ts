@@ -1,10 +1,10 @@
+import type { ActivityType, GatewayActivityButton } from "discord-api-types/v10";
 import { CertifiedDevice } from "./CertifiedDevice";
+import { VoiceSettings } from "./VoiceSettings";
+import { Lobby, LobbyType } from "./Lobby";
 import { Channel } from "./Channel";
 import { Guild } from "./Guild";
-import { Lobby, LobbyType } from "./Lobby";
 import { User } from "./User";
-import { VoiceSettings } from "./VoiceSettings";
-import type { ActivityType, GatewayActivityButton } from "discord-api-types/v10";
 
 export type SetActivity = {
     state?: string;
@@ -42,7 +42,10 @@ export class ClientUser extends User {
     // #region Helper function
 
     async fetchUser(userId: string): Promise<User> {
-        return new User(this.client, (await this.client.requestWithError("GET_USER", { id: userId })).data);
+        return new User(
+            this.client,
+            (await this.client.request("GET_USER", { id: userId }, undefined, this.fetchUser)).data
+        );
     }
 
     /**
@@ -55,7 +58,7 @@ export class ClientUser extends User {
     async fetchGuild(guildId: string, timeout?: number): Promise<Guild> {
         return new Guild(
             this.client,
-            (await this.client.requestWithError("GET_GUILD", { guild_id: guildId, timeout })).data
+            (await this.client.request("GET_GUILD", { guild_id: guildId, timeout }, undefined, this.fetchGuild)).data
         );
     }
 
@@ -64,7 +67,7 @@ export class ClientUser extends User {
      * @returns the guilds the user is in
      */
     async fetchGuilds(): Promise<Guild[]> {
-        return (await this.client.requestWithError("GET_GUILDS")).data.guilds.map(
+        return (await this.client.request("GET_GUILDS", undefined, undefined, this.fetchGuilds)).data.guilds.map(
             (guildData: any) => new Guild(this.client, guildData)
         );
     }
@@ -77,7 +80,7 @@ export class ClientUser extends User {
     async fetchChannel(channelId: string): Promise<Channel> {
         return new Channel(
             this.client,
-            (await this.client.requestWithError("GET_CHANNEL", { channel_id: channelId })).data
+            (await this.client.request("GET_CHANNEL", { channel_id: channelId }, undefined, this.fetchChannel)).data
         );
     }
 
@@ -87,9 +90,9 @@ export class ClientUser extends User {
      * @returns guild channels the user is in
      */
     async fetchChannels(guildId: string): Promise<Channel> {
-        return (await this.client.requestWithError("GET_CHANNELS", { guild_id: guildId })).data.channels.map(
-            (channelData: any) => new Channel(this.client, channelData)
-        );
+        return (
+            await this.client.request("GET_CHANNELS", { guild_id: guildId }, undefined, this.fetchChannels)
+        ).data.channels.map((channelData: any) => new Channel(this.client, channelData));
     }
 
     /**
@@ -97,7 +100,12 @@ export class ClientUser extends User {
      * @returns the client's current voice channel, `null` if none
      */
     async getSelectedVoiceChannel(): Promise<Channel | null> {
-        const response = await this.client.requestWithError("GET_SELECTED_VOICE_CHANNEL");
+        const response = await this.client.request(
+            "GET_SELECTED_VOICE_CHANNEL",
+            undefined,
+            undefined,
+            this.getSelectedVoiceChannel
+        );
         return response.data != null ? new Channel(this.client, response.data) : null;
     }
 
@@ -112,11 +120,16 @@ export class ClientUser extends User {
         return new Channel(
             this.client,
             (
-                await this.client.requestWithError("SELECT_VOICE_CHANNEL", {
-                    channel_id: channelId,
-                    timeout,
-                    force
-                })
+                await this.client.request(
+                    "SELECT_VOICE_CHANNEL",
+                    {
+                        channel_id: channelId,
+                        timeout,
+                        force
+                    },
+                    undefined,
+                    this.selectVoiceChannel
+                )
             ).data
         );
     }
@@ -127,11 +140,16 @@ export class ClientUser extends User {
      * @param force - forces a user to join a voice channel
      */
     async leaveVoiceChannel(timeout?: number, force?: boolean): Promise<void> {
-        await this.client.requestWithError("SELECT_VOICE_CHANNEL", {
-            channel_id: null,
-            timeout,
-            force
-        });
+        await this.client.request(
+            "SELECT_VOICE_CHANNEL",
+            {
+                channel_id: null,
+                timeout,
+                force
+            },
+            undefined,
+            this.leaveVoiceChannel
+        );
     }
 
     /**
@@ -139,7 +157,7 @@ export class ClientUser extends User {
      * @returns the voice setting
      */
     async getVoiceSettings(): Promise<VoiceSettings> {
-        return new VoiceSettings(this.client, (await this.client.requestWithError("GET_VOICE_SETTINGS")).data);
+        return new VoiceSettings(this.client, (await this.client.request("GET_VOICE_SETTINGS")).data);
     }
 
     /**
@@ -150,7 +168,7 @@ export class ClientUser extends User {
     async setVoiceSettings(voiceSettings: Partial<VoiceSettings>): Promise<VoiceSettings> {
         return new VoiceSettings(
             this.client,
-            (await this.client.requestWithError("SET_VOICE_SETTINGS", voiceSettings)).data
+            (await this.client.request("SET_VOICE_SETTINGS", voiceSettings, undefined, this.setVoiceSettings)).data
         );
     }
 
@@ -160,7 +178,7 @@ export class ClientUser extends User {
      * @returns
      */
     async setCeritfiedDevices(devices: CertifiedDevice[]): Promise<void> {
-        await this.client.requestWithError("SET_CERTIFIED_DEVICES", { devices });
+        await this.client.request("SET_CERTIFIED_DEVICES", { devices }, undefined, this.setCeritfiedDevices);
     }
 
     /**
@@ -168,7 +186,7 @@ export class ClientUser extends User {
      * @param userId - the id of the requesting user
      */
     async sendJoinInvite(userId: string): Promise<void> {
-        await this.client.requestWithError("SEND_ACTIVITY_JOIN_INVITE", { user_id: userId });
+        await this.client.request("SEND_ACTIVITY_JOIN_INVITE", { user_id: userId }, undefined, this.sendJoinInvite);
     }
 
     /**
@@ -176,7 +194,7 @@ export class ClientUser extends User {
      * @param userId - the id of the requesting user
      */
     async closeJoinRequest(userId: string): Promise<void> {
-        await this.client.requestWithError("CLOSE_ACTIVITY_JOIN_REQUEST", { user_id: userId });
+        await this.client.request("CLOSE_ACTIVITY_JOIN_REQUEST", { user_id: userId }, undefined, this.closeJoinRequest);
     }
 
     /**
@@ -188,7 +206,14 @@ export class ClientUser extends User {
     async selectTextChannel(channelId: string, timeout?: number): Promise<Channel | null> {
         return new Channel(
             this.client,
-            (await this.client.requestWithError("SELECT_TEXT_CHANNEL", { channel_id: channelId, timeout })).data
+            (
+                await this.client.request(
+                    "SELECT_TEXT_CHANNEL",
+                    { channel_id: channelId, timeout },
+                    undefined,
+                    this.selectTextChannel
+                )
+            ).data
         );
     }
 
@@ -197,11 +222,18 @@ export class ClientUser extends User {
      * @param timeout - asynchronously join channel with time to wait before timing out
      */
     async leaveTextChannel(timeout?: number): Promise<void> {
-        await this.client.requestWithError("SELECT_TEXT_CHANNEL", { channel_id: null, timeout });
+        await this.client.request(
+            "SELECT_TEXT_CHANNEL",
+            { channel_id: null, timeout },
+            undefined,
+            this.leaveTextChannel
+        );
     }
 
     async getRelationships(): Promise<Array<User>> {
-        return (await this.client.request("GET_RELATIONSHIPS")).data.relationships.map((data: any) => {
+        return (
+            await this.client.request("GET_RELATIONSHIPS", undefined, undefined, this.getRelationships)
+        ).data.relationships.map((data: any) => {
             return new User(this.client, { ...data.user, presence: data.presence });
         });
     }
@@ -269,10 +301,15 @@ export class ClientUser extends User {
         delete formattedAcitivity["matchSecret"];
 
         return (
-            await this.client.requestWithError("SET_ACTIVITY", {
-                pid: pid ?? process ? process.pid ?? 0 : 0,
-                activity: formattedAcitivity
-            })
+            await this.client.request(
+                "SET_ACTIVITY",
+                {
+                    pid: pid ?? process ? process.pid ?? 0 : 0,
+                    activity: formattedAcitivity
+                },
+                undefined,
+                this.setActivity
+            )
         ).data;
     }
 
@@ -282,7 +319,12 @@ export class ClientUser extends User {
      * @param pid - the application's process id
      */
     async clearActivity(pid?: number): Promise<void> {
-        await this.client.requestWithError("SET_ACTIVITY", { pid: pid ?? process ? process.pid ?? 0 : 0 });
+        await this.client.request(
+            "SET_ACTIVITY",
+            { pid: pid ?? process ? process.pid ?? 0 : 0 },
+            undefined,
+            this.clearActivity
+        );
     }
 
     // #region Undocumented
@@ -299,7 +341,14 @@ export class ClientUser extends User {
     async createLobby(type: LobbyType, capacity?: number, locked?: boolean, metadata?: any): Promise<Lobby> {
         return new Lobby(
             this.client,
-            (await this.client.requestWithError("CREATE_LOBBY", { type, capacity, locked, metadata })).data
+            (
+                await this.client.request(
+                    "CREATE_LOBBY",
+                    { type, capacity, locked, metadata },
+                    undefined,
+                    this.createLobby
+                )
+            ).data
         );
     }
 
@@ -312,7 +361,9 @@ export class ClientUser extends User {
     async connectToLobby(lobbyId: string, secret: string): Promise<Lobby> {
         return new Lobby(
             this.client,
-            (await this.client.requestWithError("CONNECT_TO_LOBBY", { id: lobbyId, secret })).data
+            (
+                await this.client.request("CONNECT_TO_LOBBY", { id: lobbyId, secret }, undefined, this.connectToLobby)
+            ).data
         );
     }
 
@@ -325,7 +376,7 @@ export class ClientUser extends User {
     async sendToLobby(lobbyId: string, data: string): Promise<Lobby> {
         return new Lobby(
             this.client,
-            (await this.client.requestWithError("SEND_TO_LOBBY", { lobby_id: lobbyId, data })).data
+            (await this.client.request("SEND_TO_LOBBY", { lobby_id: lobbyId, data }, undefined, this.sendToLobby)).data
         );
     }
 
@@ -341,8 +392,9 @@ export class ClientUser extends User {
         format: "png" | "webp" | "jpg" = "png",
         size: 16 | 32 | 64 | 128 | 256 | 512 | 1024 = 1024
     ): Promise<string> {
-        return (await this.client.requestWithError("GET_IMAGE", { type: "user", id: userId, format, size })).data
-            .data_url;
+        return (
+            await this.client.request("GET_IMAGE", { type: "user", id: userId, format, size }, undefined, this.getImage)
+        ).data.data_url;
     }
 
     // #endregion

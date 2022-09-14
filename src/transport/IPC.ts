@@ -1,8 +1,9 @@
-import { Transport, TransportOptions } from "../structures/Transport";
-import { v4 as uuidv4 } from "uuid";
-import fs from "fs";
-import net from "net";
-import path from "path";
+import { CUSTOM_RPC_ERROR_CODE, Transport, TransportOptions } from "../structures/Transport";
+import crypto from "node:crypto";
+import path from "node:path";
+import net from "node:net";
+import fs from "node:fs";
+import { RPCError } from "../utils/RPCError";
 
 export enum IPC_OPCODE {
     HANDSHAKE,
@@ -131,7 +132,7 @@ export class IPCTransport extends Transport {
                 }
             }
 
-            reject(new Error("Could not connect"));
+            reject(new RPCError(CUSTOM_RPC_ERROR_CODE.RPC_COULD_NOT_CONNECT, "Could not connect"));
         });
     }
 
@@ -231,7 +232,7 @@ export class IPCTransport extends Transport {
     }
 
     ping(): void {
-        this.send(uuidv4(), IPC_OPCODE.PING);
+        this.send(crypto.randomUUID(), IPC_OPCODE.PING);
     }
 
     close(): Promise<void> {

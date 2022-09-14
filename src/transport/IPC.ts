@@ -1,9 +1,9 @@
 import { CUSTOM_RPC_ERROR_CODE, Transport, TransportOptions } from "../structures/Transport";
+import { RPCError } from "../utils/RPCError";
 import crypto from "node:crypto";
 import path from "node:path";
 import net from "node:net";
 import fs from "node:fs";
-import { RPCError } from "../utils/RPCError";
 
 export enum IPC_OPCODE {
     HANDSHAKE,

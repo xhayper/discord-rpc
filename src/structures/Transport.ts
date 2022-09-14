@@ -253,7 +253,7 @@ export type TransportEvents = {
     /**
      * @event
      */
-    close: () => void;
+    close: (reason?: string | { code: number; message: string }) => void;
 };
 
 export type TransportOptions = {

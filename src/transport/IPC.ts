@@ -203,7 +203,7 @@ export class IPCTransport extends Transport {
                     break;
                 }
                 case IPC_OPCODE.CLOSE: {
-                    this.emit("close");
+                    this.emit("close", packet.data);
                     break;
                 }
                 case IPC_OPCODE.PING: {
@@ -237,7 +237,7 @@ export class IPCTransport extends Transport {
 
     close(): Promise<void> {
         return new Promise((resolve) => {
-            this.once("close", resolve);
+            this.once("close", () => resolve());
             this.send({}, IPC_OPCODE.CLOSE);
             this.socket?.end();
         });

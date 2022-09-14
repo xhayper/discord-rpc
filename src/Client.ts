@@ -192,14 +192,9 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
     /**
      * @hidden
      */
-    async request<A = any, D = any>(
-        cmd: RPC_CMD,
-        args?: any,
-        evt?: RPC_EVT,
-        caller?: Function
-    ): Promise<CommandIncoming<A, D>> {
+    async request<A = any, D = any>(cmd: RPC_CMD, args?: any, evt?: RPC_EVT): Promise<CommandIncoming<A, D>> {
         const error = new RPCError(RPC_ERROR_CODE.RPC_UNKNOWN_ERROR);
-        RPCError.captureStackTrace(error, caller ?? this.request);
+        RPCError.captureStackTrace(error, this.request);
 
         return new Promise((resolve, reject) => {
             const nonce = crypto.randomUUID();
@@ -311,11 +306,15 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
     async connect(): Promise<void> {
         if (this.connectionPromise) return this.connectionPromise;
 
+        const error = new RPCError(RPC_ERROR_CODE.RPC_UNKNOWN_ERROR);
+        RPCError.captureStackTrace(error, this.connect);
+
         this.connectionPromise = new Promise((resolve, reject) => {
-            const timeout = setTimeout(
-                () => reject(new RPCError(CUSTOM_RPC_ERROR_CODE.RPC_CONNECTION_TIMEOUT, "Connection timed out")),
-                10e3
-            );
+            const timeout = setTimeout(() => {
+                error.code = CUSTOM_RPC_ERROR_CODE.RPC_CONNECTION_TIMEOUT;
+                error.message = "Connection timed out";
+                reject(error);
+            }, 10e3);
             timeout.unref();
 
             this.once("connected", () => {
@@ -323,12 +322,15 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
                 resolve();
             });
 
-            this.transport.once("close", () => {
+            this.transport.once("close", (reason) => {
+                error.code = typeof reason == "object" ? reason!.code : CUSTOM_RPC_ERROR_CODE.RPC_CONNECTION_ENDED;
+                error.message = typeof reason == "object" ? reason!.message : reason ?? "Connection ended";
+
                 this._nonceMap.forEach((promise) => {
-                    promise.reject(new RPCError(CUSTOM_RPC_ERROR_CODE.RPC_CONNECTION_ENDED, "Connection ended"));
+                    promise.reject(error);
                 });
                 this.emit("disconnected");
-                reject(new RPCError(CUSTOM_RPC_ERROR_CODE.RPC_CONNECTION_ENDED, "Connection ended"));
+                reject(error);
             });
 
             this.transport.connect();

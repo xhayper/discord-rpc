@@ -47,7 +47,7 @@ export class WebSocketTransport extends Transport {
 
             this.ws!.onclose = (event) => {
                 if (!event.wasClean) return;
-                this.emit("close");
+                this.emit("close", event.reason);
             };
 
             this.ws!.onerror = (event) => {
@@ -70,7 +70,7 @@ export class WebSocketTransport extends Transport {
 
     close(): Promise<void> {
         return new Promise((resolve) => {
-            this.once("close", resolve);
+            this.once("close", () => resolve());
             this.ws?.close();
         });
     }

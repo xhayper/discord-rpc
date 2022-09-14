@@ -17,7 +17,15 @@
 
 Looking for Deno version? Check out [discord_rpc_deno](https://github.com/xhayper/discord-rpc-deno)!
 
-## Optional packages
+## Features
+
+- flatpak / snap support
+- Low dependencies count
+- Proper Error exception
+- Up-To-Date with Discord IPC's Command
+- Less than 100kb bundle size
+
+## Optional packages (when using WebSocket)
 
 - [bufferutil](https://www.npmjs.com/package/bufferutil)
 - [utf-8-validate](https://www.npmjs.com/package/utf-8-validate)
@@ -49,7 +57,6 @@ client.login();
 | Linux   | Y      | Y    | Y       |
 
 - Linux is tested on Kubuntu 22.04
-
 ## Credits
 
 - [discordjs](https://github.com/discordjs): Making [discordjs/RPC](https://github.com/discordjs/RPC)

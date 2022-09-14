@@ -1,5 +1,6 @@
-import { Transport } from "../structures/Transport";
+import { CUSTOM_RPC_ERROR_CODE, Transport } from "../structures/Transport";
 import { WebSocket } from "ws";
+import { RPCError } from "../utils/RPCError";
 
 export class WebSocketTransport extends Transport {
     private ws?: WebSocket;
@@ -37,7 +38,8 @@ export class WebSocketTransport extends Transport {
                 }
             }
 
-            if (!this.ws) reject(new Error("Failed to connect to websocket"));
+            if (!this.ws)
+                reject(new RPCError(CUSTOM_RPC_ERROR_CODE.RPC_COULD_NOT_CONNECT, "Failed to connect to websocket"));
 
             this.ws!.onmessage = (event) => {
                 this.emit("message", JSON.parse(event.data.toString()));

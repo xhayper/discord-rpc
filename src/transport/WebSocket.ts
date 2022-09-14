@@ -1,6 +1,6 @@
 import { CUSTOM_RPC_ERROR_CODE, Transport } from "../structures/Transport";
-import { WebSocket } from "ws";
 import { RPCError } from "../utils/RPCError";
+import { WebSocket } from "ws";
 
 export class WebSocketTransport extends Transport {
     private ws?: WebSocket;

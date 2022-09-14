@@ -49,6 +49,7 @@ client.login();
 | Linux   | Y      | Y    | Y       |
 
 - Linux is tested on Kubuntu 22.04
+
 ## Credits
 
 - [discordjs](https://github.com/discordjs): Making [discordjs/RPC](https://github.com/discordjs/RPC)

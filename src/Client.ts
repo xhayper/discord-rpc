@@ -37,7 +37,7 @@ export interface ClientOptions {
     /**
      * pipe id
      */
-    instanceId?: number;
+    pipeId?: number;
     /**
      * transport configs
      */
@@ -131,7 +131,7 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
         this.clientId = options.clientId;
         this.clientSecret = options.clientSecret;
 
-        this.instanceId = options.instanceId;
+        this.instanceId = options.pipeId;
 
         this.debug = !!options.debug; // Funky Javascript :)
 

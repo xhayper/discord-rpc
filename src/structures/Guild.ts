@@ -1,6 +1,6 @@
 import type { Client } from "../Client";
+import { type User } from "./User";
 import { Base } from "./Base";
-import { User } from "./User";
 
 export class Guild extends Base {
     /**

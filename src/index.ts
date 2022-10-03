@@ -10,4 +10,4 @@ export * from "./structures/VoiceSettings";
 export * from "./structures/Transport";
 export * from "./structures/Message";
 
-export { FormatFunction } from "./transport/IPC";
+export { type FormatFunction } from "./transport/IPC";

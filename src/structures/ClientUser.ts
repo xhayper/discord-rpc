@@ -1,7 +1,7 @@
 import type { ActivityType, GatewayActivityButton } from "discord-api-types/v10";
-import { CertifiedDevice } from "./CertifiedDevice";
+import type { CertifiedDevice } from "./CertifiedDevice";
 import { VoiceSettings } from "./VoiceSettings";
-import { Lobby, LobbyType } from "./Lobby";
+import { Lobby, type LobbyType } from "./Lobby";
 import { Channel } from "./Channel";
 import { Guild } from "./Guild";
 import { User } from "./User";

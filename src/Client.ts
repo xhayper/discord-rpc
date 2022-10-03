@@ -1,19 +1,19 @@
 import type { APIApplication, OAuth2Scopes } from "discord-api-types/v10";
-import { HttpMethod, ResponseData } from "undici/types/dispatcher";
-import { FormatFunction, IPCTransport } from "./transport/IPC";
+import type { HttpMethod, ResponseData } from "undici/types/dispatcher";
+import { type FormatFunction, IPCTransport } from "./transport/IPC";
 import { WebSocketTransport } from "./transport/WebSocket";
+import type { TypedEmitter } from "./utils/TypedEmitter";
 import { ClientUser } from "./structures/ClientUser";
-import { TypedEmitter } from "./utils/TypedEmitter";
+import { request, type FormData } from "undici";
 import { RPCError } from "./utils/RPCError";
 import { EventEmitter } from "node:events";
-import { request, FormData } from "undici";
 import crypto from "node:crypto";
 import {
-    RPC_CMD,
-    CommandIncoming,
-    RPC_EVT,
-    Transport,
-    TransportOptions,
+    type RPC_CMD,
+    type CommandIncoming,
+    type RPC_EVT,
+    type Transport,
+    type TransportOptions,
     CUSTOM_RPC_ERROR_CODE,
     RPC_ERROR_CODE
 } from "./structures/Transport";

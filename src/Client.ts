@@ -241,6 +241,7 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
         this.refreshToken = data.refresh_token;
         this.tokenType = data.token_type;
 
+        if (this.refrestTimeout) clearTimeout(this.refrestTimeout);
         this.refrestTimeout = setTimeout(() => this.refreshAccessToken(), data.expires_in - 5000);
     }
 

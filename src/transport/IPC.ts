@@ -115,8 +115,8 @@ export class IPCTransport extends Transport {
                     return socket;
                 };
 
-                if (this.client.instanceId) {
-                    const socket = await handleSocketId(this.client.instanceId);
+                if (this.client.pipeId) {
+                    const socket = await handleSocketId(this.client.pipeId);
                     if (socket) {
                         resolve(socket);
                         break;

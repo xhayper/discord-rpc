@@ -85,7 +85,7 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
     /**
      * pipe id
      */
-    instanceId?: number;
+    pipeId?: number;
 
     private accessToken?: string;
     private refreshToken?: string;
@@ -131,7 +131,7 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
         this.clientId = options.clientId;
         this.clientSecret = options.clientSecret;
 
-        this.instanceId = options.pipeId;
+        this.pipeId = options.pipeId;
 
         this.debug = !!options.debug; // Funky Javascript :)
 

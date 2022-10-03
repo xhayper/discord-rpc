@@ -118,7 +118,7 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
      */
     origin: string = "https://localhost";
 
-    private refrestTimeout?: NodeJS.Timer;
+    private refreshTimeout?: NodeJS.Timer;
     private connectionPromise?: Promise<void>;
     private _nonceMap = new Map<
         string,
@@ -225,24 +225,34 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
         this.hanleAccessTokenResponse(
             await (
                 await this.fetch("POST", "/oauth2/token", {
-                    query: new URLSearchParams({
+                    body: new URLSearchParams({
                         client_id: this.clientId,
                         client_secret: this.clientSecret ?? "",
                         grant_type: "refresh_token",
                         refresh_token: this.refreshToken ?? ""
-                    })
+                    }).toString(),
+                    headers: {
+                        "content-type": "application/x-www-form-urlencoded"
+                    }
                 })
             ).body.json()
         );
     }
 
     private hanleAccessTokenResponse(data: any): void {
+        if (
+            !("access_token" in data) ||
+            !("refresh_token" in data) ||
+            !("expires_in" in data) ||
+            !("token_type" in data)
+        )
+            throw new TypeError(`Invalid access token response!\nData: ${JSON.stringify(data, null, 2)}`);
+
         this.accessToken = data.access_token;
         this.refreshToken = data.refresh_token;
         this.tokenType = data.token_type;
 
-        if (this.refrestTimeout) clearTimeout(this.refrestTimeout);
-        this.refrestTimeout = setTimeout(() => this.refreshAccessToken(), data.expires_in - 5000);
+        this.refreshTimeout = setTimeout(() => this.refreshAccessToken(), data.expires_in);
     }
 
     private async authorize(options: AuthorizeOptions): Promise<void> {
@@ -371,9 +381,9 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
      * disconnects from the local rpc server
      */
     async destroy(): Promise<void> {
-        if (this.refrestTimeout) {
-            clearTimeout(this.refrestTimeout);
-            this.refrestTimeout = undefined;
+        if (this.refreshTimeout) {
+            clearTimeout(this.refreshTimeout);
+            this.refreshTimeout = undefined;
         }
 
         await this.transport.close();

@@ -1,5 +1,5 @@
 import type { GatewayVoiceState } from "discord-api-types/v10";
-import { Client } from "../Client";
+import type { Client } from "../Client";
 import { Base } from "./Base";
 import { User } from "./User";
 

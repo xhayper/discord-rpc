@@ -1,10 +1,9 @@
 import type { APIApplication, OAuth2Scopes } from "discord-api-types/v10";
-import type { HttpMethod, ResponseData } from "undici/types/dispatcher";
 import { type FormatFunction, IPCTransport } from "./transport/IPC";
 import { WebSocketTransport } from "./transport/WebSocket";
 import type { TypedEmitter } from "./utils/TypedEmitter";
 import { ClientUser } from "./structures/ClientUser";
-import { request, type FormData } from "undici";
+import axios, { AxiosResponse, Method } from "axios";
 import { RPCError } from "./utils/RPCError";
 import { EventEmitter } from "node:events";
 import crypto from "node:crypto";
@@ -174,17 +173,18 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
     /**
      * @hidden
      */
-    async fetch(
-        method: HttpMethod,
+    async fetch<R = any>(
+        method: Method | string,
         path: string,
-        req?: { body?: string | Buffer | Uint8Array | null | FormData; query?: URLSearchParams; headers?: any }
-    ): Promise<ResponseData> {
+        req?: { data?: any; query?: string; headers?: any }
+    ): Promise<AxiosResponse<R>> {
         const url = new URL(`https://discord.com/api${path}`);
         if (req?.query) for (const [key, value] of req.query) url.searchParams.append(key, value);
 
-        return await request(url, {
+        return await axios({
+            url: url.toString(),
             method,
-            body: req?.body ?? null,
+            data: req?.data ?? null,
             headers: {
                 ...(req?.headers ?? {}),
                 ...(this.accessToken ? { Authorization: `${this.tokenType} ${this.accessToken}` } : {})
@@ -223,19 +223,19 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
         if (this.debug) console.log("CLIENT | Refreshing access token!");
 
         this.hanleAccessTokenResponse(
-            await (
+            (
                 await this.fetch("POST", "/oauth2/token", {
-                    body: new URLSearchParams({
+                    data: new URLSearchParams({
                         client_id: this.clientId,
                         client_secret: this.clientSecret ?? "",
                         grant_type: "refresh_token",
                         refresh_token: this.refreshToken ?? ""
-                    }).toString(),
+                    }),
                     headers: {
                         "content-type": "application/x-www-form-urlencoded"
                     }
                 })
-            ).body.json()
+            ).data
         );
     }
 
@@ -260,18 +260,16 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
 
         if (options.useRPCToken) {
             rpcToken = (
-                await (
-                    await this.fetch("POST", "/oauth2/token/rpc", {
-                        body: new URLSearchParams({
-                            client_id: this.clientId,
-                            client_secret: this.clientSecret ?? ""
-                        }).toString(),
-                        headers: {
-                            "content-type": "application/x-www-form-urlencoded"
-                        }
-                    })
-                ).body.json()
-            ).rpc_token;
+                await this.fetch("POST", "/oauth2/token/rpc", {
+                    data: new URLSearchParams({
+                        client_id: this.clientId,
+                        client_secret: this.clientSecret ?? ""
+                    }),
+                    headers: {
+                        "content-type": "application/x-www-form-urlencoded"
+                    }
+                })
+            ).data.rpc_token;
         }
 
         const { code } = (
@@ -285,20 +283,20 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
         ).data;
 
         this.hanleAccessTokenResponse(
-            await (
+            (
                 await this.fetch("POST", "/oauth2/token", {
-                    body: new URLSearchParams({
+                    data: new URLSearchParams({
                         client_id: this.clientId,
                         client_secret: this.clientSecret ?? "",
                         redirect_uri: options.redirect_uri ?? "",
                         grant_type: "authorization_code",
                         code
-                    }).toString(),
+                    }),
                     headers: {
                         "content-type": "application/x-www-form-urlencoded"
                     }
                 })
-            ).body.json()
+            ).data
         );
     }
 

@@ -1,7 +1,7 @@
 import { CUSTOM_RPC_ERROR_CODE, Transport, type TransportOptions } from "../structures/Transport";
 import { RPCError } from "../utils/RPCError";
 import crypto from "node:crypto";
-import path from "node:path";
+import path, { resolve } from "node:path";
 import net from "node:net";
 import fs from "node:fs";
 
@@ -88,6 +88,10 @@ export class IPCTransport extends Transport {
     pathList: FormatFunction[] = defaultPathList;
 
     private socket?: net.Socket;
+
+    get isConnected() {
+        return this.socket != undefined && this.socket.readyState === "open";
+    }
 
     constructor(options: IPCTransportOptions) {
         super(options);
@@ -235,13 +239,15 @@ export class IPCTransport extends Transport {
     }
 
     close(): Promise<void> {
+        if (!this.socket) return new Promise((resolve) => void resolve());
+
         return new Promise((resolve) => {
-            this.socket?.once("close", () => {
+            this.socket!.once("close", () => {
                 this.emit("close", "Closed by client");
                 this.socket = undefined;
                 resolve();
             });
-            this.socket?.end();
+            this.socket!.end();
         });
     }
 }

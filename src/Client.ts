@@ -184,7 +184,7 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
         return await axios({
             url: url.toString(),
             method,
-            data: req?.data ?? null,
+            data: req?.data ?? undefined,
             headers: {
                 ...(req?.headers ?? {}),
                 ...(this.accessToken ? { Authorization: `${this.tokenType} ${this.accessToken}` } : {})
@@ -252,7 +252,7 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
         this.refreshToken = data.refresh_token;
         this.tokenType = data.token_type;
 
-        this.refreshTimeout = setTimeout(() => this.refreshAccessToken(), data.expires_in);
+        this.refreshTimeout = setTimeout(() => void this.refreshAccessToken(), data.expires_in);
     }
 
     private async authorize(options: AuthorizeOptions): Promise<void> {
@@ -338,6 +338,8 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
             timeout.unref();
 
             this.once("connected", () => {
+                this.connectionPromise = undefined;
+
                 clearTimeout(timeout);
                 resolve();
             });
@@ -382,6 +384,7 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
         if (this.refreshTimeout) {
             clearTimeout(this.refreshTimeout);
             this.refreshTimeout = undefined;
+            this.refreshToken = undefined;
         }
 
         await this.transport.close();

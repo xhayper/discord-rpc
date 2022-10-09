@@ -102,14 +102,14 @@ export class IPCTransport extends Transport {
         return new Promise(async (resolve, reject) => {
             for (const formatFunc of pathList) {
                 const tryCreateSocket = async (path: string) => {
-                    const socket = await createSocket(path).catch(() => null);
+                    const socket = await createSocket(path).catch(() => undefined);
                     return socket;
                 };
 
-                const handleSocketId = async (id: number): Promise<net.Socket | null> => {
+                const handleSocketId = async (id: number): Promise<net.Socket | undefined> => {
                     const [socketPath, skipCheck] = formatFunc(id);
 
-                    if (!skipCheck && !fs.existsSync(path.dirname(socketPath))) return null;
+                    if (!skipCheck && !fs.existsSync(path.dirname(socketPath))) return;
 
                     const socket = await tryCreateSocket(socketPath);
                     return socket;
@@ -137,11 +137,10 @@ export class IPCTransport extends Transport {
     }
 
     async connect(): Promise<void> {
-        if (this.socket) return;
-
-        this.socket = await this.getSocket().catch((err) => {
-            throw err;
-        });
+        if (!this.socket)
+            this.socket = await this.getSocket().catch((err) => {
+                throw err;
+            });
 
         this.emit("open");
 
@@ -153,14 +152,14 @@ export class IPCTransport extends Transport {
             IPC_OPCODE.HANDSHAKE
         );
 
-        let chunk: Buffer | null;
-        let sizeRemaining: number | null;
+        let chunk: Buffer | undefined;
+        let sizeRemaining: number | undefined;
 
         const onData = async (data: Buffer) => {
             if (!this.socket) return;
 
             const wholeData = chunk ? Buffer.concat([chunk, data.subarray(0, sizeRemaining!)]) : data;
-            const remainingData = sizeRemaining ? data.subarray(sizeRemaining) : null; // Fail-safe, this happened while testing but never came back again
+            const remainingData = sizeRemaining ? data.subarray(sizeRemaining) : undefined; // Fail-safe, this happened while testing but never came back again
 
             const length = wholeData.readUInt32LE(4);
             const jsonData = wholeData.subarray(8);
@@ -183,14 +182,14 @@ export class IPCTransport extends Transport {
                 chunk = wholeData;
                 return;
             } else {
-                chunk = null;
-                sizeRemaining = null;
+                chunk = undefined;
+                sizeRemaining = undefined;
             }
 
             const packet = {
                 op: wholeData.readUInt32LE(0),
                 length: length,
-                data: length > 0 ? JSON.parse(jsonData.toString()) : null // Should not error at all, If it does, open an Issue on GitHub.
+                data: length > 0 ? JSON.parse(jsonData.toString()) : undefined // Should not error at all, If it does, open an Issue on GitHub.
             };
 
             if (this.client.debug) console.debug(`SERVER => CLIENT | OPCODE.${IPC_OPCODE[packet.op]} |`, packet.data);
@@ -237,8 +236,10 @@ export class IPCTransport extends Transport {
 
     close(): Promise<void> {
         return new Promise((resolve) => {
-            this.once("close", () => resolve());
-            this.send({}, IPC_OPCODE.CLOSE);
+            this.socket?.once("close", () => {
+                this.socket = undefined;
+                resolve();
+            });
             this.socket?.end();
         });
     }

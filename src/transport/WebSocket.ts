@@ -29,7 +29,7 @@ export class WebSocketTransport extends Transport {
 
                         reject();
                     };
-                }).catch(() => null);
+                }).catch(() => undefined);
 
                 if (ws) {
                     this.ws = ws;
@@ -70,7 +70,10 @@ export class WebSocketTransport extends Transport {
 
     close(): Promise<void> {
         return new Promise((resolve) => {
-            this.once("close", () => resolve());
+            this.ws?.once("close", () => {
+                this.ws = undefined;
+                resolve();
+            });
             this.ws?.close();
         });
     }

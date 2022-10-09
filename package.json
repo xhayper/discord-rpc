@@ -33,7 +33,7 @@
         "ws": "^8.9.0"
     },
     "devDependencies": {
-        "@types/node": "^18.8.0",
+        "@types/node": "^14.18.31",
         "@types/ws": "^8.5.3",
         "husky": "^8.0.1",
         "prettier": "^2.7.1",
@@ -43,7 +43,7 @@
         "typescript": "^4.8.4"
     },
     "engines": {
-        "node": ">=14.17.0"
+        "node": ">=14.18.0"
     },
     "packageManager": "yarn@3.2.4"
 }

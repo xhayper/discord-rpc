@@ -71,6 +71,7 @@ export class WebSocketTransport extends Transport {
     close(): Promise<void> {
         return new Promise((resolve) => {
             this.ws?.once("close", () => {
+                this.emit("close", "Closed by client");
                 this.ws = undefined;
                 resolve();
             });

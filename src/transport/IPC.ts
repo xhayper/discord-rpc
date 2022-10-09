@@ -1,7 +1,7 @@
 import { CUSTOM_RPC_ERROR_CODE, Transport, type TransportOptions } from "../structures/Transport";
 import { RPCError } from "../utils/RPCError";
 import crypto from "node:crypto";
-import path, { resolve } from "node:path";
+import path from "node:path";
 import net from "node:net";
 import fs from "node:fs";
 

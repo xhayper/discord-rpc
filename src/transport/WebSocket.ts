@@ -5,6 +5,10 @@ import { WebSocket } from "ws";
 export class WebSocketTransport extends Transport {
     private ws?: WebSocket;
 
+    get isConnected() {
+        return this.ws != undefined && this.ws.readyState === 1;
+    }
+
     connect(): Promise<void> {
         return new Promise(async (resolve, reject) => {
             for (let i = 0; i < 10; i++) {
@@ -69,13 +73,15 @@ export class WebSocketTransport extends Transport {
     ping(): void {}
 
     close(): Promise<void> {
+        if (!this.ws) return new Promise((resolve) => void resolve());
+
         return new Promise((resolve) => {
-            this.ws?.once("close", () => {
+            this.ws!.once("close", () => {
                 this.emit("close", "Closed by client");
                 this.ws = undefined;
                 resolve();
             });
-            this.ws?.close();
+            this.ws!.close();
         });
     }
 }

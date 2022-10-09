@@ -117,6 +117,10 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
      */
     origin: string = "https://localhost";
 
+    get isConnected() {
+        return this.transport.isConnected;
+    }
+
     private refreshTimeout?: NodeJS.Timer;
     private connectionPromise?: Promise<void>;
     private _nonceMap = new Map<

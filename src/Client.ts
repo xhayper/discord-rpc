@@ -331,8 +331,11 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
 
         this.connectionPromise = new Promise((resolve, reject) => {
             const timeout = setTimeout(() => {
+                this.connectionPromise = undefined;
+
                 error.code = CUSTOM_RPC_ERROR_CODE.RPC_CONNECTION_TIMEOUT;
                 error.message = "Connection timed out";
+
                 reject(error);
             }, 10e3);
             timeout.unref();
@@ -340,19 +343,20 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
             this.once("connected", () => {
                 this.connectionPromise = undefined;
 
+                this.transport.once("close", (reason) => {
+                    this._nonceMap.forEach((promise) => {
+                        promise.error.code =
+                            typeof reason == "object" ? reason!.code : CUSTOM_RPC_ERROR_CODE.RPC_CONNECTION_ENDED;
+                        promise.error.message =
+                            typeof reason == "object" ? reason!.message : reason ?? "Connection ended";
+                        promise.reject(promise.error);
+                    });
+
+                    this.emit("disconnected");
+                });
+
                 clearTimeout(timeout);
                 resolve();
-            });
-
-            this.transport.once("close", (reason) => {
-                error.code = typeof reason == "object" ? reason!.code : CUSTOM_RPC_ERROR_CODE.RPC_CONNECTION_ENDED;
-                error.message = typeof reason == "object" ? reason!.message : reason ?? "Connection ended";
-
-                this._nonceMap.forEach((promise) => {
-                    promise.reject(error);
-                });
-                this.emit("disconnected");
-                reject(error);
             });
 
             this.transport.connect();

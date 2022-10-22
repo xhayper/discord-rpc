@@ -11,6 +11,10 @@
 </div>
 <!-- markdownlint-enable -->
 
+## NOTICE
+
+There is currently a rewrite for `discordjs/rpc` by the discord.js team at [suneettipirneni/discord.js#rpc](https://github.com/suneettipirneni/discord.js/tree/feat/rpc)!
+
 ## About
 
 `@xhayper/discord-rpc` is a fork of [discordjs/RPC](https://github.com/discordjs/RPC) with type safety and some additional features.

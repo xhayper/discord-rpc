@@ -97,7 +97,7 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
     /**
      * debug mode
      */
-    readonly debug: boolean;
+    debug: boolean;
 
     /**
      * current user

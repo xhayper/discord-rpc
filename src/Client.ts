@@ -50,10 +50,6 @@ export interface ClientOptions {
          */
         pathList?: FormatFunction[];
     };
-    /**
-     * debug mode
-     */
-    debug?: boolean;
 }
 
 export type ClientEvents = {
@@ -69,6 +65,10 @@ export type ClientEvents = {
      * fired when the client is disconnected from the local rpc server
      */
     disconnected: () => void;
+    /**
+     * fired when the client is have debug message
+     */
+    debug: (...data: any[]) => void;
 };
 
 export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents>) {
@@ -94,10 +94,6 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
      * transport instance
      */
     readonly transport: Transport;
-    /**
-     * debug mode
-     */
-    debug: boolean;
 
     /**
      * current user
@@ -135,8 +131,6 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
         this.clientSecret = options.clientSecret;
 
         this.pipeId = options.pipeId;
-
-        this.debug = !!options.debug; // Funky Javascript :)
 
         this.transport =
             options.transport && options.transport.type && options.transport.type != "ipc"
@@ -224,7 +218,7 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
     }
 
     private async refreshAccessToken(): Promise<void> {
-        if (this.debug) console.log("CLIENT | Refreshing access token!");
+        this.emit("debug", "CLIENT | Refreshing access token!");
 
         this.hanleAccessTokenResponse(
             (

@@ -1,15 +1,12 @@
 {
     "name": "@xhayper/discord-rpc",
-    "version": "1.0.12",
+    "version": "1.0.13",
     "description": "a fork of discordjs/RPC",
     "main": "dist/index.js",
     "author": "xhayper",
     "license": "ISC",
     "types": "dist/index.d.ts",
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/xhayper/discord-rpc.git"
-    },
+    "repository": "github:xhayper/discord-rpc",
     "keywords": [
         "typescript",
         "discord",

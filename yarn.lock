@@ -12,7 +12,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^14.18.33":
+"@types/node@npm:^14.*":
   version: 14.18.33
   resolution: "@types/node@npm:14.18.33"
   checksum: 4e23f95186d8ae1d38c999bc6b46fe94e790da88744b0a3bfeedcbd0d9ffe2cb0ff39e85f43014f6739e5270292c1a1f6f97a1fc606fd573a0c17fda9a1d42de
@@ -32,10 +32,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@xhayper/discord-rpc@workspace:."
   dependencies:
-    "@types/node": ^14.18.33
+    "@types/node": ^14.*
     "@types/ws": ^8.5.3
     axios: ^1.1.3
-    discord-api-types: ^0.37.17
+    discord-api-types: ^0.37.18
     rimraf: ^3.0.2
     ws: ^8.11.0
   languageName: unknown
@@ -99,10 +99,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"discord-api-types@npm:^0.37.17":
-  version: 0.37.17
-  resolution: "discord-api-types@npm:0.37.17"
-  checksum: 784344f70d66f4926829450f42addeabbf895786419b0d8b5596a395352eea313d64bb057d69f352fd613b88b5b0567205189a95386ce5ed48a5b46c03f69a70
+"discord-api-types@npm:^0.37.18":
+  version: 0.37.18
+  resolution: "discord-api-types@npm:0.37.18"
+  checksum: 66f8910f56cb882c85a698d723615d09407ce70b74fc9d8e033cc6620b45e3bdcbf19504e0b9428bdd2edfd47d12a5d97c086671f8b2c255e823b97a7c1b10fa
   languageName: node
   linkType: hard
 

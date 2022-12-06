@@ -21,8 +21,8 @@
         "prepack": "yarn run build"
     },
     "dependencies": {
-        "axios": "^1.2.0",
-        "discord-api-types": "^0.37.20",
+        "axios": "^1.2.1",
+        "discord-api-types": "^0.37.21",
         "ws": "^8.11.0"
     },
     "devDependencies": {

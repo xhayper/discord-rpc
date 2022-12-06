@@ -1,9 +1,9 @@
 import type { APIApplication, OAuth2Scopes } from "discord-api-types/v10";
 import { type FormatFunction, IPCTransport } from "./transport/IPC";
+import axios, { type AxiosResponse, type Method } from "axios";
 import { WebSocketTransport } from "./transport/WebSocket";
 import type { TypedEmitter } from "./utils/TypedEmitter";
 import { ClientUser } from "./structures/ClientUser";
-import axios, { AxiosResponse, Method } from "axios";
 import { RPCError } from "./utils/RPCError";
 import { EventEmitter } from "node:events";
 import crypto from "node:crypto";

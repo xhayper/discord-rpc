@@ -18,11 +18,11 @@
     ],
     "scripts": {
         "build": "rimraf dist && tsc",
-        "prepack": "yarn run build"
+        "prepack": "pnpm run build"
     },
     "dependencies": {
         "axios": "^1.2.1",
-        "discord-api-types": "^0.37.21",
+        "discord-api-types": "^0.37.24",
         "ws": "^8.11.0"
     },
     "devDependencies": {
@@ -33,5 +33,5 @@
     "engines": {
         "node": ">=14.18.0"
     },
-    "packageManager": "yarn@3.3.0"
+    "packageManager": "pnpm@7.18.2"
 }

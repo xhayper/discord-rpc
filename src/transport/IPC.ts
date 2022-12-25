@@ -113,6 +113,8 @@ export class IPCTransport extends Transport {
                 const handleSocketId = async (id: number): Promise<net.Socket | undefined> => {
                     const [socketPath, skipCheck] = formatFunc(id);
 
+                    if (!socketPath || socketPath.trim() === "") return undefined;
+
                     if (!skipCheck && !fs.existsSync(path.dirname(socketPath))) return;
 
                     const socket = await tryCreateSocket(socketPath);

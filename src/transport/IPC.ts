@@ -28,7 +28,7 @@ const defaultPathList: FormatFunction[] = [
         return [isWindows ? `\\\\?\\pipe\\discord-ipc-${id}` : "", isWindows];
     },
     (id: number): [string] => {
-        // macOS/Linux path
+        // macOS / Linux path
 
         if (process.platform === "win32") return [""];
 

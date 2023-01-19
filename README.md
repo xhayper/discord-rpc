@@ -21,8 +21,8 @@ Looking for Deno version? Check out [discord_rpc_deno](https://github.com/xhaype
 
 -   flatpak / snap support
 -   Low dependencies count
--   Proper Error exception
--   Up-To-Date with Discord IPC's Command
+-   Proper error exception
+-   Up-To-Date with Discord's IPC command / event list
 -   Less than 100kb bundle size
 
 ## Optional packages (when using WebSocket)

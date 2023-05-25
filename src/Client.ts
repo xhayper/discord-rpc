@@ -357,7 +357,9 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
                 resolve();
             });
 
-            this.transport.connect();
+            this.transport.connect().catch((err) => {
+                reject(err);
+            });
         });
 
         return this.connectionPromise;

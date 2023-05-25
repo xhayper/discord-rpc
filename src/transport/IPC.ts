@@ -143,10 +143,7 @@ export class IPCTransport extends Transport {
     }
 
     async connect(): Promise<void> {
-        if (!this.socket)
-            this.socket = await this.getSocket().catch((err) => {
-                throw err;
-            });
+        if (!this.socket) this.socket = await this.getSocket();
 
         this.emit("open");
 

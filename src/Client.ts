@@ -132,15 +132,16 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
 
         this.pipeId = options.pipeId;
 
-        this.transport =
-            options.transport && options.transport.type && options.transport.type != "ipc"
-                ? options.transport.type === "websocket"
-                    ? new WebSocketTransport({ client: this })
-                    : new options.transport.type({ client: this })
-                : new IPCTransport({
-                      client: this,
-                      pathList: options.transport?.pathList
-                  });
+        this.transport = new (
+            options.transport?.type === "websocket"
+                ? WebSocketTransport
+                : options.transport?.type === "ipc" || options.transport?.type === undefined
+                ? IPCTransport
+                : options.transport?.type
+        )({
+            client: this,
+            pathList: options.transport?.pathList
+        });
 
         this.transport.on("message", (message) => {
             if (message.cmd === "DISPATCH" && message.evt === "READY") {

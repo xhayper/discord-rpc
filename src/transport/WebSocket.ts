@@ -6,7 +6,7 @@ export class WebSocketTransport extends Transport {
     private ws?: WebSocket;
 
     get isConnected() {
-        return this.ws != undefined && this.ws.readyState === 1;
+        return this.ws !== undefined && this.ws.readyState === 1;
     }
 
     connect(): Promise<void> {

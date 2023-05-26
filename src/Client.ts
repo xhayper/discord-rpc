@@ -132,16 +132,15 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
 
         this.pipeId = options.pipeId;
 
-        this.transport = new (
-            options.transport?.type === "websocket"
-                ? WebSocketTransport
-                : options.transport?.type === "ipc" || options.transport?.type === undefined
-                ? IPCTransport
-                : options.transport?.type
-        )({
-            client: this,
-            pathList: options.transport?.pathList
-        });
+        this.transport =
+            options.transport?.type === undefined || options.transport.type === "ipc"
+                ? new IPCTransport({
+                      client: this,
+                      pathList: options.transport?.pathList
+                  })
+                : new (options.transport.type === "websocket" ? WebSocketTransport : options.transport.type)({
+                      client: this
+                  });
 
         this.transport.on("message", (message) => {
             if (message.cmd === "DISPATCH" && message.evt === "READY") {
@@ -153,7 +152,7 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
                 if (message.nonce && this._nonceMap.has(message.nonce)) {
                     const nonceObj = this._nonceMap.get(message.nonce)!;
 
-                    if (message.evt == "ERROR") {
+                    if (message.evt === "ERROR") {
                         nonceObj.error.code = message.data.code;
                         nonceObj.error.message = message.data.message;
                         nonceObj?.reject(nonceObj.error);
@@ -345,9 +344,9 @@ export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents
                 this.transport.once("close", (reason) => {
                     this._nonceMap.forEach((promise) => {
                         promise.error.code =
-                            typeof reason == "object" ? reason!.code : CUSTOM_RPC_ERROR_CODE.RPC_CONNECTION_ENDED;
+                            typeof reason === "object" ? reason!.code : CUSTOM_RPC_ERROR_CODE.RPC_CONNECTION_ENDED;
                         promise.error.message =
-                            typeof reason == "object" ? reason!.message : reason ?? "Connection ended";
+                            typeof reason === "object" ? reason!.message : reason ?? "Connection ended";
                         promise.reject(promise.error);
                     });
 

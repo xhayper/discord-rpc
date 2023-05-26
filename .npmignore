@@ -1,12 +1,7 @@
 # Folder
 examples/
-__test__/
 .vscode/
 .github/
-.husky/
-.yarn/
-docs/
-test/
 src/
 
 # File
@@ -16,5 +11,4 @@ tsconfig.json
 *.tgz
 
 # lockfile
-package-lock.json
-yarn.lock
+pnpm-lock.yaml

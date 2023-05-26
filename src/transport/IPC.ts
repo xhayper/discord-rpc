@@ -90,7 +90,7 @@ export class IPCTransport extends Transport {
     private socket?: net.Socket;
 
     get isConnected() {
-        return this.socket != undefined && this.socket.readyState === "open";
+        return this.socket !== undefined && this.socket.readyState === "open";
     }
 
     constructor(options: IPCTransportOptions) {

@@ -113,7 +113,7 @@ export class IPCTransport extends Transport {
                 const handleSocketId = async (id: number): Promise<net.Socket | undefined> => {
                     const socketPath = formatFunc(id);
 
-                    if (!socketPath || socketPath.trim() === "") return undefined;
+                    if (!socketPath || socketPath.trim() === "") return;
 
                     if (!fs.existsSync(path.dirname(socketPath))) return;
 

@@ -17,7 +17,7 @@ dependencies:
 
 devDependencies:
   '@types/node':
-    specifier: ^14.18.51
+    specifier: ^14.*
     version: 14.18.51
   '@types/ws':
     specifier: ^8.5.5

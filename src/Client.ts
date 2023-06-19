@@ -1,8 +1,8 @@
 import type { APIApplication, OAuth2Scopes } from "discord-api-types/v10";
 import { type FormatFunction, IPCTransport } from "./transport/IPC";
+import type { TypedEventEmitter } from "./utils/TypedEventEmitter";
 import axios, { type AxiosResponse, type Method } from "axios";
 import { WebSocketTransport } from "./transport/WebSocket";
-import type { TypedEmitter } from "./utils/TypedEmitter";
 import { ClientUser } from "./structures/ClientUser";
 import { RPCError } from "./utils/RPCError";
 import { EventEmitter } from "node:events";
@@ -71,7 +71,7 @@ export type ClientEvents = {
     debug: (...data: any[]) => void;
 };
 
-export class Client extends (EventEmitter as new () => TypedEmitter<ClientEvents>) {
+export class Client extends (EventEmitter as new () => TypedEventEmitter<ClientEvents>) {
     /**
      * application id
      */

@@ -1,4 +1,4 @@
-import { type TypedEmitter } from "../utils/TypedEmitter";
+import { type TypedEventEmitter } from "../utils/TypedEventEmitter";
 import { EventEmitter } from "node:events";
 import type { Client } from "../Client";
 
@@ -261,7 +261,7 @@ export type TransportOptions = {
     client: Client;
 };
 
-export abstract class Transport extends (EventEmitter as new () => TypedEmitter<TransportEvents>) {
+export abstract class Transport extends (EventEmitter as new () => TypedEventEmitter<TransportEvents>) {
     readonly client: Client;
 
     get isConnected(): boolean {

@@ -22,16 +22,16 @@
     },
     "dependencies": {
         "axios": "^1.4.0",
-        "discord-api-types": "^0.37.42",
+        "discord-api-types": "^0.37.46",
         "ws": "^8.13.0"
     },
     "devDependencies": {
-        "@types/node": "^14.*",
-        "@types/ws": "^8.5.4",
+        "@types/node": "^14.18.51",
+        "@types/ws": "^8.5.5",
         "del-cli": "^5.0.0"
     },
     "engines": {
         "node": ">=14.18.0"
     },
-    "packageManager": "pnpm@8.1.1"
+    "packageManager": "pnpm@8.6.3"
 }

@@ -13,55 +13,55 @@ export enum IPC_OPCODE {
     PONG
 }
 
-export type FormatFunction = (id: number) => [path: string, skipCheck?: boolean];
+export type FormatFunction = (id: number) => string | undefined;
 
 export type IPCTransportOptions = {
     pathList?: FormatFunction[];
 } & TransportOptions;
 
 const defaultPathList: FormatFunction[] = [
-    (id: number): [string, boolean] => {
+    (id: number): string | undefined => {
         // Windows path
 
         const isWindows = process.platform === "win32";
 
-        return [isWindows ? `\\\\?\\pipe\\discord-ipc-${id}` : "", isWindows];
+        return isWindows ? `\\\\?\\pipe\\discord-ipc-${id}` : undefined;
     },
-    (id: number): [string] => {
+    (id: number): string | undefined => {
         // macOS / Linux path
 
-        if (process.platform === "win32") return [""];
+        if (process.platform === "win32") return;
 
         const {
             env: { XDG_RUNTIME_DIR, TMPDIR, TMP, TEMP }
         } = process;
 
         const prefix = fs.realpathSync(XDG_RUNTIME_DIR ?? TMPDIR ?? TMP ?? TEMP ?? `${path.sep}tmp`);
-        return [path.join(prefix, `discord-ipc-${id}`)];
+        return path.join(prefix, `discord-ipc-${id}`);
     },
-    (id: number): [string] => {
+    (id: number): string | undefined => {
         // snap
 
-        if (process.platform === "win32") return [""];
+        if (process.platform === "win32") return;
 
         const {
             env: { XDG_RUNTIME_DIR, TMPDIR, TMP, TEMP }
         } = process;
 
         const prefix = fs.realpathSync(XDG_RUNTIME_DIR ?? TMPDIR ?? TMP ?? TEMP ?? `${path.sep}tmp`);
-        return [path.join(prefix, "snap.discord", `discord-ipc-${id}`)];
+        return path.join(prefix, "snap.discord", `discord-ipc-${id}`);
     },
-    (id: number): [string] => {
+    (id: number): string | undefined => {
         // flatpak
 
-        if (process.platform === "win32") return [""];
+        if (process.platform === "win32") return;
 
         const {
             env: { XDG_RUNTIME_DIR, TMPDIR, TMP, TEMP }
         } = process;
 
         const prefix = fs.realpathSync(XDG_RUNTIME_DIR ?? TMPDIR ?? TMP ?? TEMP ?? `${path.sep}tmp`);
-        return [path.join(prefix, "app", "com.discordapp.Discord", `discord-ipc-${id}`)];
+        return path.join(prefix, "app", "com.discordapp.Discord", `discord-ipc-${id}`);
     }
 ];
 
@@ -111,11 +111,11 @@ export class IPCTransport extends Transport {
                 };
 
                 const handleSocketId = async (id: number): Promise<net.Socket | undefined> => {
-                    const [socketPath, skipCheck] = formatFunc(id);
+                    const socketPath = formatFunc(id);
 
                     if (!socketPath || socketPath.trim() === "") return undefined;
 
-                    if (!skipCheck && !fs.existsSync(path.dirname(socketPath))) return;
+                    if (!fs.existsSync(path.dirname(socketPath))) return;
 
                     const socket = await tryCreateSocket(socketPath);
                     return socket;

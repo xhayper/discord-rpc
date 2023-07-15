@@ -1,6 +1,6 @@
 {
     "name": "@xhayper/discord-rpc",
-    "version": "1.0.18",
+    "version": "1.0.19",
     "description": "a fork of discordjs/RPC",
     "main": "dist/index.js",
     "author": "xhayper",
@@ -22,7 +22,7 @@
     },
     "dependencies": {
         "axios": "^1.4.0",
-        "discord-api-types": "^0.37.46",
+        "discord-api-types": "^0.37.48",
         "ws": "^8.13.0"
     },
     "devDependencies": {

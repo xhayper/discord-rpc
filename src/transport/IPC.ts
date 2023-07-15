@@ -115,7 +115,7 @@ export class IPCTransport extends Transport {
 
                     if (!socketPath || socketPath.trim() === "") return;
 
-                    if (!fs.existsSync(socketPath)) return;
+                    if (process.platform !== "win32" && !fs.existsSync(path.dirname(socketPath))) return;
 
                     const socket = await tryCreateSocket(socketPath);
                     return socket;

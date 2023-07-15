@@ -124,15 +124,13 @@ export class IPCTransport extends Transport {
                 if (this.client.pipeId) {
                     const socket = await handleSocketId(this.client.pipeId);
                     if (socket) {
-                        resolve(socket);
-                        break;
+                        return resolve(socket);
                     }
                 } else {
                     for (let i = 0; i < 10; i++) {
                         const socket = await handleSocketId(i);
                         if (socket) {
-                            resolve(socket);
-                            break;
+                            return resolve(socket);
                         }
                     }
                 }

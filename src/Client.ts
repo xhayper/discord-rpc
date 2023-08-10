@@ -69,7 +69,7 @@ export type ClientEvents = {
      * fired when the client is have debug message
      */
     debug: (...data: any[]) => void;
-};
+} & { [K in RPC_EVT]: (...args: unknown[]) => void };
 
 export class Client extends (EventEmitter as new () => TypedEventEmitter<ClientEvents>) {
     /**

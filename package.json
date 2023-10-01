@@ -1,6 +1,6 @@
 {
     "name": "@xhayper/discord-rpc",
-    "version": "1.0.22",
+    "version": "1.0.23",
     "description": "a fork of discordjs/RPC",
     "main": "dist/index.js",
     "author": "xhayper",
@@ -21,17 +21,17 @@
         "prepack": "pnpm run build"
     },
     "dependencies": {
-        "axios": "^1.4.0",
-        "discord-api-types": "^0.37.52",
-        "ws": "^8.13.0"
+        "axios": "^1.5.1",
+        "discord-api-types": "^0.37.58",
+        "ws": "^8.14.2"
     },
     "devDependencies": {
         "@types/node": "^14.*",
-        "@types/ws": "^8.5.5",
-        "del-cli": "^5.0.0"
+        "@types/ws": "^8.5.6",
+        "del-cli": "^5.1.0"
     },
     "engines": {
         "node": ">=14.18.0"
     },
-    "packageManager": "pnpm@8.6.12"
+    "packageManager": "pnpm@8.8.0"
 }

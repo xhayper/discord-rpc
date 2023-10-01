@@ -6,7 +6,10 @@
     "author": "xhayper",
     "license": "ISC",
     "types": "dist/index.d.ts",
-    "repository": "github:xhayper/discord-rpc",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/xhayper/discord-rpc.git"
+    },
     "keywords": [
         "typescript",
         "discord",

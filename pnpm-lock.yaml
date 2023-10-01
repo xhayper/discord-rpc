@@ -6,25 +6,25 @@ settings:
 
 dependencies:
   axios:
-    specifier: ^1.4.0
-    version: 1.4.0
+    specifier: ^1.5.1
+    version: 1.5.1
   discord-api-types:
-    specifier: ^0.37.52
-    version: 0.37.52
+    specifier: ^0.37.58
+    version: 0.37.58
   ws:
-    specifier: ^8.13.0
-    version: 8.13.0
+    specifier: ^8.14.2
+    version: 8.14.2
 
 devDependencies:
   '@types/node':
     specifier: ^14.*
     version: 14.18.51
   '@types/ws':
-    specifier: ^8.5.5
-    version: 8.5.5
+    specifier: ^8.5.6
+    version: 8.5.6
   del-cli:
-    specifier: ^5.0.0
-    version: 5.0.0
+    specifier: ^5.1.0
+    version: 5.1.0
 
 packages:
 
@@ -82,8 +82,8 @@ packages:
     resolution: {integrity: sha512-Gj7cI7z+98M282Tqmp2K5EIsoouUEzbBJhQQzDE3jSIRk6r9gsz0oUokqIUR4u1R3dMHo0pDHM7sNOHyhulypw==}
     dev: true
 
-  /@types/ws@8.5.5:
-    resolution: {integrity: sha512-lwhs8hktwxSjf9UaZ9tG5M03PGogvFaH8gUgLNbN9HKIg0dvv6q+gkSuJ8HN4/VbyxkuLzCjlN7GquQ0gUJfIg==}
+  /@types/ws@8.5.6:
+    resolution: {integrity: sha512-8B5EO9jLVCy+B58PLHvLDuOD8DRVMgQzq8d55SjLCOn9kqGyqOvy27exVaTio1q1nX5zLu8/6N0n2ThSxOM6tg==}
     dependencies:
       '@types/node': 14.18.51
     dev: true
@@ -112,8 +112,8 @@ packages:
     resolution: {integrity: sha512-Oei9OH4tRh0YqU3GxhX79dM/mwVgvbZJaSNaRk+bshkj0S5cfHcgYakreBjrHwatXKbz+IoIdYLxrKim2MjW0Q==}
     dev: false
 
-  /axios@1.4.0:
-    resolution: {integrity: sha512-S4XCWMEmzvo64T9GfvQDOXgYRDJ/wsSZc7Jvdgx5u1sd0JwsuPLqb3SYmusag+edF6ziyMensPVqLTSc1PiSEA==}
+  /axios@1.5.1:
+    resolution: {integrity: sha512-Q28iYCWzNHjAm+yEAot5QaAMxhMghWLFVf7rRdwhUI+c2jix2DUXjAHXVi+s1ibs3mjPO/cCgbA++3BjD0vP/A==}
     dependencies:
       follow-redirects: 1.15.2
       form-data: 4.0.0
@@ -210,17 +210,17 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
-  /del-cli@5.0.0:
-    resolution: {integrity: sha512-rENFhUaYcjoMODwFhhlON+ogN7DoG+4+GFN+bsA1XeDt4w2OKQnQadFP1thHSAlK9FAtl88qgP66wOV+eFZZiQ==}
+  /del-cli@5.1.0:
+    resolution: {integrity: sha512-xwMeh2acluWeccsfzE7VLsG3yTr7nWikbfw+xhMnpRrF15pGSkw+3/vJZWlGoE4I86UiLRNHicmKt4tkIX9Jtg==}
     engines: {node: '>=14.16'}
     hasBin: true
     dependencies:
-      del: 7.0.0
+      del: 7.1.0
       meow: 10.1.5
     dev: true
 
-  /del@7.0.0:
-    resolution: {integrity: sha512-tQbV/4u5WVB8HMJr08pgw0b6nG4RGt/tj+7Numvq+zqcvUFeMaIWWOUFltiU+6go8BSO2/ogsB4EasDaj0y68Q==}
+  /del@7.1.0:
+    resolution: {integrity: sha512-v2KyNk7efxhlyHpjEvfyxaAihKKK0nWCuf6ZtqZcFFpQRG0bJ12Qsr0RpvsICMjAAZ8DOVCxrlqpxISlMHC4Kg==}
     engines: {node: '>=14.16'}
     dependencies:
       globby: 13.2.0
@@ -245,8 +245,8 @@ packages:
       path-type: 4.0.0
     dev: true
 
-  /discord-api-types@0.37.52:
-    resolution: {integrity: sha512-TP99aMgY6rHuDIy056GDm1j2nGOcaLbFpjVbvAmv6N6vhkjHNqHXCHVqKtGisaQ8D15slbxTHNl/SSkPdx2syg==}
+  /discord-api-types@0.37.58:
+    resolution: {integrity: sha512-LubQHjyrr4nXjotWuao9T5RjzvvDstRztIpf5vamIXreSu75FQD20BJv2FnNc+vqrWLWnQwqg3qPb9P6cE2sUw==}
     dev: false
 
   /error-ex@1.3.2:
@@ -750,8 +750,8 @@ packages:
     resolution: {integrity: sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ==}
     dev: true
 
-  /ws@8.13.0:
-    resolution: {integrity: sha512-x9vcZYTrFPC7aSIbj7sRCYo7L/Xb8Iy+pW0ng0wt2vCJv7M9HOMy0UoN3rr+IFC7hb7vXoqS+P9ktyLLLhO+LA==}
+  /ws@8.14.2:
+    resolution: {integrity: sha512-wEBG1ftX4jcglPxgFCMJmZ2PLtSbJ2Peg6TmpJFTbe9GZYOQCDPdMYu/Tm0/bGZkw8paZnJY45J4K2PZrLYq8g==}
     engines: {node: '>=10.0.0'}
     peerDependencies:
       bufferutil: ^4.0.1

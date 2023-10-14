@@ -8,9 +8,6 @@ dependencies:
   axios:
     specifier: ^1.5.1
     version: 1.5.1
-  discord-api-types:
-    specifier: ^0.37.58
-    version: 0.37.58
   ws:
     specifier: ^8.14.2
     version: 8.14.2
@@ -25,6 +22,9 @@ devDependencies:
   del-cli:
     specifier: ^5.1.0
     version: 5.1.0
+  discord-api-types:
+    specifier: ^0.37.58
+    version: 0.37.58
 
 packages:
 
@@ -247,7 +247,7 @@ packages:
 
   /discord-api-types@0.37.58:
     resolution: {integrity: sha512-LubQHjyrr4nXjotWuao9T5RjzvvDstRztIpf5vamIXreSu75FQD20BJv2FnNc+vqrWLWnQwqg3qPb9P6cE2sUw==}
-    dev: false
+    dev: true
 
   /error-ex@1.3.2:
     resolution: {integrity: sha512-7dFHNmqeFSEt2ZBsCriorKnn3Z2pj+fd9kmI6QoWw4//DL+icEBfc0U7qJCisqrTsKTjw4fNFy2pW9OqStD84g==}

@@ -6,25 +6,70 @@ import { Channel } from "./Channel";
 import { Guild } from "./Guild";
 import { User } from "./User";
 
+export enum ActivityPartyPrivacy {
+    PUBLIC = 0,
+    PRIVATE = 1
+}
+
 export type SetActivity = {
+    /**
+     * Minimum of 2 characters and maximum of 128 characters
+     */
     state?: string;
+    /**
+     * Minimum of 2 characters and maximum of 128 characters
+     */
     details?: string;
     startTimestamp?: number | Date;
     endTimestamp?: number | Date;
+    /**
+     * Minimum of 1 characters and maximum of 128 characters
+     */
     largeImageKey?: string;
+    /**
+     * Minimum of 1 characters and maximum of 128 characters
+     */
     smallImageKey?: string;
+    /**
+     * Minimum of 2 characters and maximum of 128 characters
+     */
     largeImageText?: string;
+    /**
+     * Minimum of 2 characters and maximum of 128 characters
+     */
     smallImageText?: string;
+    /**
+     * Minimum of 2 characters and maximum of 128 characters
+     */
     partyId?: string;
+    /**
+     * Default: ActivityPartyPrivacy.PRIVATE
+     */
+    partyPrivacy?: ActivityPartyPrivacy;
     partySize?: number;
     partyMax?: number;
+    /**
+     * Minimum of 2 characters and maximum of 128 characters
+     */
     matchSecret?: string;
+    /**
+     * Minimum of 2 characters and maximum of 128 characters
+     */
     joinSecret?: string;
+    /**
+     * Minimum of 2 characters and maximum of 128 characters
+     */
     spectateSecret?: string;
     instance?: boolean;
     buttons?: Array<GatewayActivityButton>;
-    // Doesn't work, juse don't use it
-    type?: ActivityType.Playing | ActivityType.Watching | number;
+    /**
+     * Max of 3 array elements, each string should be 1-32 characters long
+     */
+    supportedPlatforms?: string[];
+    /**
+     * Default: ActivityTypes.PLAYING
+     */
+    type?: ActivityType.Playing | ActivityType.Listening | ActivityType.Watching | number;
 };
 
 export type SetActivityResponse = {
@@ -231,12 +276,15 @@ export class ClientUser extends User {
         if (activity.smallImageText) formattedAcitivity.assets.small_text = activity.smallImageText;
 
         if (activity.partyId) formattedAcitivity.party.id = activity.partyId;
+        if (activity.partyPrivacy) formattedAcitivity.party.privacy = activity.partyPrivacy;
         if (activity.partySize && activity.partyMax)
             formattedAcitivity.party.size = [activity.partySize, activity.partyMax];
 
         if (activity.joinSecret) formattedAcitivity.secrets.join = activity.joinSecret;
         if (activity.spectateSecret) formattedAcitivity.secrets.spectate = activity.spectateSecret;
         if (activity.matchSecret) formattedAcitivity.secrets.match = activity.matchSecret;
+
+        if (activity.supportedPlatforms) formattedAcitivity.supported_platforms = activity.supportedPlatforms;
 
         if (Object.keys(formattedAcitivity.assets).length === 0) delete formattedAcitivity["assets"];
         if (Object.keys(formattedAcitivity.timestamps).length === 0) delete formattedAcitivity["timestamps"];
@@ -253,11 +301,13 @@ export class ClientUser extends User {
         delete formattedAcitivity["largeImageText"];
         delete formattedAcitivity["smallImageText"];
         delete formattedAcitivity["partyId"];
+        delete formattedAcitivity["partyPrivacy"];
         delete formattedAcitivity["partySize"];
         delete formattedAcitivity["partyMax"];
         delete formattedAcitivity["joinSecret"];
         delete formattedAcitivity["spectateSecret"];
         delete formattedAcitivity["matchSecret"];
+        delete formattedAcitivity["supportedPlatforms"];
 
         return (
             await this.client.request("SET_ACTIVITY", {

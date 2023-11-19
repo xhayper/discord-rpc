@@ -72,7 +72,7 @@ export type SetActivity = {
     /**
      * Default: ActivityTypes.PLAYING
      */
-    type?: ActivityType.Playing | ActivityType.Listening | ActivityType.Watching | number;
+    type?: ActivityType.Playing | ActivityType.Listening | ActivityType.Watching;
 };
 
 export type SetActivityResponse = {

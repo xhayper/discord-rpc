@@ -7,8 +7,8 @@ import { Guild } from "./Guild";
 import { User } from "./User";
 
 export enum ActivityPartyPrivacy {
-    PUBLIC = 0,
-    PRIVATE = 1
+    PRIVATE = 0,
+    PUBLIC = 1
 }
 
 export type SetActivity = {

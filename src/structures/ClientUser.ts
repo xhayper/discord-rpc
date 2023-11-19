@@ -6,6 +6,12 @@ import { Channel } from "./Channel";
 import { Guild } from "./Guild";
 import { User } from "./User";
 
+export enum ActivitySupportedPlatform {
+    IOS = "ios",
+    ANDROID = "android",
+    WEB = "web"
+}
+
 export enum ActivityPartyPrivacy {
     PRIVATE = 0,
     PUBLIC = 1
@@ -62,10 +68,7 @@ export type SetActivity = {
     spectateSecret?: string;
     instance?: boolean;
     buttons?: Array<GatewayActivityButton>;
-    /**
-     * Max of 3 array elements, each string should be 1-32 characters long
-     */
-    supportedPlatforms?: string[];
+    supportedPlatforms?: (ActivitySupportedPlatform | `${ActivitySupportedPlatform}`)[];
     /**
      * Default: ActivityTypes.PLAYING
      */

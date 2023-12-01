@@ -154,16 +154,7 @@ export class IPCTransport extends Transport {
         );
 
         this.socket.on("readable", () => {
-            let data = this.socket?.read() as Buffer | undefined;
-            if (!data) return;
-            this.client.emit(
-                "debug",
-                `SERVER => CLIENT | ${data
-                    .toString("hex")
-                    .match(/.{1,2}/g)
-                    ?.join(" ")
-                    .toUpperCase()}`
-            );
+            let data = Buffer.alloc(0);
 
             do {
                 const chunk = this.socket?.read() as Buffer | undefined;
@@ -227,7 +218,7 @@ export class IPCTransport extends Transport {
     }
 
     close(): Promise<void> {
-        if (!this.socket) return new Promise((resolve) => void resolve());
+        if (!this.socket) return Promise.resolve();
 
         return new Promise((resolve) => {
             this.socket!.once("close", () => {

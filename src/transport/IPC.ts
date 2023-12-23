@@ -157,6 +157,8 @@ export class IPCTransport extends Transport {
             let data = Buffer.alloc(0);
 
             do {
+                if (!this.isConnected) break;
+
                 const chunk = this.socket?.read() as Buffer | undefined;
                 if (!chunk) break;
                 this.client.emit(
@@ -167,12 +169,34 @@ export class IPCTransport extends Transport {
                         ?.join(" ")
                         .toUpperCase()}`
                 );
+                
                 data = Buffer.concat([data, chunk]);
             } while (true);
 
+            if (data.length < 8) {
+                if (data.length === 0) return;
+                // TODO : Handle error
+                this.client.emit("debug", "SERVER => CLIENT | Malformed packet, invalid payload");
+                return;
+            }
+
             const op = data.readUInt32LE(0);
             const length = data.readUInt32LE(4);
-            const parsedData = JSON.parse(data.subarray(8, length + 8).toString());
+
+            if (data.length !== length + 8) {
+                // TODO : Handle error
+                this.client.emit("debug", "SERVER => CLIENT | Malformed packet, invalid payload");
+                return;
+            }
+            
+            let parsedData: any;
+            try {
+                parsedData = JSON.parse(data.subarray(8, length + 8).toString());
+            } catch {
+                // TODO : Handle error
+                this.client.emit("debug", "SERVER => CLIENT | Malformed packet, invalid payload");
+                return;
+            }
 
             this.client.emit("debug", `SERVER => CLIENT | OPCODE.${IPC_OPCODE[op]} |`, parsedData);
 

@@ -128,7 +128,7 @@ export class ClientUser extends User {
      * @param guildId - id of the guild to get channels for
      * @returns guild channels the user is in
      */
-    async fetchChannels(guildId: string): Promise<Channel> {
+    async fetchChannels(guildId: string): Promise<Channel[]> {
         return (await this.client.request("GET_CHANNELS", { guild_id: guildId })).data.channels.map(
             (channelData: any) => new Channel(this.client, channelData)
         );

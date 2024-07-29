@@ -276,7 +276,7 @@ export class Client extends (EventEmitter as new () => TypedEventEmitter<ClientE
                 await this.fetch("POST", "/oauth2/token/rpc", {
                     data: new URLSearchParams({
                         client_id: this.clientId,
-                        client_secret: this.clientSecret!
+                        client_secret: this.clientSecret
                     }),
                     headers: {
                         "content-type": "application/x-www-form-urlencoded"

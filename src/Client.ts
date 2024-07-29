@@ -358,7 +358,7 @@ export class Client extends (EventEmitter as new () => TypedEventEmitter<ClientE
                         promise.error.code =
                             typeof reason === "object" ? reason!.code : CUSTOM_RPC_ERROR_CODE.CONNECTION_ENDED;
                         promise.error.message =
-                            typeof reason === "object" ? reason!.message : reason ?? "Connection ended";
+                            typeof reason === "object" ? reason!.message : (reason ?? "Connection ended");
                         promise.reject(promise.error);
                     });
 

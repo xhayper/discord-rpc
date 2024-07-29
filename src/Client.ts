@@ -21,6 +21,8 @@ export type AuthorizeOptions = {
     scopes: (OAuth2Scopes | `${OAuth2Scopes}`)[];
     prompt?: "consent" | "none";
     useRPCToken?: boolean;
+
+    refreshToken?: string;
 };
 
 export interface ClientOptions {
@@ -389,9 +391,14 @@ export class Client extends (EventEmitter as new () => TypedEventEmitter<ClientE
             return;
         }
 
-        if (!this.clientSecret) throw new ReferenceError("Client secret is required for authorization!");
+        if (options.refreshToken) {
+            this.refreshToken = options.refreshToken;
+            await this.refreshAccessToken();
+        } else {
+            if (!this.clientSecret) throw new ReferenceError("Client secret is required for authorization!");
+            await this.authorize(options);
+        }
 
-        await this.authorize(options);
         await this.authenticate();
     }
 

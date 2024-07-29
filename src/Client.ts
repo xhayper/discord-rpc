@@ -208,7 +208,7 @@ export class Client extends (EventEmitter as new () => TypedEventEmitter<ClientE
      * @hidden
      */
     async request<A = any, D = any>(cmd: RPC_CMD, args?: any, evt?: RPC_EVT): Promise<CommandIncoming<A, D>> {
-        const error = new RPCError(RPC_ERROR_CODE.RPC_UNKNOWN_ERROR);
+        const error = new RPCError(RPC_ERROR_CODE.UNKNOWN_ERROR);
         RPCError.captureStackTrace(error, this.request);
 
         return new Promise((resolve, reject) => {
@@ -338,14 +338,14 @@ export class Client extends (EventEmitter as new () => TypedEventEmitter<ClientE
     async connect(): Promise<void> {
         if (this.connectionPromise) return this.connectionPromise;
 
-        const error = new RPCError(RPC_ERROR_CODE.RPC_UNKNOWN_ERROR);
+        const error = new RPCError(RPC_ERROR_CODE.UNKNOWN_ERROR);
         RPCError.captureStackTrace(error, this.connect);
 
         this.connectionPromise = new Promise((resolve, reject) => {
             const timeout = setTimeout(() => {
                 this.connectionPromise = undefined;
 
-                error.code = CUSTOM_RPC_ERROR_CODE.RPC_CONNECTION_TIMEOUT;
+                error.code = CUSTOM_RPC_ERROR_CODE.CONNECTION_TIMEOUT;
                 error.message = "Connection timed out";
 
                 reject(error);
@@ -359,7 +359,7 @@ export class Client extends (EventEmitter as new () => TypedEventEmitter<ClientE
                 this.transport.once("close", (reason) => {
                     this._nonceMap.forEach((promise) => {
                         promise.error.code =
-                            typeof reason === "object" ? reason!.code : CUSTOM_RPC_ERROR_CODE.RPC_CONNECTION_ENDED;
+                            typeof reason === "object" ? reason!.code : CUSTOM_RPC_ERROR_CODE.CONNECTION_ENDED;
                         promise.error.message =
                             typeof reason === "object" ? reason!.message : reason ?? "Connection ended";
                         promise.reject(promise.error);

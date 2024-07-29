@@ -43,7 +43,7 @@ export class WebSocketTransport extends Transport {
             }
 
             if (!this.ws)
-                reject(new RPCError(CUSTOM_RPC_ERROR_CODE.RPC_COULD_NOT_CONNECT, "Failed to connect to websocket"));
+                reject(new RPCError(CUSTOM_RPC_ERROR_CODE.COULD_NOT_CONNECT, "Failed to connect to websocket"));
 
             this.ws!.onmessage = (event) => {
                 this.emit("message", JSON.parse(event.data.toString()));

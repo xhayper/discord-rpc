@@ -3,107 +3,56 @@ import { EventEmitter } from "node:events";
 import type { Client } from "../Client";
 
 export enum RPC_CLOSE_CODE {
-    RPC_CLOSE_NORMAL = 1000,
-    RPC_CLOSE_UNSUPPORTED = 1003,
-    RPC_CLOSE_ABNORMAL = 1006,
-
-    /**
-     * You connected to the RPC server with an invalid client ID.
-     */
-    RPC_CLOSE_INVALID_CLIENT_ID = 4000,
-    /**
-     * You connected to the RPC server with an invalid origin.
-     */
-    RPC_CLOSE_INVALID_ORIGIN = 4001,
-    /**
-     * You are being rate limited.
-     */
-    RPC_CLOSE_RATE_LIMITED = 4002,
-    /**
-     * The OAuth2 token associated with a connection was revoked, get a new one!
-     */
-    RPC_CLOSE_TOKEN_REVOKED = 4003,
-    /**
-     * The RPC Server version specified in the connection string was not valid.
-     */
-    RPC_CLOSE_INVALID_VERSION = 4004,
-    /**
-     * The encoding specified in the connection string was not valid
-     */
-    RPC_CLOSE_INVALID_ENCODING = 4005
+    CLOSE_NORMAL = 1e3,
+    CLOSE_UNSUPPORTED = 1003,
+    CLOSE_ABNORMAL = 1006,
+    INVALID_CLIENTID = 4e3,
+    INVALID_ORIGIN = 4001,
+    RATELIMITED = 4002,
+    TOKEN_REVOKED = 4003,
+    INVALID_VERSION = 4004,
+    INVALID_ENCODING = 4005
 }
 
 export enum RPC_ERROR_CODE {
-    /**
-     * An unknown error occurred.
-     */
-    RPC_UNKNOWN_ERROR = 1000,
-    /**
-     * You sent an invalid payload.
-     */
-    RPC_INVALID_PAYLOAD = 4000,
-    /**
-     * Invalid command name specified.
-     */
-    RPC_INVALID_COMMAND = 4002,
-    /**
-     * Invalid guild ID specified.
-     */
-    RPC_INVALID_GUILD = 4003,
-    /**
-     * Invalid event name specified.
-     */
-    RPC_INVALID_EVENT = 4004,
-    /**
-     * Invalid channel ID specified.
-     */
-    RPC_INVALID_CHANNEL = 4005,
-    /**
-     * You lack permissions to access the given resource.
-     */
-    RPC_INVALID_PERMISSION = 4006,
-    /**
-     * An invalid OAuth2 application ID was used to authorize or authenticate with.
-     */
-    RPC_INVALID_CLIENT_ID = 4007,
-    /**
-     * An invalid OAuth2 application origin was used to authorize or authenticate with.
-     */
-    RPC_INVALID_ORIGIN = 4008,
-    /**
-     * An invalid OAuth2 token was used to authorize or authenticate with.
-     */
-    RPC_INVALID_TOKEN = 4009,
-    /**
-     * The specified user ID was invalid.
-     */
-    RPC_INVALID_USER = 4010,
-    /**
-     * A standard OAuth2 error occurred; check the data object for the OAuth2 error details.
-     */
-    RPC_OAUTH2_ERROR = 5000,
-    /**
-     * An asynchronous `SELECT_TEXT_CHANNEL`/`SELECT_VOICE_CHANNEL` command timed out.
-     */
-    RPC_SELECT_CHANNEL_TIMEOUT = 5001,
-    /**
-     * An asynchronous `GET_GUILD` command timed out.
-     */
-    RPC_GET_GUILD_TIMEOUT = 5002,
-    /**
-     * You tried to join a user to a voice channel but the user was already in one.
-     */
-    RPC_SELECT_VOICE_FORCE_REQUIRED = 5003,
-    /**
-     * You tried to capture more than one shortcut key at once.
-     */
-    RPC_CAPTURE_SHORTCUT_ALREADY_LISTENING = 5004
+    UNKNOWN_ERROR = 1e3,
+    SERVICE_UNAVAILABLE = 1001,
+    TRANSACTION_ABORTED = 1002,
+    INVALID_PAYLOAD = 4e3,
+    INVALID_COMMAND = 4002,
+    INVALID_GUILD = 4003,
+    INVALID_EVENT = 4004,
+    INVALID_CHANNEL = 4005,
+    INVALID_PERMISSIONS = 4006,
+    INVALID_CLIENTID = 4007,
+    INVALID_ORIGIN = 4008,
+    INVALID_TOKEN = 4009,
+    INVALID_USER = 4010,
+    INVALID_INVITE = 4011,
+    INVALID_ACTIVITY_JOIN_REQUEST = 4012,
+    INVALID_ENTITLEMENT = 4015,
+    INVALID_GIFT_CODE = 4016,
+    INVALID_GUILD_TEMPLATE = 4017,
+    INVALID_SOUND = 4018,
+    INVALID_PROVIDER = 4019,
+    OAUTH2_ERROR = 5e3,
+    SELECT_CHANNEL_TIMED_OUT = 5001,
+    GET_GUILD_TIMED_OUT = 5002,
+    SELECT_VOICE_FORCE_REQUIRED = 5003,
+    INVALID_ACTIVITY_SECRET = 5005,
+    NO_ELIGIBLE_ACTIVITY = 5006,
+    PURCHASE_CANCELED = 5008,
+    PURCHASE_ERROR = 5009,
+    UNAUTHORIZED_FOR_ACHIEVEMENT = 5010,
+    RATE_LIMITED = 5011,
+    UNAUTHORIZED_FOR_APPLICATION = 5012,
+    NO_CONNECTION_FOUND = 5013
 }
 
 export enum CUSTOM_RPC_ERROR_CODE {
-    RPC_CONNECTION_ENDED,
-    RPC_CONNECTION_TIMEOUT,
-    RPC_COULD_NOT_CONNECT
+    CONNECTION_ENDED,
+    CONNECTION_TIMEOUT,
+    COULD_NOT_CONNECT
 }
 
 export type RPC_CMD =
@@ -115,6 +64,7 @@ export type RPC_CMD =
     | "GET_GUILDS"
     | "GET_CHANNEL"
     | "GET_CHANNELS"
+    | "GET_CHANNEL_PERMISSIONS"
     | "CREATE_CHANNEL_INVITE"
     | "GET_RELATIONSHIPS"
     | "GET_USER"
@@ -122,6 +72,7 @@ export type RPC_CMD =
     | "UNSUBSCRIBE"
     | "SET_USER_VOICE_SETTINGS"
     | "SET_USER_VOICE_SETTINGS_2"
+    | "PUSH_TO_TALK"
     | "SELECT_VOICE_CHANNEL"
     | "GET_SELECTED_VOICE_CHANNEL"
     | "SELECT_TEXT_CHANNEL"
@@ -134,6 +85,8 @@ export type RPC_CMD =
     | "ACTIVITY_INVITE_USER"
     | "ACCEPT_ACTIVITY_INVITE"
     | "OPEN_INVITE_DIALOG"
+    | "OPEN_SHARE_MOMENT_DIALOG"
+    | "INITIATE_IMAGE_UPLOAD"
     | "INVITE_BROWSER"
     | "DEEP_LINK"
     | "CONNECTIONS_CALLBACK"
@@ -145,16 +98,6 @@ export type RPC_CMD =
     | "BROWSER_HANDOFF"
     | "SET_CERTIFIED_DEVICES"
     | "GET_IMAGE"
-    | "CREATE_LOBBY"
-    | "UPDATE_LOBBY"
-    | "DELETE_LOBBY"
-    | "UPDATE_LOBBY_MEMBER"
-    | "CONNECT_TO_LOBBY"
-    | "DISCONNECT_FROM_LOBBY"
-    | "SEND_TO_LOBBY"
-    | "SEARCH_LOBBIES"
-    | "CONNECT_TO_LOBBY_VOICE"
-    | "DISCONNECT_FROM_LOBBY_VOICE"
     | "SET_OVERLAY_LOCKED"
     | "OPEN_OVERLAY_ACTIVITY_INVITE"
     | "OPEN_OVERLAY_GUILD_INVITE"
@@ -166,6 +109,8 @@ export type RPC_CMD =
     | "START_PREMIUM_PURCHASE"
     | "GET_SKUS"
     | "GET_ENTITLEMENTS"
+    | "GET_SKUS_EMBEDDED"
+    | "GET_ENTITLEMENTS_EMBEDDED"
     | "GET_NETWORKING_CONFIG"
     | "NETWORKING_SYSTEM_METRICS"
     | "NETWORKING_PEER_METRICS"
@@ -173,16 +118,25 @@ export type RPC_CMD =
     | "SET_USER_ACHIEVEMENT"
     | "GET_USER_ACHIEVEMENTS"
     | "USER_SETTINGS_GET_LOCALE"
-    | "GET_ACTIVITY_JOIN_TICKET"
     | "SEND_GENERIC_EVENT"
     | "SEND_ANALYTICS_EVENT"
     | "OPEN_EXTERNAL_LINK"
     | "CAPTURE_LOG"
     | "ENCOURAGE_HW_ACCELERATION"
-    | "SET_ORIENTATION_LOCK_STATE";
+    | "SET_ORIENTATION_LOCK_STATE"
+    | "GET_PLATFORM_BEHAVIORS"
+    | "GET_SOUNDBOARD_SOUNDS"
+    | "PLAY_SOUNDBOARD_SOUND"
+    | "TOGGLE_VIDEO"
+    | "TOGGLE_SCREENSHARE"
+    | "GET_ACTIVITY_INSTANCE_CONNECTED_PARTICIPANTS"
+    | "GET_PROVIDER_ACCESS_TOKEN"
+    | "MAYBE_GET_PROVIDER_ACCESS_TOKEN"
+    | "NAVIGATE_TO_CONNECTIONS";
 
 export type RPC_EVT =
     | "CURRENT_USER_UPDATE"
+    | "CURRENT_GUILD_MEMBER_UPDATE"
     | "GUILD_STATUS"
     | "GUILD_CREATE"
     | "CHANNEL_CREATE"
@@ -203,23 +157,24 @@ export type RPC_EVT =
     | "ACTIVITY_SPECTATE"
     | "ACTIVITY_INVITE"
     | "ACTIVITY_PIP_MODE_UPDATE"
+    | "ACTIVITY_LAYOUT_MODE_UPDATE"
+    | "THERMAL_STATE_UPDATE"
+    | "ORIENTATION_UPDATE"
+    | "ACTIVITY_INSTANCE_PARTICIPANTS_UPDATE"
     | "NOTIFICATION_CREATE"
     | "MESSAGE_CREATE"
     | "MESSAGE_UPDATE"
     | "MESSAGE_DELETE"
-    | "LOBBY_DELETE"
-    | "LOBBY_UPDATE"
-    | "LOBBY_MEMBER_CONNECT"
-    | "LOBBY_MEMBER_DISCONNECT"
-    | "LOBBY_MEMBER_UPDATE"
-    | "LOBBY_MESSAGE"
     | "OVERLAY"
     | "OVERLAY_UPDATE"
     | "ENTITLEMENT_CREATE"
     | "ENTITLEMENT_DELETE"
     | "USER_ACHIEVEMENT_UPDATE"
     | "VOICE_CHANNEL_EFFECT_SEND"
-    | "THERMAL_STATE_UPDATE"
+    | "VOICE_CHANNEL_EFFECT_RECENT_EMOJI"
+    | "VOICE_CHANNEL_EFFECT_TOGGLE_ANIMATION_TYPE"
+    | "SCREENSHARE_STATE_UPDATE"
+    | "VIDEO_STATE_UPDATE"
     | "READY"
     | "ERROR";
 

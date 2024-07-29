@@ -169,7 +169,7 @@ export class IPCTransport extends Transport {
                         ?.join(" ")
                         .toUpperCase()}`
                 );
-                
+
                 data = Buffer.concat([data, chunk]);
             } while (true);
 
@@ -188,7 +188,7 @@ export class IPCTransport extends Transport {
                 this.client.emit("debug", "SERVER => CLIENT | Malformed packet, invalid payload");
                 return;
             }
-            
+
             let parsedData: any;
             try {
                 parsedData = JSON.parse(data.subarray(8, length + 8).toString());

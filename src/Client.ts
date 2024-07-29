@@ -350,8 +350,8 @@ export class Client extends (EventEmitter as new () => TypedEventEmitter<ClientE
 
                 reject(error);
             }, 10e3);
-            
-            if ('unref' in timeout) timeout.unref();
+
+            if (typeof timeout === "object" && "unref" in timeout) timeout.unref();
 
             this.once("connected", () => {
                 this.connectionPromise = undefined;

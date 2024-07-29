@@ -357,7 +357,7 @@ export class ClientUser extends User {
      * Requires RPC and RPC_VOICE_WRITE
      * @returns
      */
-    async playSoundboardSound(guildId: string, soundId: string): Promise<void> {
+    async playSoundboardSound(guildId: string, soundId: string): Promise<any> {
         return (
             await this.client.request("PLAY_SOUNDBOARD_SOUND", {
                 guild_id: guildId,
@@ -370,7 +370,7 @@ export class ClientUser extends User {
      * Requires RPC and RPC_VIDEO_WRITE
      * @returns
      */
-    async toggleVideo(): Promise<void> {
+    async toggleVideo(): Promise<any> {
         return (await this.client.request("TOGGLE_VIDEO")).data;
     }
 
@@ -378,7 +378,7 @@ export class ClientUser extends User {
      * Requires RPC and RPC_SCREENSHARE_WRITE
      * @returns
      */
-    async toggleScreenshare(pid?: number): Promise<void> {
+    async toggleScreenshare(pid?: number): Promise<any> {
         return (await this.client.request("TOGGLE_SCREENSHARE", { pid })).data;
     }
 
@@ -386,7 +386,7 @@ export class ClientUser extends User {
      * Requires RPC and RPC_VOICE_WRITE
      * @returns
      */
-    async togglePushToTalk(active: boolean): Promise<void> {
+    async setPushToTalk(active: boolean): Promise<any> {
         return (await this.client.request("PUSH_TO_TALK", { active })).data;
     }
 
@@ -403,7 +403,7 @@ export class ClientUser extends User {
         // 0 - 200
         volume: number;
         mute: boolean;
-    }): Promise<void> {
+    }): Promise<any> {
         return (await this.client.request("SET_VOICE_SETTINGS", req)).data;
     }
 
@@ -415,7 +415,7 @@ export class ClientUser extends User {
         input_mode: { type: "PUSH_TO_TALK" | "VOICE_ACTIVITY"; shortcut: string };
         self_mute: boolean;
         self_deaf: boolean;
-    }): Promise<void> {
+    }): Promise<any> {
         return (await this.client.request("SET_VOICE_SETTINGS_2", req)).data;
     }
 
@@ -431,7 +431,7 @@ export class ClientUser extends User {
         return (await this.client.request("GET_ACTIVITY_INSTANCE_CONNECTED_PARTICIPANTS")).data;
     }
 
-    async navigateToConnections(): Promise<void> {
+    async navigateToConnections(): Promise<any> {
         return (await this.client.request("NAVIGATE_TO_CONNECTIONS")).data;
     }
 
@@ -439,7 +439,7 @@ export class ClientUser extends User {
         return (await this.client.request("CREATE_CHANNEL_INVITE", { channel_id: channelId, ...args })).data;
     }
 
-    async openExternalLink(url: string): Promise<void> {
+    async openExternalLink(url: string): Promise<any> {
         return (await this.client.request("OPEN_EXTERNAL_LINK", { url })).data;
     }
 
@@ -471,15 +471,15 @@ export class ClientUser extends User {
         return (await this.client.request("GET_ENTITLEMENTS_EMBEDDED")).data;
     }
 
-    async encourageHardwareAcceleration(): Promise<void> {
+    async encourageHardwareAcceleration(): Promise<any> {
         return (await this.client.request("ENCOURAGE_HW_ACCELERATION")).data;
     }
 
-    async captureLog(level: "log" | "warn" | "debug" | "info" | "error", message: string): Promise<void> {
+    async captureLog(level: "log" | "warn" | "debug" | "info" | "error", message: string): Promise<any> {
         return (await this.client.request("CAPTURE_LOG", { level, message })).data;
     }
 
-    async sendAnalyticsEvent(eventName: string, eventProperties: object): Promise<void> {
+    async sendAnalyticsEvent(eventName: string, eventProperties: object): Promise<any> {
         return (await this.client.request("SEND_ANALYTICS_EVENT", { eventName, eventProperties })).data;
     }
 
@@ -491,7 +491,7 @@ export class ClientUser extends User {
         return (await this.client.request("GET_USER_ACHIEVEMENTS")).data;
     }
 
-    async setAchievement(achievementId: string, percentComplete: number): Promise<void> {
+    async setAchievement(achievementId: string, percentComplete: number): Promise<any> {
         return (
             await this.client.request("SET_USER_ACHIEVEMENT", {
                 achievement_id: achievementId,
@@ -552,27 +552,27 @@ export class ClientUser extends User {
         return (await this.client.request("OPEN_OVERLAY_ACTIVITY_INVITE", { type: typeToNumber[type], pid })).data;
     }
 
-    async setOverlayLocked(locked: boolean, pid: number): Promise<void> {
+    async setOverlayLocked(locked: boolean, pid: number): Promise<any> {
         return (await this.client.request("SET_OVERLAY_LOCKED", { locked, pid })).data;
     }
 
-    async browserHandoff() {
+    async browserHandoff(): Promise<any> {
         return (await this.client.request("BROWSER_HANDOFF")).data;
     }
 
-    async openGuildTemplateBrowser(code: any): Promise<void> {
+    async openGuildTemplateBrowser(code: any): Promise<any> {
         return (await this.client.request("GUILD_TEMPLATE_BROWSER", { code })).data;
     }
 
-    async openGiftCodeBrowser(code: any): Promise<void> {
+    async openGiftCodeBrowser(code: any): Promise<any> {
         return (await this.client.request("GIFT_CODE_BROWSER", { code })).data;
     }
 
-    async brainTreePopupBridgeCallback(state: any, path: any, query: any): Promise<void> {
+    async brainTreePopupBridgeCallback(state: any, path: any, query: any): Promise<any> {
         return (await this.client.request("BRAINTREE_POPUP_BRIDGE_CALLBACK", { state, path, query })).data;
     }
 
-    async billingPopupBridgeCallback(state: any, path: any, query: any, paymentSourceType: any): Promise<void> {
+    async billingPopupBridgeCallback(state: any, path: any, query: any, paymentSourceType: any): Promise<any> {
         return (
             await this.client.request("BILLING_POPUP_BRIDGE_CALLBACK", {
                 state,
@@ -583,7 +583,7 @@ export class ClientUser extends User {
         ).data;
     }
 
-    async connectionsCallback(providerType: any, code: any, openIdParams: any, state: any): Promise<void> {
+    async connectionsCallback(providerType: any, code: any, openIdParams: any, state: any): Promise<any> {
         return (
             await this.client.request("CONNECTIONS_CALLBACK", {
                 providerType: providerType,
@@ -594,11 +594,11 @@ export class ClientUser extends User {
         ).data;
     }
 
-    async deepLink(type: any, params: any): Promise<void> {
+    async deepLink(type: any, params: any): Promise<any> {
         return (await this.client.request("DEEP_LINK", { type, params })).data;
     }
 
-    async inviteBrowser(code: any): Promise<void> {
+    async inviteBrowser(code: any): Promise<any> {
         return (await this.client.request("INVITE_BROWSER", { code })).data;
     }
 
@@ -606,11 +606,11 @@ export class ClientUser extends User {
         return (await this.client.request("INITIATE_IMAGE_UPLOAD")).data;
     }
 
-    async openShareMomentDialog(mediaUrl: string): Promise<void> {
+    async openShareMomentDialog(mediaUrl: string): Promise<any> {
         return (await this.client.request("OPEN_SHARE_MOMENT_DIALOG", { mediaUrl })).data;
     }
 
-    async openInviteDialog(): Promise<void> {
+    async openInviteDialog(): Promise<any> {
         return (await this.client.request("OPEN_INVITE_DIALOG")).data;
     }
 
@@ -620,7 +620,7 @@ export class ClientUser extends User {
         sessionId: string,
         channelId: string,
         messageId: string
-    ): Promise<void> {
+    ): Promise<any> {
         const typeToNumber = {
             JOIN: 0
         };
@@ -636,7 +636,7 @@ export class ClientUser extends User {
         ).data;
     }
 
-    async activityInviteUser(userId: string, type: "JOIN", content: string, pid: number) {
+    async activityInviteUser(userId: string, type: "JOIN", content: string, pid: number): Promise<any> {
         const typeToNumber = {
             JOIN: 0
         };
@@ -655,11 +655,11 @@ export class ClientUser extends User {
         return (await this.client.request("CLOSE_ACTIVITY_JOIN_REQUEST", { user_id: userId })).data;
     }
 
-    async sendActivityJoinInvite(userId: string, pid: number): Promise<void> {
+    async sendActivityJoinInvite(userId: string, pid: number): Promise<any> {
         return (await this.client.request("SEND_ACTIVITY_JOIN_INVITE", { user_id: userId, pid })).data;
     }
 
-    async setConfig(useInteractivePip: boolean) {
+    async setConfig(useInteractivePip: boolean): Promise<any> {
         return (await this.client.request("SET_CONFIG", { use_interactive_pip: useInteractivePip })).data;
     }
 

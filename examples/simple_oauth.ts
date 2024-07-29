@@ -1,6 +1,7 @@
 import { Client } from "@xhayper/discord-rpc";
 
 // You will need to add a dummy url to the "Redirects" section of your Discord OAuth2 application.
+// clientSecret is REQUIRED for this to work.
 
 const client = new Client({
     clientId: "123456789012345678",

@@ -267,6 +267,8 @@ export class Client extends (EventEmitter as new () => TypedEventEmitter<ClientE
     }
 
     private async authorize(options: AuthorizeOptions): Promise<void> {
+        if (!this.clientSecret) throw new ReferenceError("Client secret is required for authorization!");
+
         let rpcToken;
 
         if (options.useRPCToken) {
@@ -274,7 +276,7 @@ export class Client extends (EventEmitter as new () => TypedEventEmitter<ClientE
                 await this.fetch("POST", "/oauth2/token/rpc", {
                     data: new URLSearchParams({
                         client_id: this.clientId,
-                        client_secret: this.clientSecret ?? ""
+                        client_secret: this.clientSecret!
                     }),
                     headers: {
                         "content-type": "application/x-www-form-urlencoded"
@@ -297,7 +299,7 @@ export class Client extends (EventEmitter as new () => TypedEventEmitter<ClientE
                 await this.fetch("POST", "/oauth2/token", {
                     data: new URLSearchParams({
                         client_id: this.clientId,
-                        client_secret: this.clientSecret ?? "",
+                        client_secret: this.clientSecret,
                         grant_type: "authorization_code",
                         code
                     }),
@@ -358,7 +360,7 @@ export class Client extends (EventEmitter as new () => TypedEventEmitter<ClientE
                         promise.error.code =
                             typeof reason === "object" ? reason!.code : CUSTOM_RPC_ERROR_CODE.CONNECTION_ENDED;
                         promise.error.message =
-                            typeof reason === "object" ? reason!.message : (reason ?? "Connection ended");
+                            typeof reason === "object" ? reason!.message : reason ?? "Connection ended";
                         promise.reject(promise.error);
                     });
 
@@ -386,6 +388,8 @@ export class Client extends (EventEmitter as new () => TypedEventEmitter<ClientE
             this.emit("ready");
             return;
         }
+
+        if (!this.clientSecret) throw new ReferenceError("Client secret is required for authorization!");
 
         await this.authorize(options);
         await this.authenticate();

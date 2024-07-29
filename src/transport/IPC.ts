@@ -136,7 +136,7 @@ export class IPCTransport extends Transport {
                 }
             }
 
-            reject(new RPCError(CUSTOM_RPC_ERROR_CODE.RPC_COULD_NOT_CONNECT, "Could not connect"));
+            reject(new RPCError(CUSTOM_RPC_ERROR_CODE.COULD_NOT_CONNECT, "Could not connect"));
         });
     }
 

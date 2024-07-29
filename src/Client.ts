@@ -19,7 +19,6 @@ import {
 
 export type AuthorizeOptions = {
     scopes: (OAuth2Scopes | `${OAuth2Scopes}`)[];
-    redirect_uri?: string;
     prompt?: "consent" | "none";
     useRPCToken?: boolean;
 };
@@ -289,7 +288,6 @@ export class Client extends (EventEmitter as new () => TypedEventEmitter<ClientE
                 scopes: options.scopes,
                 client_id: this.clientId,
                 rpc_token: options.useRPCToken ? rpcToken : undefined,
-                redirect_uri: options.redirect_uri ?? undefined,
                 prompt: options.prompt ?? "consent"
             })
         ).data;
@@ -300,7 +298,6 @@ export class Client extends (EventEmitter as new () => TypedEventEmitter<ClientE
                     data: new URLSearchParams({
                         client_id: this.clientId,
                         client_secret: this.clientSecret ?? "",
-                        redirect_uri: options.redirect_uri ?? "",
                         grant_type: "authorization_code",
                         code
                     }),
@@ -351,7 +348,7 @@ export class Client extends (EventEmitter as new () => TypedEventEmitter<ClientE
                 reject(error);
             }, 10e3);
 
-            if (typeof timeout === "object" && "unref" in timeout) timeout.unref();
+            if ("unref" in timeout) timeout.unref();
 
             this.once("connected", () => {
                 this.connectionPromise = undefined;

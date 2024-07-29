@@ -1,5 +1,7 @@
 const { Client } = require("@xhayper/discord-rpc");
 
+// You will need to add a dummy url to the "Redirects" section of your Discord OAuth2 application.
+
 const client = new Client({
     clientId: "123456789012345678",
     clientSecret: "YOUR_CLIENT_SECRET"
@@ -17,16 +19,15 @@ client.on("ready", async () => {
 
 client.login({
     scopes: [
+        // These are all the allowed scopes
         "connections",
         "email",
-        "identify",
+        "gdm.join",
         "guilds",
         "guilds.join",
         "guilds.members.read",
-        "gdm.join",
-        "messages.read",
-        "rpc",
-        "rpc.notifications.read"
+        "identify",
+        "messages.read"
     ],
     prompt: "none" // Only prompt once
-}); // These are the allowed scopes for unapproved app.
+});

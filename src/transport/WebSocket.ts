@@ -5,7 +5,7 @@ import { WebSocket } from "ws";
 export class WebSocketTransport extends Transport {
     private ws?: WebSocket;
 
-    get isConnected() {
+    override get isConnected() {
         return this.ws !== undefined && this.ws.readyState === 1;
     }
 
@@ -14,10 +14,7 @@ export class WebSocketTransport extends Transport {
             for (let i = 0; i < 10; i++) {
                 const ws = await new Promise<WebSocket>((resolve, reject) => {
                     const socket = new WebSocket(
-                        `ws://127.0.0.1:${6463 + i}/?v=1&client_id=${this.client.clientId}&encoding=json`,
-                        {
-                            origin: this.client.origin
-                        }
+                        `ws://127.0.0.1:${6463 + i}/?v=1&client_id=${this.client.clientId}&encoding=json`
                     );
 
                     socket.onopen = () => {

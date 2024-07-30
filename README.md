@@ -15,19 +15,6 @@
 
 `@xhayper/discord-rpc` is a fork of [discordjs/RPC](https://github.com/discordjs/RPC) with type safety and some additional features.
 
-## Features
-
--   flatpak / snap support
--   Low dependencies count
--   Proper error exception
--   Up-To-Date with Discord's IPC command / event list
--   Less than 100kb bundle size
-
-## Optional packages (when using WebSocket)
-
--   [bufferutil](https://www.npmjs.com/package/bufferutil)
--   [utf-8-validate](https://www.npmjs.com/package/utf-8-validate)
-
 ## Example
 
 ```ts

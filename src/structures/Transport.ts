@@ -1,5 +1,4 @@
-import { type TypedEventEmitter } from "../utils/TypedEventEmitter";
-import { EventEmitter } from "node:events";
+import { AsyncEventEmitter } from "@vladfrangu/async_event_emitter";
 import type { Client } from "../Client";
 
 export enum RPC_CLOSE_CODE {
@@ -197,26 +196,26 @@ export type TransportEvents = {
     /**
      * @event
      */
-    message: (message: CommandIncoming) => void;
+    message: [message: CommandIncoming];
     /**
      * @event
      */
-    ping: () => void;
+    ping: [];
     /**
      * @event
      */
-    open: () => void;
+    open: [];
     /**
      * @event
      */
-    close: (reason?: string | { code: number; message: string }) => void;
+    close: [reason?: string | { code: number; message: string }];
 };
 
 export type TransportOptions = {
     client: Client;
 };
 
-export abstract class Transport extends (EventEmitter as new () => TypedEventEmitter<TransportEvents>) {
+export abstract class Transport extends AsyncEventEmitter<TransportEvents> {
     readonly client: Client;
 
     get isConnected(): boolean {

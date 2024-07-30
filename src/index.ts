@@ -9,4 +9,5 @@ export * from "./structures/VoiceSettings";
 export * from "./structures/Transport";
 export * from "./structures/Message";
 
-export { type FormatFunction } from "./transport/IPC";
+export * as IPC from "./transport/IPC";
+export * as WebSocket from "./transport/WebSocket";

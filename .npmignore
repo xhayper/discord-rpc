@@ -12,3 +12,6 @@ tsconfig.json
 
 # lockfile
 pnpm-lock.yaml
+
+# idfk
+dist/tsconfig.tsbuildinfo

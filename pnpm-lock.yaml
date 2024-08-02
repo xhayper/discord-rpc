@@ -13,7 +13,7 @@ importers:
         version: 2.3.0
       '@vladfrangu/async_event_emitter':
         specifier: ^2.4.4
-        version: 2.4.4
+        version: 2.4.5
       discord-api-types:
         specifier: ^0.37.93
         version: 0.37.93
@@ -77,8 +77,8 @@ packages:
   '@types/ws@8.5.12':
     resolution: {integrity: sha512-3tPRkv1EtkDpzlgyKyI8pGsGZAGPEaXeu0DOj5DI25Ja91bdAYddYHbADRYVrZMRbfW+1l5YwXVDKohDJNQxkQ==}
 
-  '@vladfrangu/async_event_emitter@2.4.4':
-    resolution: {integrity: sha512-ZL62PFXEIeGUI8btfJ5S8Flc286eU1ZUSjwyFQtIGXfRUDPZKO+CDJMYb1R71LjGWRZ4n202O+a6FGjsgTw58g==}
+  '@vladfrangu/async_event_emitter@2.4.5':
+    resolution: {integrity: sha512-J7T3gUr3Wz0l7Ni1f9upgBZ7+J22/Q1B7dl0X6fG+fTsD+H+31DIosMHj4Um1dWQwqbcQ3oQf+YS2foYkDc9cQ==}
     engines: {node: '>=v14.0.0', npm: '>=7.0.0'}
 
   ansi-regex@5.0.1:
@@ -267,7 +267,7 @@ snapshots:
       '@discordjs/util': 1.1.0
       '@sapphire/async-queue': 1.5.3
       '@sapphire/snowflake': 3.5.3
-      '@vladfrangu/async_event_emitter': 2.4.4
+      '@vladfrangu/async_event_emitter': 2.4.5
       discord-api-types: 0.37.83
       magic-bytes.js: 1.10.0
       tslib: 2.6.3
@@ -302,7 +302,7 @@ snapshots:
     dependencies:
       '@types/node': 16.18.104
 
-  '@vladfrangu/async_event_emitter@2.4.4': {}
+  '@vladfrangu/async_event_emitter@2.4.5': {}
 
   ansi-regex@5.0.1: {}
 

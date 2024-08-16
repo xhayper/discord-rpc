@@ -16,7 +16,7 @@ importers:
         version: 2.4.5
       discord-api-types:
         specifier: ^0.37.93
-        version: 0.37.93
+        version: 0.37.94
       ws:
         specifier: ^8.18.0
         version: 8.18.0(bufferutil@4.0.8)(utf-8-validate@6.0.4)
@@ -121,8 +121,8 @@ packages:
   discord-api-types@0.37.83:
     resolution: {integrity: sha512-urGGYeWtWNYMKnYlZnOnDHm8fVRffQs3U0SpE8RHeiuLKb/u92APS8HoQnPTFbnXmY1vVnXjXO4dOxcAn3J+DA==}
 
-  discord-api-types@0.37.93:
-    resolution: {integrity: sha512-M5jn0x3bcXk8EI2c6F6V6LeOWq10B/cJf+YJSyqNmg7z4bdXK+Z7g9zGJwHS0h9Bfgs0nun2LQISFOzwck7G9A==}
+  discord-api-types@0.37.94:
+    resolution: {integrity: sha512-gD1CDdsnXNTLGwvVoxCXMlM4L2NXUaB227h5z2F0oQ0VkRFi/BzSOTPuOoieq8czUMl67Z+rVstKNVcPFom6fw==}
 
   eastasianwidth@0.2.0:
     resolution: {integrity: sha512-I88TYZWc9XiYHRQ4/3c5rjjfgkjhLyW2luGIheGERbNQ6OY7yTybanSpDXZa8y7VUP9YmDcYa+eyq4ca7iLqWA==}
@@ -339,7 +339,7 @@ snapshots:
 
   discord-api-types@0.37.83: {}
 
-  discord-api-types@0.37.93: {}
+  discord-api-types@0.37.94: {}
 
   eastasianwidth@0.2.0: {}
 

@@ -35,7 +35,7 @@ importers:
         version: 6.0.1
       typescript:
         specifier: ^5.5.4
-        version: 5.6.2
+        version: 5.7.2
 
 packages:
 
@@ -219,8 +219,8 @@ packages:
   tslib@2.6.3:
     resolution: {integrity: sha512-xNvxJEOUiWPGhUuUdQgAJPKOOJfGnIyKySOc09XkKsgdUV/3E2zvwZYdejjmRgPCgcym1juLH3226yA7sEFJKQ==}
 
-  typescript@5.6.2:
-    resolution: {integrity: sha512-NW8ByodCSNCwZeghjN3o+JX5OFH0Ojg6sadjEKY4huZ52TqbJTJnDo5+Tw98lSy63NZvi4n+ez5m2u5d4PkZyw==}
+  typescript@5.7.2:
+    resolution: {integrity: sha512-i5t66RHxDvVN40HfDd1PsEThGNnlMCMT3jMUuoh9/0TaqWevNontacunWyN02LA9/fIbEWlcHZcgTKb9QoaLfg==}
     engines: {node: '>=14.17'}
     hasBin: true
 
@@ -294,7 +294,7 @@ snapshots:
   '@sapphire/ts-config@5.0.1':
     dependencies:
       tslib: 2.6.3
-      typescript: 5.6.2
+      typescript: 5.7.2
 
   '@types/node@16.18.104': {}
 
@@ -428,7 +428,7 @@ snapshots:
 
   tslib@2.6.3: {}
 
-  typescript@5.6.2: {}
+  typescript@5.7.2: {}
 
   undici@6.19.8: {}
 

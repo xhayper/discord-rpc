@@ -16,7 +16,7 @@ importers:
         version: 2.4.6
       discord-api-types:
         specifier: ^0.37.93
-        version: 0.37.110
+        version: 0.37.117
       ws:
         specifier: ^8.18.0
         version: 8.18.0(bufferutil@4.0.8)(utf-8-validate@6.0.4)
@@ -118,8 +118,8 @@ packages:
     resolution: {integrity: sha512-iRDPJKUPVEND7dHPO8rkbOnPpyDygcDFtWjpeWNCgy8WP2rXcxXL8TskReQl6OrB2G7+UJrags1q15Fudc7G6w==}
     engines: {node: '>= 8'}
 
-  discord-api-types@0.37.110:
-    resolution: {integrity: sha512-wVaAJkrSgNRo8nd523qKYPqkClTNHhjKOk/g6265rzHuc7TNS6Ivz06DPW4iZvnhFobbH95hKlgsRf6jcAbtlA==}
+  discord-api-types@0.37.117:
+    resolution: {integrity: sha512-d+Z6RKd7v3q22lsil7yASucqMfVVV0s0XSqu3cw7kyHVXiDO/mAnqMzqma26IYnIm2mk3TlupYJDGrdL908ZKA==}
 
   discord-api-types@0.37.97:
     resolution: {integrity: sha512-No1BXPcVkyVD4ZVmbNgDKaBoqgeQ+FJpzZ8wqHkfmBnTZig1FcH3iPPersiK1TUIAzgClh2IvOuVUYfcWLQAOA==}
@@ -168,8 +168,8 @@ packages:
     resolution: {integrity: sha512-qOOzS1cBTWYF4BH8fVePDBOO9iptMnGUEZwNc/cMWnTV2nVLZ7VoNWEPHkYczZA0pdoA7dl6e7FL659nX9S2aw==}
     engines: {node: '>=16 || 14 >=14.17'}
 
-  node-gyp-build@4.8.1:
-    resolution: {integrity: sha512-OSs33Z9yWr148JZcbZd5WiAXhh/n9z8TxQcdMhIOlpN9AhWpLfvVFO73+m77bBABQMaY9XSvIa+qk0jlI7Gcaw==}
+  node-gyp-build@4.8.4:
+    resolution: {integrity: sha512-LA4ZjwlnUblHVgq0oBF3Jl/6h/Nvs5fzBLwdEF4nuxnFdsfajde4WfxtJr3CaiH+F6ewcIB/q4jQ4UzPyid+CQ==}
     hasBin: true
 
   package-json-from-dist@1.0.0:
@@ -322,7 +322,7 @@ snapshots:
 
   bufferutil@4.0.8:
     dependencies:
-      node-gyp-build: 4.8.1
+      node-gyp-build: 4.8.4
     optional: true
 
   color-convert@2.0.1:
@@ -337,7 +337,7 @@ snapshots:
       shebang-command: 2.0.0
       which: 2.0.2
 
-  discord-api-types@0.37.110: {}
+  discord-api-types@0.37.117: {}
 
   discord-api-types@0.37.97: {}
 
@@ -381,7 +381,7 @@ snapshots:
 
   minipass@7.1.2: {}
 
-  node-gyp-build@4.8.1:
+  node-gyp-build@4.8.4:
     optional: true
 
   package-json-from-dist@1.0.0: {}
@@ -434,7 +434,7 @@ snapshots:
 
   utf-8-validate@6.0.4:
     dependencies:
-      node-gyp-build: 4.8.1
+      node-gyp-build: 4.8.4
     optional: true
 
   which@2.0.2:

@@ -358,6 +358,11 @@ export class Client extends AsyncEventEmitter<ClientEvents> {
             return;
         }
 
+        if (options.accessToken) {
+            await this.authenticate(options.accessToken)
+            return;
+        }
+
         let accessToken = "";
 
         if (options.refreshToken) {

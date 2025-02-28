@@ -35,7 +35,7 @@ importers:
         version: 6.0.1
       typescript:
         specifier: ^5.5.4
-        version: 5.6.2
+        version: 5.8.2
 
 packages:
 
@@ -168,8 +168,8 @@ packages:
     resolution: {integrity: sha512-qOOzS1cBTWYF4BH8fVePDBOO9iptMnGUEZwNc/cMWnTV2nVLZ7VoNWEPHkYczZA0pdoA7dl6e7FL659nX9S2aw==}
     engines: {node: '>=16 || 14 >=14.17'}
 
-  node-gyp-build@4.8.1:
-    resolution: {integrity: sha512-OSs33Z9yWr148JZcbZd5WiAXhh/n9z8TxQcdMhIOlpN9AhWpLfvVFO73+m77bBABQMaY9XSvIa+qk0jlI7Gcaw==}
+  node-gyp-build@4.8.4:
+    resolution: {integrity: sha512-LA4ZjwlnUblHVgq0oBF3Jl/6h/Nvs5fzBLwdEF4nuxnFdsfajde4WfxtJr3CaiH+F6ewcIB/q4jQ4UzPyid+CQ==}
     hasBin: true
 
   package-json-from-dist@1.0.0:
@@ -219,8 +219,8 @@ packages:
   tslib@2.6.3:
     resolution: {integrity: sha512-xNvxJEOUiWPGhUuUdQgAJPKOOJfGnIyKySOc09XkKsgdUV/3E2zvwZYdejjmRgPCgcym1juLH3226yA7sEFJKQ==}
 
-  typescript@5.6.2:
-    resolution: {integrity: sha512-NW8ByodCSNCwZeghjN3o+JX5OFH0Ojg6sadjEKY4huZ52TqbJTJnDo5+Tw98lSy63NZvi4n+ez5m2u5d4PkZyw==}
+  typescript@5.8.2:
+    resolution: {integrity: sha512-aJn6wq13/afZp/jT9QZmwEjDqqvSGp1VT5GVg+f/t6/oVyrgXM6BY1h9BRh/O5p3PlUPAe+WuiEZOmb/49RqoQ==}
     engines: {node: '>=14.17'}
     hasBin: true
 
@@ -294,7 +294,7 @@ snapshots:
   '@sapphire/ts-config@5.0.1':
     dependencies:
       tslib: 2.6.3
-      typescript: 5.6.2
+      typescript: 5.8.2
 
   '@types/node@16.18.104': {}
 
@@ -322,7 +322,7 @@ snapshots:
 
   bufferutil@4.0.8:
     dependencies:
-      node-gyp-build: 4.8.1
+      node-gyp-build: 4.8.4
     optional: true
 
   color-convert@2.0.1:
@@ -381,7 +381,7 @@ snapshots:
 
   minipass@7.1.2: {}
 
-  node-gyp-build@4.8.1:
+  node-gyp-build@4.8.4:
     optional: true
 
   package-json-from-dist@1.0.0: {}
@@ -428,13 +428,13 @@ snapshots:
 
   tslib@2.6.3: {}
 
-  typescript@5.6.2: {}
+  typescript@5.8.2: {}
 
   undici@6.19.8: {}
 
   utf-8-validate@6.0.4:
     dependencies:
-      node-gyp-build: 4.8.1
+      node-gyp-build: 4.8.4
     optional: true
 
   which@2.0.2:

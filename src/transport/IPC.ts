@@ -246,7 +246,7 @@ export class IPCTransport extends Transport {
                 this.socket = undefined;
                 resolve();
             });
-            this.socket!.end();
+            this.socket!.destroy();
         });
     }
 }

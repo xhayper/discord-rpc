@@ -25,9 +25,9 @@ If applicable, add a sample code for us to reproduce the bug.
 
 **(please complete the following information):**
 
--   OS: [e.g. Windows, macOS, Arch Linux]
--   OS Version: [e.g. Windows 11, macOS 12.5]
--   Discord Version: [e.g. Stable 140355)
+- OS: [e.g. Windows, macOS, Arch Linux]
+- OS Version: [e.g. Windows 11, macOS 12.5]
+- Discord Version: [e.g. Stable 140355)
 
 **Additional context**
 Add any other context about the problem here.

@@ -21,6 +21,7 @@ export type AuthorizeOptions = {
     prompt?: "consent" | "none";
     useRPCToken?: boolean;
 
+    accessToken?: string;
     refreshToken?: string;
 };
 
@@ -121,7 +122,7 @@ export class Client extends AsyncEventEmitter<ClientEvents> {
         return this.#transport.isConnected;
     }
 
-    #refreshTimeout?: NodeJS.Timer;
+    #refreshTimeout?: NodeJS.Timeout;
     #connectionPromise?: Promise<void>;
     #_nonceMap = new Map<string, { resolve: (value?: any) => void; reject: (reason?: any) => void; error: RPCError }>();
 
@@ -135,7 +136,7 @@ export class Client extends AsyncEventEmitter<ClientEvents> {
         this.#rest = new REST({ version: "10" }).setToken("this-is-a-dummy");
 
         this.#transport =
-            options.transport?.type === undefined || options.transport.type === "ipc"
+            !options.transport?.type || options.transport.type === "ipc"
                 ? new IPCTransport({
                       client: this,
                       pathList: options.transport?.pathList
@@ -359,7 +360,7 @@ export class Client extends AsyncEventEmitter<ClientEvents> {
         }
 
         if (options.accessToken) {
-            await this.authenticate(options.accessToken)
+            await this.authenticate(options.accessToken);
             return;
         }
 

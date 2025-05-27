@@ -1,4 +1,4 @@
-import type { ActivityType, GatewayActivityButton } from "discord-api-types/v10";
+import { ActivityType, GatewayActivityButton } from "discord-api-types/v10";
 import type { CertifiedDevice } from "./CertifiedDevice";
 import { VoiceSettings } from "./VoiceSettings";
 import { Channel } from "./Channel";
@@ -17,62 +17,44 @@ export enum ActivityPartyPrivacy {
 }
 
 export type SetActivity = {
-    /**
-     * Minimum of 2 characters and maximum of 128 characters
-     */
+    name?: string;
+    type?: ActivityType;
+    url?: string;
+
     state?: string;
-    /**
-     * Minimum of 2 characters and maximum of 128 characters
-     */
     details?: string;
+
     startTimestamp?: number | Date;
     endTimestamp?: number | Date;
-    /**
-     * Minimum of 1 characters and maximum of 128 characters
-     */
+
     largeImageKey?: string;
-    /**
-     * Minimum of 1 characters and maximum of 128 characters
-     */
     smallImageKey?: string;
-    /**
-     * Minimum of 2 characters and maximum of 128 characters
-     */
     largeImageText?: string;
-    /**
-     * Minimum of 2 characters and maximum of 128 characters
-     */
     smallImageText?: string;
-    /**
-     * Minimum of 2 characters and maximum of 128 characters
-     */
+
     partyId?: string;
-    /**
-     * Default: ActivityPartyPrivacy.PRIVATE
-     */
     partyPrivacy?: ActivityPartyPrivacy;
     partySize?: number;
     partyMax?: number;
-    /**
-     * Minimum of 2 characters and maximum of 128 characters
-     */
+
     matchSecret?: string;
-    /**
-     * Minimum of 2 characters and maximum of 128 characters
-     */
     joinSecret?: string;
-    /**
-     * Minimum of 2 characters and maximum of 128 characters
-     */
     spectateSecret?: string;
+
     instance?: boolean;
-    buttons?: Array<GatewayActivityButton>;
+    buttons?: GatewayActivityButton[];
     supportedPlatforms?: (ActivitySupportedPlatform | `${ActivitySupportedPlatform}`)[];
-    /**
-     * Default: ActivityTypes.PLAYING
-     */
-    type?: ActivityType.Playing | ActivityType.Listening | ActivityType.Watching | ActivityType.Competing;
+
+    applicationId?: string;
+    flags?: number;
+
+    emoji?: {
+        name: string;
+        id?: string;
+        animated?: boolean;
+    };
 };
+
 
 export type SetActivityResponse = {
     state?: string;
@@ -249,69 +231,84 @@ export class ClientUser extends User {
      * @returns The activity that have been set
      */
     async setActivity(activity: SetActivity, pid?: number): Promise<SetActivityResponse> {
-        const formattedAcitivity: any = {
-            ...activity,
-            assets: {},
-            timestamps: {},
-            party: {},
-            secrets: {}
+        const formattedActivity: any = {
+            name: activity.name,
+            type: activity.type ?? ActivityType.Playing,
+            created_at: Date.now(),
+            instance: !!activity.instance,
         };
 
-        if (activity.startTimestamp instanceof Date) {
-            formattedAcitivity.timestamps.start = Math.round(activity.startTimestamp.getTime());
-        } else if (typeof activity.startTimestamp === "number") {
-            formattedAcitivity.timestamps.start = activity.startTimestamp;
+        // URL only for Streaming activity
+        if (activity.type === ActivityType.Streaming && activity.url) {
+            formattedActivity.url = activity.url;
         }
 
-        if (activity.endTimestamp instanceof Date) {
-            formattedAcitivity.timestamps.end = Math.round(activity.endTimestamp.getTime());
-        } else if (typeof activity.endTimestamp === "number") {
-            formattedAcitivity.timestamps.end = activity.endTimestamp;
+        // Details & state
+        if (activity.details) formattedActivity.details = activity.details;
+        if (activity.state) formattedActivity.state = activity.state;
+
+        // Timestamps (only if any defined)
+        if (activity.startTimestamp || activity.endTimestamp) {
+            formattedActivity.timestamps = {};
+            if (activity.startTimestamp instanceof Date) {
+                formattedActivity.timestamps.start = activity.startTimestamp.getTime();
+            } else if (typeof activity.startTimestamp === 'number') {
+                formattedActivity.timestamps.start = activity.startTimestamp;
+            }
+
+            if (activity.endTimestamp instanceof Date) {
+                formattedActivity.timestamps.end = activity.endTimestamp.getTime();
+            } else if (typeof activity.endTimestamp === 'number') {
+                formattedActivity.timestamps.end = activity.endTimestamp;
+            }
         }
 
-        if (activity.largeImageKey) formattedAcitivity.assets.large_image = activity.largeImageKey;
-        if (activity.smallImageKey) formattedAcitivity.assets.small_image = activity.smallImageKey;
-        if (activity.largeImageText) formattedAcitivity.assets.large_text = activity.largeImageText;
-        if (activity.smallImageText) formattedAcitivity.assets.small_text = activity.smallImageText;
+        // Assets (only if any defined)
+        if (
+            activity.largeImageKey ||
+            activity.smallImageKey ||
+            activity.largeImageText ||
+            activity.smallImageText
+        ) {
+            formattedActivity.assets = {};
+            if (activity.largeImageKey) formattedActivity.assets.large_image = activity.largeImageKey;
+            if (activity.smallImageKey) formattedActivity.assets.small_image = activity.smallImageKey;
+            if (activity.largeImageText) formattedActivity.assets.large_text = activity.largeImageText;
+            if (activity.smallImageText) formattedActivity.assets.small_text = activity.smallImageText;
+        }
 
-        if (activity.partyId) formattedAcitivity.party.id = activity.partyId;
-        if (activity.partyPrivacy) formattedAcitivity.party.privacy = activity.partyPrivacy;
-        if (activity.partySize && activity.partyMax)
-            formattedAcitivity.party.size = [activity.partySize, activity.partyMax];
+        // Party (only if any defined)
+        if (activity.partyId || activity.partySize || activity.partyMax || activity.partyPrivacy) {
+            formattedActivity.party = {};
+            if (activity.partyId) formattedActivity.party.id = activity.partyId;
+            if (activity.partyPrivacy) formattedActivity.party.privacy = activity.partyPrivacy;
+            if (activity.partySize !== undefined && activity.partyMax !== undefined) {
+                formattedActivity.party.size = [activity.partySize, activity.partyMax];
+            }
+        }
 
-        if (activity.joinSecret) formattedAcitivity.secrets.join = activity.joinSecret;
-        if (activity.spectateSecret) formattedAcitivity.secrets.spectate = activity.spectateSecret;
-        if (activity.matchSecret) formattedAcitivity.secrets.match = activity.matchSecret;
+        // Secrets (only if any defined)
+        if (activity.joinSecret || activity.spectateSecret || activity.matchSecret) {
+            formattedActivity.secrets = {};
+            if (activity.joinSecret) formattedActivity.secrets.join = activity.joinSecret;
+            if (activity.spectateSecret) formattedActivity.secrets.spectate = activity.spectateSecret;
+            if (activity.matchSecret) formattedActivity.secrets.match = activity.matchSecret;
+        }
 
-        if (activity.supportedPlatforms) formattedAcitivity.supported_platforms = activity.supportedPlatforms;
+        // Buttons
+        if (activity.buttons?.length) {
+            formattedActivity.buttons = activity.buttons;
+        }
 
-        if (Object.keys(formattedAcitivity.assets).length === 0) delete formattedAcitivity["assets"];
-        if (Object.keys(formattedAcitivity.timestamps).length === 0) delete formattedAcitivity["timestamps"];
-        if (Object.keys(formattedAcitivity.party).length === 0) delete formattedAcitivity["party"];
-        if (Object.keys(formattedAcitivity.secrets).length === 0) delete formattedAcitivity["secrets"];
-
-        formattedAcitivity.instance = !!activity.instance;
-
-        // Clean-up
-        delete formattedAcitivity["startTimestamp"];
-        delete formattedAcitivity["endTimestamp"];
-        delete formattedAcitivity["largeImageKey"];
-        delete formattedAcitivity["smallImageKey"];
-        delete formattedAcitivity["largeImageText"];
-        delete formattedAcitivity["smallImageText"];
-        delete formattedAcitivity["partyId"];
-        delete formattedAcitivity["partyPrivacy"];
-        delete formattedAcitivity["partySize"];
-        delete formattedAcitivity["partyMax"];
-        delete formattedAcitivity["joinSecret"];
-        delete formattedAcitivity["spectateSecret"];
-        delete formattedAcitivity["matchSecret"];
-        delete formattedAcitivity["supportedPlatforms"];
+        // Supported platforms
+        if (activity.supportedPlatforms?.length) {
+            formattedActivity.supported_platforms = activity.supportedPlatforms;
+        }
 
         return (
             await this.client.request("SET_ACTIVITY", {
-                pid: (pid ?? process) ? (process.pid ?? 0) : 0,
-                activity: formattedAcitivity
+                pid: (pid ?? process?.pid ?? 0),
+                activity: formattedActivity
             })
         ).data;
     }

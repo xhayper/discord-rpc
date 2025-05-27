@@ -15,8 +15,8 @@ importers:
         specifier: ^2.4.6
         version: 2.4.6
       discord-api-types:
-        specifier: ^0.37.120
-        version: 0.37.120
+        specifier: ^0.38.8
+        version: 0.38.8
       ws:
         specifier: ^8.18.2
         version: 8.18.2(bufferutil@4.0.8)(utf-8-validate@6.0.4)
@@ -113,9 +113,6 @@ packages:
   cross-spawn@7.0.6:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
     engines: {node: '>= 8'}
-
-  discord-api-types@0.37.120:
-    resolution: {integrity: sha512-7xpNK0EiWjjDFp2nAhHXezE4OUWm7s1zhc/UXXN6hnFFU8dfoPHgV0Hx0RPiCa3ILRpdeh152icc68DGCyXYIw==}
 
   discord-api-types@0.38.8:
     resolution: {integrity: sha512-xuRXPD44FcbKHrQK15FS1HFlMRNJtsaZou/SVws18vQ7zHqmlxyDktMkZpyvD6gE2ctGOVYC/jUyoMMAyBWfcw==}
@@ -334,8 +331,6 @@ snapshots:
       path-key: 3.1.1
       shebang-command: 2.0.0
       which: 2.0.2
-
-  discord-api-types@0.37.120: {}
 
   discord-api-types@0.38.8: {}
 

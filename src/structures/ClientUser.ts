@@ -17,43 +17,42 @@ export enum ActivityPartyPrivacy {
 }
 
 export type SetActivity = {
-  name?: string;
-  type?: ActivityType;
-  url?: string;
+    name?: string;
+    type?: ActivityType;
+    url?: string;
 
-  state?: string;
-  details?: string;
+    state?: string;
+    details?: string;
 
-  startTimestamp?: number | Date;
-  endTimestamp?: number | Date;
+    startTimestamp?: number | Date;
+    endTimestamp?: number | Date;
 
-  largeImageKey?: string;
-  smallImageKey?: string;
-  largeImageText?: string;
-  smallImageText?: string;
+    largeImageKey?: string;
+    smallImageKey?: string;
+    largeImageText?: string;
+    smallImageText?: string;
 
-  partyId?: string;
-  partySize?: number;
-  partyMax?: number;
+    partyId?: string;
+    partySize?: number;
+    partyMax?: number;
 
-  matchSecret?: string;
-  joinSecret?: string;
-  spectateSecret?: string;
+    matchSecret?: string;
+    joinSecret?: string;
+    spectateSecret?: string;
 
-  instance?: boolean;
-  buttons?: GatewayActivityButton[];
-  supportedPlatforms?: (ActivitySupportedPlatform | `${ActivitySupportedPlatform}`)[];
+    instance?: boolean;
+    buttons?: GatewayActivityButton[];
+    supportedPlatforms?: (ActivitySupportedPlatform | `${ActivitySupportedPlatform}`)[];
 
-  applicationId?: string;
-  flags?: number;
+    applicationId?: string;
+    flags?: number;
 
-  emoji?: {
-    name: string;
-    id?: string;
-    animated?: boolean;
-  };
+    emoji?: {
+        name: string;
+        id?: string;
+        animated?: boolean;
+    };
 };
-
 
 export type SetActivityResponse = {
     state?: string;
@@ -234,7 +233,7 @@ export class ClientUser extends User {
             name: activity.name,
             type: activity.type ?? ActivityType.Playing,
             created_at: Date.now(),
-            instance: !!activity.instance,
+            instance: !!activity.instance
         };
 
         // URL only for Streaming activity
@@ -251,24 +250,19 @@ export class ClientUser extends User {
             formattedActivity.timestamps = {};
             if (activity.startTimestamp instanceof Date) {
                 formattedActivity.timestamps.start = activity.startTimestamp.getTime();
-            } else if (typeof activity.startTimestamp === 'number') {
+            } else if (typeof activity.startTimestamp === "number") {
                 formattedActivity.timestamps.start = activity.startTimestamp;
             }
 
             if (activity.endTimestamp instanceof Date) {
                 formattedActivity.timestamps.end = activity.endTimestamp.getTime();
-            } else if (typeof activity.endTimestamp === 'number') {
+            } else if (typeof activity.endTimestamp === "number") {
                 formattedActivity.timestamps.end = activity.endTimestamp;
             }
         }
 
         // Assets (only if any defined)
-        if (
-            activity.largeImageKey ||
-            activity.smallImageKey ||
-            activity.largeImageText ||
-            activity.smallImageText
-        ) {
+        if (activity.largeImageKey || activity.smallImageKey || activity.largeImageText || activity.smallImageText) {
             formattedActivity.assets = {};
             if (activity.largeImageKey) formattedActivity.assets.large_image = activity.largeImageKey;
             if (activity.smallImageKey) formattedActivity.assets.small_image = activity.smallImageKey;
@@ -305,7 +299,7 @@ export class ClientUser extends User {
 
         return (
             await this.client.request("SET_ACTIVITY", {
-                pid: (pid ?? process?.pid ?? 0),
+                pid: pid ?? process?.pid ?? 0,
                 activity: formattedActivity
             })
         ).data;

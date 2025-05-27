@@ -1,6 +1,6 @@
 {
     "name": "@xhayper/discord-rpc",
-    "version": "1.2.1",
+    "version": "1.2.2",
     "description": "a fork of discordjs/RPC",
     "main": "dist/index.js",
     "author": "xhayper",
@@ -28,17 +28,17 @@
         "prepack": "pnpm run build"
     },
     "dependencies": {
-        "@discordjs/rest": "^2.4.3",
+        "@discordjs/rest": "^2.5.0",
         "@vladfrangu/async_event_emitter": "^2.4.6",
-        "discord-api-types": "^0.37.119",
-        "ws": "^8.18.1"
+        "discord-api-types": "^0.37.120",
+        "ws": "^8.18.2"
     },
     "devDependencies": {
         "@sapphire/ts-config": "^5.0.1",
         "@types/node": "^18",
-        "@types/ws": "^8.5.12",
+        "@types/ws": "^8.18.1",
         "rimraf": "^6.0.1",
-        "typescript": "^5.8.2"
+        "typescript": "^5.8.3"
     },
     "engines": {
         "node": ">=18.20.7"

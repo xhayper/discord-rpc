@@ -17,42 +17,41 @@ export enum ActivityPartyPrivacy {
 }
 
 export type SetActivity = {
-    name?: string;
-    type?: ActivityType;
-    url?: string;
+  name?: string;
+  type?: ActivityType;
+  url?: string;
 
-    state?: string;
-    details?: string;
+  state?: string;
+  details?: string;
 
-    startTimestamp?: number | Date;
-    endTimestamp?: number | Date;
+  startTimestamp?: number | Date;
+  endTimestamp?: number | Date;
 
-    largeImageKey?: string;
-    smallImageKey?: string;
-    largeImageText?: string;
-    smallImageText?: string;
+  largeImageKey?: string;
+  smallImageKey?: string;
+  largeImageText?: string;
+  smallImageText?: string;
 
-    partyId?: string;
-    partyPrivacy?: ActivityPartyPrivacy;
-    partySize?: number;
-    partyMax?: number;
+  partyId?: string;
+  partySize?: number;
+  partyMax?: number;
 
-    matchSecret?: string;
-    joinSecret?: string;
-    spectateSecret?: string;
+  matchSecret?: string;
+  joinSecret?: string;
+  spectateSecret?: string;
 
-    instance?: boolean;
-    buttons?: GatewayActivityButton[];
-    supportedPlatforms?: (ActivitySupportedPlatform | `${ActivitySupportedPlatform}`)[];
+  instance?: boolean;
+  buttons?: GatewayActivityButton[];
+  supportedPlatforms?: (ActivitySupportedPlatform | `${ActivitySupportedPlatform}`)[];
 
-    applicationId?: string;
-    flags?: number;
+  applicationId?: string;
+  flags?: number;
 
-    emoji?: {
-        name: string;
-        id?: string;
-        animated?: boolean;
-    };
+  emoji?: {
+    name: string;
+    id?: string;
+    animated?: boolean;
+  };
 };
 
 
@@ -278,10 +277,9 @@ export class ClientUser extends User {
         }
 
         // Party (only if any defined)
-        if (activity.partyId || activity.partySize || activity.partyMax || activity.partyPrivacy) {
+        if (activity.partyId || activity.partySize || activity.partyMax) {
             formattedActivity.party = {};
             if (activity.partyId) formattedActivity.party.id = activity.partyId;
-            if (activity.partyPrivacy) formattedActivity.party.privacy = activity.partyPrivacy;
             if (activity.partySize !== undefined && activity.partyMax !== undefined) {
                 formattedActivity.party.size = [activity.partySize, activity.partyMax];
             }

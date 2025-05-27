@@ -30,7 +30,7 @@
     "dependencies": {
         "@discordjs/rest": "^2.5.0",
         "@vladfrangu/async_event_emitter": "^2.4.6",
-        "discord-api-types": "^0.37.120",
+        "discord-api-types": "^0.38.8",
         "ws": "^8.18.2"
     },
     "devDependencies": {

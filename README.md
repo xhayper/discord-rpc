@@ -6,7 +6,6 @@
     <p>
         <a href="https://www.npmjs.com/package/@xhayper/discord-rpc" target="_blank"><img src="https://img.shields.io/npm/v/@xhayper/discord-rpc.svg" alt="npm version"/></a>
         <a href="https://discord.com/invite/xTAR8nUs2g" target="_blank"><img src="https://img.shields.io/discord/965168309731487805.svg" alt="discord"/></a>
-        <a href="https://github.com/xhayper/discord-rpc/blob/main/LICENSE" target="_blank"><img src="https://img.shields.io/github/license/xhayper/discord-rpc.svg" alt="license"/></a>
     </p>
 </div>
 <!-- markdownlint-enable -->
@@ -32,16 +31,6 @@ client.on("ready", () => {
 
 client.login();
 ```
-
-## Compatibility
-
-| OS      | Normal | snap | flatpak |
-| ------- | ------ | ---- | ------- |
-| Windows | Y      | -    | -       |
-| macOS   | Y      | -    | -       |
-| Linux   | Y      | Y    | Y       |
-
-- Linux is tested on Kubuntu 22.04
 
 ## Credits
 

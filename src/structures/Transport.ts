@@ -51,7 +51,8 @@ export enum RPC_ERROR_CODE {
 export enum CUSTOM_RPC_ERROR_CODE {
     CONNECTION_ENDED,
     CONNECTION_TIMEOUT,
-    COULD_NOT_CONNECT
+    COULD_NOT_CONNECT,
+    COULD_NOT_FIND_CLIENT
 }
 
 export type RPC_CMD =
@@ -216,9 +217,9 @@ export type TransportOptions = {
 };
 
 export abstract class Transport extends AsyncEventEmitter<TransportEvents> {
-    readonly client: Client;
+    public readonly client: Client;
 
-    get isConnected(): boolean {
+    public get isConnected(): boolean {
         return false;
     }
 
@@ -227,8 +228,8 @@ export abstract class Transport extends AsyncEventEmitter<TransportEvents> {
         this.client = options.client;
     }
 
-    abstract connect(): Promise<void>;
-    abstract send(data?: any): void;
-    abstract ping(): void;
-    abstract close(): Promise<void>;
+    public abstract connect(): Promise<void>;
+    public abstract send(data?: any): void;
+    public abstract ping(): void;
+    public abstract close(): Promise<void>;
 }

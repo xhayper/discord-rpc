@@ -68,7 +68,7 @@ export type SetActivityResponse = {
 export class ClientUser extends User {
     // #region Helper function
 
-    async fetchUser(userId: string): Promise<User> {
+    public async fetchUser(userId: string): Promise<User> {
         return new User(this.client, (await this.client.request("GET_USER", { id: userId })).data);
     }
 
@@ -79,7 +79,7 @@ export class ClientUser extends User {
      * @param timeout - asynchronously get guild with time to wait before timing out
      * @returns partial guild
      */
-    async fetchGuild(guildId: string, timeout?: number): Promise<Guild> {
+    public async fetchGuild(guildId: string, timeout?: number): Promise<Guild> {
         return new Guild(this.client, (await this.client.request("GET_GUILD", { guild_id: guildId, timeout })).data);
     }
 
@@ -87,7 +87,7 @@ export class ClientUser extends User {
      * Used to get a list of guilds the client is in.
      * @returns the guilds the user is in
      */
-    async fetchGuilds(): Promise<Guild[]> {
+    public async fetchGuilds(): Promise<Guild[]> {
         return (await this.client.request("GET_GUILDS")).data.guilds.map(
             (guildData: any) => new Guild(this.client, guildData)
         );
@@ -98,7 +98,7 @@ export class ClientUser extends User {
      * @param channelId - id of the channel to get
      * @returns partial channel
      */
-    async fetchChannel(channelId: string): Promise<Channel> {
+    public async fetchChannel(channelId: string): Promise<Channel> {
         return new Channel(this.client, (await this.client.request("GET_CHANNEL", { channel_id: channelId })).data);
     }
 
@@ -107,7 +107,7 @@ export class ClientUser extends User {
      * @param guildId - id of the guild to get channels for
      * @returns guild channels the user is in
      */
-    async fetchChannels(guildId: string): Promise<Channel[]> {
+    public async fetchChannels(guildId: string): Promise<Channel[]> {
         return (await this.client.request("GET_CHANNELS", { guild_id: guildId })).data.channels.map(
             (channelData: any) => new Channel(this.client, channelData)
         );
@@ -117,7 +117,7 @@ export class ClientUser extends User {
      * Used to get the client's current voice channel. There are no arguments for this command. Returns the [Get Channel](https://discord.com/developers/docs/topics/rpc#getchannel) response, or `null` if none.
      * @returns the client's current voice channel, `null` if none
      */
-    async getSelectedVoiceChannel(): Promise<Channel | null> {
+    public async getSelectedVoiceChannel(): Promise<Channel | null> {
         const response = await this.client.request("GET_SELECTED_VOICE_CHANNEL");
         return response.data !== null ? new Channel(this.client, response.data) : null;
     }
@@ -129,7 +129,7 @@ export class ClientUser extends User {
      * @param force - forces a user to join a voice channel
      * @returns the channel that the user joined, `null` if none
      */
-    async selectVoiceChannel(
+    public async selectVoiceChannel(
         channelId: string | null,
         timeout: number,
         force: boolean,
@@ -153,7 +153,7 @@ export class ClientUser extends User {
      * @param timeout - asynchronously join channel with time to wait before timing out
      * @param force - forces a user to join a voice channel
      */
-    async leaveVoiceChannel(timeout?: number, force?: boolean): Promise<void> {
+    public async leaveVoiceChannel(timeout?: number, force?: boolean): Promise<void> {
         await this.client.request("SELECT_VOICE_CHANNEL", {
             channel_id: null,
             timeout,
@@ -165,7 +165,7 @@ export class ClientUser extends User {
      * Used to get current client's voice settings
      * @returns the voice setting
      */
-    async getVoiceSettings(): Promise<VoiceSettings> {
+    public async getVoiceSettings(): Promise<VoiceSettings> {
         return new VoiceSettings(this.client, (await this.client.request("GET_VOICE_SETTINGS")).data);
     }
 
@@ -174,7 +174,7 @@ export class ClientUser extends User {
      * @param devices - a list of devices for your manufacturer, in order of priority
      * @returns
      */
-    async setCeritfiedDevices(devices: CertifiedDevice[]): Promise<void> {
+    public async setCeritfiedDevices(devices: CertifiedDevice[]): Promise<void> {
         await this.client.request("SET_CERTIFIED_DEVICES", { devices });
     }
 
@@ -182,7 +182,7 @@ export class ClientUser extends User {
      * Used to accept an Ask to Join request.
      * @param userId - the id of the requesting user
      */
-    async sendJoinInvite(userId: string): Promise<void> {
+    public async sendJoinInvite(userId: string): Promise<void> {
         await this.client.request("SEND_ACTIVITY_JOIN_INVITE", { user_id: userId });
     }
 
@@ -190,7 +190,7 @@ export class ClientUser extends User {
      * Used to reject an Ask to Join request.
      * @param userId - the id of the requesting user
      */
-    async closeJoinRequest(userId: string): Promise<void> {
+    public async closeJoinRequest(userId: string): Promise<void> {
         await this.client.request("CLOSE_ACTIVITY_JOIN_REQUEST", { user_id: userId });
     }
 
@@ -200,7 +200,7 @@ export class ClientUser extends User {
      * @param timeout - asynchronously join channel with time to wait before timing out
      * @returns the text channel that user joined
      */
-    async selectTextChannel(channelId: string | null, timeout: number): Promise<Channel | null> {
+    public async selectTextChannel(channelId: string | null, timeout: number): Promise<Channel | null> {
         return new Channel(
             this.client,
             (await this.client.request("SELECT_TEXT_CHANNEL", { channel_id: channelId, timeout })).data
@@ -211,11 +211,11 @@ export class ClientUser extends User {
      * Used to leave text channels, group dms, or dms.
      * @param timeout - asynchronously join channel with time to wait before timing out
      */
-    async leaveTextChannel(timeout?: number): Promise<void> {
+    public async leaveTextChannel(timeout?: number): Promise<void> {
         await this.client.request("SELECT_TEXT_CHANNEL", { channel_id: null, timeout });
     }
 
-    async getRelationships(): Promise<Array<User>> {
+    public async getRelationships(): Promise<Array<User>> {
         return (await this.client.request("GET_RELATIONSHIPS")).data.relationships.map((data: any) => {
             return new User(this.client, { ...data.user, presence: data.presence });
         });
@@ -228,7 +228,7 @@ export class ClientUser extends User {
      * @param pid - the application's process id
      * @returns The activity that have been set
      */
-    async setActivity(activity: SetActivity, pid?: number): Promise<SetActivityResponse> {
+    public async setActivity(activity: SetActivity, pid?: number): Promise<SetActivityResponse> {
         const formattedActivity: any = {
             name: activity.name,
             type: activity.type ?? ActivityType.Playing,
@@ -310,7 +310,7 @@ export class ClientUser extends User {
      *
      * @param pid - the application's process id
      */
-    async clearActivity(pid?: number): Promise<void> {
+    public async clearActivity(pid?: number): Promise<void> {
         await this.client.request("SET_ACTIVITY", { pid: (pid ?? process) ? (process.pid ?? 0) : 0 });
     }
 
@@ -326,7 +326,7 @@ export class ClientUser extends User {
      * @param size - image size
      * @return base64 encoded image data
      */
-    async getImage(
+    public async getImage(
         userId: string,
         format: "png" | "webp" | "jpg" = "png",
         size: 16 | 32 | 64 | 128 | 256 | 512 | 1024 = 1024
@@ -338,7 +338,7 @@ export class ClientUser extends User {
      * Requires RPC and RPC_VOICE_WRITE
      * @returns
      */
-    async getSoundboardSounds(): Promise<any> {
+    public async getSoundboardSounds(): Promise<any> {
         return (await this.client.request("GET_SOUNDBOARD_SOUNDS")).data;
     }
 
@@ -346,7 +346,7 @@ export class ClientUser extends User {
      * Requires RPC and RPC_VOICE_WRITE
      * @returns
      */
-    async playSoundboardSound(guildId: string, soundId: string): Promise<any> {
+    public async playSoundboardSound(guildId: string, soundId: string): Promise<any> {
         return (
             await this.client.request("PLAY_SOUNDBOARD_SOUND", {
                 guild_id: guildId,
@@ -359,7 +359,7 @@ export class ClientUser extends User {
      * Requires RPC and RPC_VIDEO_WRITE
      * @returns
      */
-    async toggleVideo(): Promise<any> {
+    public async toggleVideo(): Promise<any> {
         return (await this.client.request("TOGGLE_VIDEO")).data;
     }
 
@@ -367,7 +367,7 @@ export class ClientUser extends User {
      * Requires RPC and RPC_SCREENSHARE_WRITE
      * @returns
      */
-    async toggleScreenshare(pid?: number): Promise<any> {
+    public async toggleScreenshare(pid?: number): Promise<any> {
         return (await this.client.request("TOGGLE_SCREENSHARE", { pid })).data;
     }
 
@@ -375,7 +375,7 @@ export class ClientUser extends User {
      * Requires RPC and RPC_VOICE_WRITE
      * @returns
      */
-    async setPushToTalk(active: boolean): Promise<any> {
+    public async setPushToTalk(active: boolean): Promise<any> {
         return (await this.client.request("PUSH_TO_TALK", { active })).data;
     }
 
@@ -383,7 +383,7 @@ export class ClientUser extends User {
      * Requires RPC and RPC_VOICE_WRITE
      * @returns
      */
-    async setVoiceSettings(req: {
+    public async setVoiceSettings(req: {
         user_id: string;
         pan: {
             left: number;
@@ -400,7 +400,7 @@ export class ClientUser extends User {
      * Requires RPC and RPC_VOICE_WRITE
      * @returns
      */
-    async setVoiceSettings2(req: {
+    public async setVoiceSettings2(req: {
         input_mode: { type: "PUSH_TO_TALK" | "VOICE_ACTIVITY"; shortcut: string };
         self_mute: boolean;
         self_deaf: boolean;
@@ -412,75 +412,75 @@ export class ClientUser extends User {
      * Requires RPC and RPC_GUILDS_MEMBERS_READ
      * @returns
      */
-    async getChannelPermissions(): Promise<{ permissions: any }> {
+    public async getChannelPermissions(): Promise<{ permissions: any }> {
         return (await this.client.request("GET_CHANNEL_PERMISSIONS")).data;
     }
 
-    async getActivityInstanceConnectedParticipants(): Promise<{ participants: { nickname: string }[] }> {
+    public async getActivityInstanceConnectedParticipants(): Promise<{ participants: { nickname: string }[] }> {
         return (await this.client.request("GET_ACTIVITY_INSTANCE_CONNECTED_PARTICIPANTS")).data;
     }
 
-    async navigateToConnections(): Promise<any> {
+    public async navigateToConnections(): Promise<any> {
         return (await this.client.request("NAVIGATE_TO_CONNECTIONS")).data;
     }
 
-    async createChanenlInvite(channelId: string, args: object): Promise<any> {
+    public async createChanenlInvite(channelId: string, args: object): Promise<any> {
         return (await this.client.request("CREATE_CHANNEL_INVITE", { channel_id: channelId, ...args })).data;
     }
 
-    async openExternalLink(url: string): Promise<any> {
+    public async openExternalLink(url: string): Promise<any> {
         return (await this.client.request("OPEN_EXTERNAL_LINK", { url })).data;
     }
 
-    async getPlatformBehaviors(): Promise<{ iosKeyboardResizesView: boolean }> {
+    public async getPlatformBehaviors(): Promise<{ iosKeyboardResizesView: boolean }> {
         return (await this.client.request("GET_PLATFORM_BEHAVIORS")).data;
     }
 
-    async getProviderAccessToken(provider: string, connectionRedirect: string): Promise<any> {
+    public async getProviderAccessToken(provider: string, connectionRedirect: string): Promise<any> {
         return (await this.client.request("GET_PROVIDER_ACCESS_TOKEN", { provider, connectionRedirect })).data;
     }
 
-    async maybeGetProviderAccessToken(provider: string): Promise<any> {
+    public async maybeGetProviderAccessToken(provider: string): Promise<any> {
         return (await this.client.request("MAYBE_GET_PROVIDER_ACCESS_TOKEN", { provider })).data;
     }
 
-    async getSKUS(): Promise<any> {
+    public async getSKUS(): Promise<any> {
         return (await this.client.request("GET_SKUS")).data;
     }
 
-    async getEntitlements(): Promise<any> {
+    public async getEntitlements(): Promise<any> {
         return (await this.client.request("GET_ENTITLEMENTS")).data;
     }
 
-    async getSKUsEmbedded(): Promise<{ skus: any }> {
+    public async getSKUsEmbedded(): Promise<{ skus: any }> {
         return (await this.client.request("GET_SKUS_EMBEDDED")).data;
     }
 
-    async getEntitlementsEmbedded(): Promise<{ entitlements: any }> {
+    public async getEntitlementsEmbedded(): Promise<{ entitlements: any }> {
         return (await this.client.request("GET_ENTITLEMENTS_EMBEDDED")).data;
     }
 
-    async encourageHardwareAcceleration(): Promise<any> {
+    public async encourageHardwareAcceleration(): Promise<any> {
         return (await this.client.request("ENCOURAGE_HW_ACCELERATION")).data;
     }
 
-    async captureLog(level: "log" | "warn" | "debug" | "info" | "error", message: string): Promise<any> {
+    public async captureLog(level: "log" | "warn" | "debug" | "info" | "error", message: string): Promise<any> {
         return (await this.client.request("CAPTURE_LOG", { level, message })).data;
     }
 
-    async sendAnalyticsEvent(eventName: string, eventProperties: object): Promise<any> {
+    public async sendAnalyticsEvent(eventName: string, eventProperties: object): Promise<any> {
         return (await this.client.request("SEND_ANALYTICS_EVENT", { eventName, eventProperties })).data;
     }
 
-    async getLocale(): Promise<string> {
+    public async getLocale(): Promise<string> {
         return (await this.client.request("USER_SETTINGS_GET_LOCALE")).data.locale;
     }
 
-    async getAchievements(): Promise<any> {
+    public async getAchievements(): Promise<any> {
         return (await this.client.request("GET_USER_ACHIEVEMENTS")).data;
     }
 
-    async setAchievement(achievementId: string, percentComplete: number): Promise<any> {
+    public async setAchievement(achievementId: string, percentComplete: number): Promise<any> {
         return (
             await this.client.request("SET_USER_ACHIEVEMENT", {
                 achievement_id: achievementId,
@@ -489,51 +489,51 @@ export class ClientUser extends User {
         ).data;
     }
 
-    async createNetworkingToken(): Promise<any> {
+    public async createNetworkingToken(): Promise<any> {
         return (await this.client.request("NETWORKING_CREATE_TOKEN")).data;
     }
 
-    async networkingPeerMetrics(): Promise<any> {
+    public async networkingPeerMetrics(): Promise<any> {
         return (await this.client.request("NETWORKING_PEER_METRICS")).data;
     }
 
-    async networkingSystemMetrics(): Promise<any> {
+    public async networkingSystemMetrics(): Promise<any> {
         return (await this.client.request("NETWORKING_SYSTEM_METRICS")).data;
     }
 
-    async getNetworkingConfig(): Promise<{ address: any; token: any }> {
+    public async getNetworkingConfig(): Promise<{ address: any; token: any }> {
         return (await this.client.request("GET_NETWORKING_CONFIG")).data;
     }
 
-    async startPurchase(skuId: string, pid: number): Promise<any> {
+    public async startPurchase(skuId: string, pid: number): Promise<any> {
         return (await this.client.request("START_PURCHASE", { sku_id: skuId, pid })).data;
     }
 
-    async startPremiumPurchase(pid: number): Promise<any> {
+    public async startPremiumPurchase(pid: number): Promise<any> {
         return (await this.client.request("START_PREMIUM_PURCHASE", { pid })).data;
     }
 
-    async getApplicationTicket(): Promise<any> {
+    public async getApplicationTicket(): Promise<any> {
         return (await this.client.request("GET_APPLICATION_TICKET")).data;
     }
 
-    async getEntitlementTicket(): Promise<any> {
+    public async getEntitlementTicket(): Promise<any> {
         return (await this.client.request("GET_ENTITLEMENT_TICKET")).data;
     }
 
-    async validateApplication(): Promise<any> {
+    public async validateApplication(): Promise<any> {
         return (await this.client.request("VALIDATE_APPLICATION")).data;
     }
 
-    async openOverlayVoiceSettings(pid: number): Promise<any> {
+    public async openOverlayVoiceSettings(pid: number): Promise<any> {
         return (await this.client.request("OPEN_OVERLAY_VOICE_SETTINGS", { pid })).data;
     }
 
-    async openOverlayGuildInvite(code: string, pid: number): Promise<any> {
+    public async openOverlayGuildInvite(code: string, pid: number): Promise<any> {
         return (await this.client.request("OPEN_OVERLAY_GUILD_INVITE", { code, pid })).data;
     }
 
-    async openOverlayActivityInvite(type: "JOIN", pid: number): Promise<any> {
+    public async openOverlayActivityInvite(type: "JOIN", pid: number): Promise<any> {
         const typeToNumber = {
             JOIN: 0
         };
@@ -541,27 +541,27 @@ export class ClientUser extends User {
         return (await this.client.request("OPEN_OVERLAY_ACTIVITY_INVITE", { type: typeToNumber[type], pid })).data;
     }
 
-    async setOverlayLocked(locked: boolean, pid: number): Promise<any> {
+    public async setOverlayLocked(locked: boolean, pid: number): Promise<any> {
         return (await this.client.request("SET_OVERLAY_LOCKED", { locked, pid })).data;
     }
 
-    async browserHandoff(): Promise<any> {
+    public async browserHandoff(): Promise<any> {
         return (await this.client.request("BROWSER_HANDOFF")).data;
     }
 
-    async openGuildTemplateBrowser(code: any): Promise<any> {
+    public async openGuildTemplateBrowser(code: any): Promise<any> {
         return (await this.client.request("GUILD_TEMPLATE_BROWSER", { code })).data;
     }
 
-    async openGiftCodeBrowser(code: any): Promise<any> {
+    public async openGiftCodeBrowser(code: any): Promise<any> {
         return (await this.client.request("GIFT_CODE_BROWSER", { code })).data;
     }
 
-    async brainTreePopupBridgeCallback(state: any, path: any, query: any): Promise<any> {
+    public async brainTreePopupBridgeCallback(state: any, path: any, query: any): Promise<any> {
         return (await this.client.request("BRAINTREE_POPUP_BRIDGE_CALLBACK", { state, path, query })).data;
     }
 
-    async billingPopupBridgeCallback(state: any, path: any, query: any, paymentSourceType: any): Promise<any> {
+    public async billingPopupBridgeCallback(state: any, path: any, query: any, paymentSourceType: any): Promise<any> {
         return (
             await this.client.request("BILLING_POPUP_BRIDGE_CALLBACK", {
                 state,
@@ -572,7 +572,7 @@ export class ClientUser extends User {
         ).data;
     }
 
-    async connectionsCallback(providerType: any, code: any, openIdParams: any, state: any): Promise<any> {
+    public async connectionsCallback(providerType: any, code: any, openIdParams: any, state: any): Promise<any> {
         return (
             await this.client.request("CONNECTIONS_CALLBACK", {
                 providerType: providerType,
@@ -583,27 +583,27 @@ export class ClientUser extends User {
         ).data;
     }
 
-    async deepLink(type: any, params: any): Promise<any> {
+    public async deepLink(type: any, params: any): Promise<any> {
         return (await this.client.request("DEEP_LINK", { type, params })).data;
     }
 
-    async inviteBrowser(code: any): Promise<any> {
+    public async inviteBrowser(code: any): Promise<any> {
         return (await this.client.request("INVITE_BROWSER", { code })).data;
     }
 
-    async initiateImageUpload(): Promise<{ image_url: string }> {
+    public async initiateImageUpload(): Promise<{ image_url: string }> {
         return (await this.client.request("INITIATE_IMAGE_UPLOAD")).data;
     }
 
-    async openShareMomentDialog(mediaUrl: string): Promise<any> {
+    public async openShareMomentDialog(mediaUrl: string): Promise<any> {
         return (await this.client.request("OPEN_SHARE_MOMENT_DIALOG", { mediaUrl })).data;
     }
 
-    async openInviteDialog(): Promise<any> {
+    public async openInviteDialog(): Promise<any> {
         return (await this.client.request("OPEN_INVITE_DIALOG")).data;
     }
 
-    async acceptActivityInvite(
+    public async acceptActivityInvite(
         type: "JOIN",
         userId: string,
         sessionId: string,
@@ -625,7 +625,7 @@ export class ClientUser extends User {
         ).data;
     }
 
-    async activityInviteUser(userId: string, type: "JOIN", content: string, pid: number): Promise<any> {
+    public async activityInviteUser(userId: string, type: "JOIN", content: string, pid: number): Promise<any> {
         const typeToNumber = {
             JOIN: 0
         };
@@ -640,15 +640,15 @@ export class ClientUser extends User {
         ).data;
     }
 
-    async closeActivityJoinRequest(userId: string): Promise<any> {
+    public async closeActivityJoinRequest(userId: string): Promise<any> {
         return (await this.client.request("CLOSE_ACTIVITY_JOIN_REQUEST", { user_id: userId })).data;
     }
 
-    async sendActivityJoinInvite(userId: string, pid: number): Promise<any> {
+    public async sendActivityJoinInvite(userId: string, pid: number): Promise<any> {
         return (await this.client.request("SEND_ACTIVITY_JOIN_INVITE", { user_id: userId, pid })).data;
     }
 
-    async setConfig(useInteractivePip: boolean): Promise<any> {
+    public async setConfig(useInteractivePip: boolean): Promise<any> {
         return (await this.client.request("SET_CONFIG", { use_interactive_pip: useInteractivePip })).data;
     }
 

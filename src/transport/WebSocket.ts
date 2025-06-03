@@ -2,18 +2,20 @@ import { CUSTOM_RPC_ERROR_CODE, Transport } from "../structures/Transport";
 import { RPCError } from "../utils/RPCError";
 import { WebSocket } from "ws";
 
+//TODO: Should I phase this out?
 export class WebSocketTransport extends Transport {
     private ws?: WebSocket;
 
-    override get isConnected() {
+    public override get isConnected() {
         return this.ws !== undefined && this.ws.readyState === 1;
     }
 
-    connect(): Promise<void> {
+    public connect(): Promise<void> {
         return new Promise(async (resolve, reject) => {
             for (let i = 0; i < 10; i++) {
                 const ws = await new Promise<WebSocket>((resolve, reject) => {
                     const socket = new WebSocket(
+                        //TODO: etf support
                         `ws://127.0.0.1:${6463 + i}/?v=1&client_id=${this.client.clientId}&encoding=json`
                     );
 
@@ -40,7 +42,12 @@ export class WebSocketTransport extends Transport {
             }
 
             if (!this.ws)
-                reject(new RPCError(CUSTOM_RPC_ERROR_CODE.COULD_NOT_CONNECT, "Failed to connect to websocket"));
+                return reject(
+                    new RPCError(
+                        CUSTOM_RPC_ERROR_CODE.COULD_NOT_CONNECT,
+                        "Failed to connect to Discord's local RPC WebSocket"
+                    )
+                );
 
             this.ws!.onmessage = (event) => {
                 this.emit("message", JSON.parse(event.data.toString()));
@@ -64,13 +71,13 @@ export class WebSocketTransport extends Transport {
         });
     }
 
-    send(data?: object | undefined): void {
+    public send(data?: object | undefined): void {
         this.ws?.send(JSON.stringify(data));
     }
 
-    ping(): void {}
+    public ping(): void {}
 
-    close(): Promise<void> {
+    public close(): Promise<void> {
         if (!this.ws) return new Promise((resolve) => void resolve());
 
         return new Promise((resolve) => {

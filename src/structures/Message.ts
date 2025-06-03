@@ -7,69 +7,69 @@ export class Message extends Base {
     /**
      * id of the message
      */
-    id: string;
+    public id: string;
     /**
      * if the message's author is blocked
      */
-    blocked: boolean;
+    public blocked: boolean;
     /**
      * if the message is sent by a bot
      */
-    bot: boolean;
+    public bot: boolean;
     /**
      * contents of the message
      */
-    content: string;
-    content_parsed: any[];
+    public content: string;
+    public content_parsed: any[];
     /**
      * author's server nickname
      */
-    nick: string;
-    author_color: string;
+    public nick: string;
+    public author_color: string;
     /**
      * when this message was edited (or null if never)
      */
-    edited_timestamp: string | null;
+    public edited_timestamp: string | null;
     /**
      * when this message was sent
      */
-    timestamp: string;
+    public timestamp: string;
     /**
      * whether this was a TTS message
      */
-    tts: boolean;
+    public tts: boolean;
     /**
      * users specifically mentioned in the message
      */
-    mentions: User[];
+    public mentions: User[];
     /**
      * whether this message mentions everyone
      */
-    mention_everyone: boolean;
+    public mention_everyone: boolean;
     /**
      * roles specifically mentioned in this message
      */
-    mention_roles: string[];
+    public mention_roles: string[];
     /**
      * any embedded content
      */
-    embeds: APIEmbed[];
+    public embeds: APIEmbed[];
     /**
      * any attached files
      */
-    attachments: APIAttachment[];
+    public attachments: APIAttachment[];
     /**
      * the author of this message
      */
-    author: User;
+    public author: User;
     /**
      * whether this message is pinned
      */
-    pinned: boolean;
+    public pinned: boolean;
     /**
      * [type of message](https://discord.com/developers/docs/resources/channel#message-object-message-types)
      */
-    type: MessageType;
+    public type: MessageType;
 
     constructor(client: Client, props: Record<string, any>) {
         super(client);

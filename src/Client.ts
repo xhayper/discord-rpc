@@ -76,23 +76,23 @@ export class Client extends AsyncEventEmitter<ClientEvents> {
     /**
      * application id
      */
-    clientId: string;
+    public clientId: string;
     /**
      * application secret
      */
-    clientSecret?: string;
+    public clientSecret?: string;
 
     /**
      * pipe id
      */
-    pipeId?: number;
+    public pipeId?: number;
 
-    #refreshToken?: string;
+    private refreshToken?: string;
 
     /**
      * transport instance
      */
-    #transport: Transport;
+    public readonly transport: Transport;
 
     /**
      * current user
@@ -104,27 +104,26 @@ export class Client extends AsyncEventEmitter<ClientEvents> {
      */
     #application?: APIApplication;
 
-    #rest: REST;
+    private rest: REST;
 
-    get user() {
+    public get user() {
         return this.#user;
     }
 
-    get application() {
+    public get application() {
         return this.#application;
     }
 
-    get transport() {
-        return this.#transport;
+    public get isConnected() {
+        return this.transport.isConnected;
     }
 
-    get isConnected() {
-        return this.#transport.isConnected;
-    }
-
-    #refreshTimeout?: NodeJS.Timeout;
-    #connectionPromise?: Promise<void>;
-    #_nonceMap = new Map<string, { resolve: (value?: any) => void; reject: (reason?: any) => void; error: RPCError }>();
+    private refreshTimeout?: NodeJS.Timeout;
+    private connectionPromise?: Promise<void>;
+    private nonceMap = new Map<
+        string,
+        { resolve: (value?: any) => void; reject: (reason?: any) => void; error: RPCError }
+    >();
 
     constructor(options: ClientOptions) {
         super();
@@ -133,9 +132,9 @@ export class Client extends AsyncEventEmitter<ClientEvents> {
         this.clientSecret = options.clientSecret;
         this.pipeId = options.pipeId;
 
-        this.#rest = new REST({ version: "10" }).setToken("this-is-a-dummy");
+        this.rest = new REST({ version: "10" }).setToken("this-is-a-dummy");
 
-        this.#transport =
+        this.transport =
             !options.transport?.type || options.transport.type === "ipc"
                 ? new IPCTransport({
                       client: this,
@@ -145,15 +144,15 @@ export class Client extends AsyncEventEmitter<ClientEvents> {
                       client: this
                   });
 
-        this.#transport.on("message", (message) => {
+        this.transport.on("message", (message) => {
             if (message.cmd === "DISPATCH" && message.evt === "READY") {
                 if (message.data.user) this.#user = new ClientUser(this, message.data.user);
                 if (message.data.config && message.data.config.cdn_host)
-                    this.#rest.options.cdn = message.data.config.cdn_host;
+                    this.rest.options.cdn = message.data.config.cdn_host;
                 this.emit("connected");
             } else {
-                if (message.nonce && this.#_nonceMap.has(message.nonce)) {
-                    const nonceObj = this.#_nonceMap.get(message.nonce)!;
+                if (message.nonce && this.nonceMap.has(message.nonce)) {
+                    const nonceObj = this.nonceMap.get(message.nonce)!;
 
                     if (message.evt === "ERROR") {
                         nonceObj.error.code = message.data.code;
@@ -161,7 +160,7 @@ export class Client extends AsyncEventEmitter<ClientEvents> {
                         nonceObj?.reject(nonceObj.error);
                     } else nonceObj?.resolve(message);
 
-                    this.#_nonceMap.delete(message.nonce);
+                    this.nonceMap.delete(message.nonce);
                 }
 
                 this.emit((message as any).evt, message.data);
@@ -172,15 +171,15 @@ export class Client extends AsyncEventEmitter<ClientEvents> {
     /**
      * @hidden
      */
-    async request<A = any, D = any>(cmd: RPC_CMD, args?: any, evt?: RPC_EVT): Promise<CommandIncoming<A, D>> {
+    public async request<A = any, D = any>(cmd: RPC_CMD, args?: any, evt?: RPC_EVT): Promise<CommandIncoming<A, D>> {
         const error = new RPCError(RPC_ERROR_CODE.UNKNOWN_ERROR);
         RPCError.captureStackTrace(error, this.request);
 
         return new Promise((resolve, reject) => {
             const nonce = crypto.randomUUID();
 
-            this.#transport.send({ cmd, args, evt, nonce });
-            this.#_nonceMap.set(nonce, { resolve, reject, error });
+            this.transport.send({ cmd, args, evt, nonce });
+            this.nonceMap.set(nonce, { resolve, reject, error });
         });
     }
 
@@ -198,12 +197,12 @@ export class Client extends AsyncEventEmitter<ClientEvents> {
     private async refreshAccessToken(): Promise<string> {
         this.emit("debug", "CLIENT | Refreshing access token!");
 
-        const exchangeResponse = await this.#rest.post(Routes.oauth2TokenExchange(), {
+        const exchangeResponse = await this.rest.post(Routes.oauth2TokenExchange(), {
             body: new URLSearchParams({
                 client_id: this.clientId,
                 client_secret: this.clientSecret ?? "",
                 grant_type: "refresh_token",
-                refresh_token: this.#refreshToken ?? ""
+                refresh_token: this.refreshToken ?? ""
             }),
             headers: {
                 "content-type": "application/x-www-form-urlencoded"
@@ -227,11 +226,11 @@ export class Client extends AsyncEventEmitter<ClientEvents> {
         )
             throw new TypeError(`Invalid access token response!\nData: ${JSON.stringify(data, null, 2)}`);
 
-        this.#rest.setToken(data.access_token);
-        this.#rest.options.authPrefix = data.token_type;
-        this.#refreshToken = data.refresh_token;
+        this.rest.setToken(data.access_token);
+        this.rest.options.authPrefix = data.token_type;
+        this.refreshToken = data.refresh_token;
 
-        this.#refreshTimeout = setTimeout(() => void this.refreshAccessToken(), data.expires_in);
+        this.refreshTimeout = setTimeout(() => void this.refreshAccessToken(), data.expires_in);
     }
 
     private async authorize(options: AuthorizeOptions): Promise<string> {
@@ -242,7 +241,7 @@ export class Client extends AsyncEventEmitter<ClientEvents> {
         if (options.useRPCToken) {
             rpcToken = // Sadly discord-api-types doesn't have the oauth2/token/rpc endpoint
                 (
-                    (await this.#rest.post("/oauth2/token/rpc", {
+                    (await this.rest.post("/oauth2/token/rpc", {
                         body: new URLSearchParams({
                             client_id: this.clientId,
                             client_secret: this.clientSecret
@@ -263,7 +262,7 @@ export class Client extends AsyncEventEmitter<ClientEvents> {
             })
         ).data;
 
-        const exchangeResponse = await this.#rest.post(Routes.oauth2TokenExchange(), {
+        const exchangeResponse = await this.rest.post(Routes.oauth2TokenExchange(), {
             body: new URLSearchParams({
                 client_id: this.clientId,
                 client_secret: this.clientSecret,
@@ -289,7 +288,10 @@ export class Client extends AsyncEventEmitter<ClientEvents> {
      * @param args args for the event
      * @returns an object to unsubscribe from the event
      */
-    async subscribe(event: Exclude<RPC_EVT, "READY" | "ERROR">, args?: any): Promise<{ unsubscribe: () => void }> {
+    public async subscribe(
+        event: Exclude<RPC_EVT, "READY" | "ERROR">,
+        args?: any
+    ): Promise<{ unsubscribe: () => void }> {
         await this.request("SUBSCRIBE", args, event);
         return {
             /**
@@ -304,15 +306,15 @@ export class Client extends AsyncEventEmitter<ClientEvents> {
     /**
      * connect to the local rpc server
      */
-    async connect(): Promise<void> {
-        if (this.#connectionPromise) return this.#connectionPromise;
+    public async connect(): Promise<void> {
+        if (this.connectionPromise) return this.connectionPromise;
 
         const error = new RPCError(RPC_ERROR_CODE.UNKNOWN_ERROR);
         RPCError.captureStackTrace(error, this.connect);
 
-        this.#connectionPromise = new Promise((resolve, reject) => {
+        this.connectionPromise = new Promise((resolve, reject) => {
             const timeout = setTimeout(() => {
-                this.#connectionPromise = undefined;
+                this.connectionPromise = undefined;
 
                 error.code = CUSTOM_RPC_ERROR_CODE.CONNECTION_TIMEOUT;
                 error.message = "Connection timed out";
@@ -323,10 +325,10 @@ export class Client extends AsyncEventEmitter<ClientEvents> {
             if (typeof timeout === "object" && "unref" in timeout) timeout.unref();
 
             this.once("connected", () => {
-                this.#connectionPromise = undefined;
+                this.connectionPromise = undefined;
 
-                this.#transport.once("close", (reason) => {
-                    this.#_nonceMap.forEach((promise) => {
+                this.transport.once("close", (reason) => {
+                    this.nonceMap.forEach((promise) => {
                         promise.error.code =
                             typeof reason === "object" ? reason!.code : CUSTOM_RPC_ERROR_CODE.CONNECTION_ENDED;
                         promise.error.message =
@@ -341,17 +343,17 @@ export class Client extends AsyncEventEmitter<ClientEvents> {
                 resolve();
             });
 
-            this.#transport.connect().catch(reject);
+            this.transport.connect().catch(reject);
         });
 
-        return this.#connectionPromise;
+        return this.connectionPromise;
     }
 
     /**
      * will try to authorize if a scope is specified, else it's the same as `connect()`
      * @param options options for the authorization
      */
-    async login(options?: AuthorizeOptions): Promise<void> {
+    public async login(options?: AuthorizeOptions): Promise<void> {
         await this.connect();
 
         if (!options || !options.scopes) {
@@ -367,7 +369,7 @@ export class Client extends AsyncEventEmitter<ClientEvents> {
         let accessToken = "";
 
         if (options.refreshToken) {
-            this.#refreshToken = options.refreshToken;
+            this.refreshToken = options.refreshToken;
             accessToken = await this.refreshAccessToken();
         } else {
             if (!this.clientSecret) throw new ReferenceError("Client secret is required for authorization!");
@@ -380,17 +382,17 @@ export class Client extends AsyncEventEmitter<ClientEvents> {
     /**
      * disconnects from the local rpc server
      */
-    async destroy(): Promise<void> {
-        if (this.#refreshTimeout) {
-            clearTimeout(this.#refreshTimeout);
-            this.#refreshTimeout = undefined;
-            this.#refreshToken = undefined;
+    public async destroy(): Promise<void> {
+        if (this.refreshTimeout) {
+            clearTimeout(this.refreshTimeout);
+            this.refreshTimeout = undefined;
+            this.refreshToken = undefined;
         }
 
-        await this.#transport.close();
+        await this.transport.close();
     }
 
-    getCdn() {
-        return this.#rest.cdn;
+    public getCdn() {
+        return this.rest.cdn;
     }
 }

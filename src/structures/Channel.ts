@@ -7,43 +7,44 @@ export class Channel extends Base {
     /**
      * channel id
      */
-    id: string;
+    public id: string;
     /**
      * channel's guild id
      */
-    guild_id?: string;
+    public guild_id?: string;
     /**
      * channel name
      */
-    name: string;
+    public name: string;
     /**
      * channel type (guild text: 0, guild voice: 2, dm: 1, group dm: 3)
      */
-    type: ChannelType;
+    public type: ChannelType;
     /**
      * (text) channel topic
      */
-    topic?: string;
+    public topic?: string;
     /**
      * (voice) bitrate of voice channel
      */
-    bitrate?: number;
+    public bitrate?: number;
     /**
      * (voice) user limit of voice channel (0 for none)
      */
-    user_limit?: number;
+    public user_limit?: number;
     /**
      * position of channel in channel list
      */
-    position?: number;
+    public position?: number;
+    // TODO: Fix this :(
     /**
      * (voice) channel's voice states
      */
-    voice_states?: GatewayVoiceState[];
+    public voice_states?: GatewayVoiceState[];
     /**
      * (text) channel's messages
      */
-    messages?: Message[];
+    public messages?: Message[];
 
     constructor(client: Client, props: Record<string, any>) {
         super(client);

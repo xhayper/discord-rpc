@@ -20,6 +20,11 @@ export type IPCTransportOptions = {
     pathList?: PathData[];
 } & TransportOptions;
 
+const getTempDir = () => {
+    const { XDG_RUNTIME_DIR, TMPDIR, TMP, TEMP } = process.env;
+    return fs.realpathSync(XDG_RUNTIME_DIR ?? TMPDIR ?? TMP ?? TEMP ?? `${path.sep}tmp`);
+};
+
 const defaultPathList: PathData[] = [
     {
         platform: ["win32"],
@@ -29,39 +34,21 @@ const defaultPathList: PathData[] = [
         platform: ["darwin", "linux"],
         format: (id: number): string => {
             // macOS / Linux path
-
-            const {
-                env: { XDG_RUNTIME_DIR, TMPDIR, TMP, TEMP }
-            } = process;
-
-            const prefix = fs.realpathSync(XDG_RUNTIME_DIR ?? TMPDIR ?? TMP ?? TEMP ?? `${path.sep}tmp`);
-            return path.join(prefix, `discord-ipc-${id}`);
+            return path.join(getTempDir(), `discord-ipc-${id}`);
         }
     },
     {
         platform: ["linux"],
         format: (id: number): string => {
             // snap
-
-            const {
-                env: { XDG_RUNTIME_DIR, TMPDIR, TMP, TEMP }
-            } = process;
-
-            const prefix = fs.realpathSync(XDG_RUNTIME_DIR ?? TMPDIR ?? TMP ?? TEMP ?? `${path.sep}tmp`);
-            return path.join(prefix, "snap.discord", `discord-ipc-${id}`);
+            return path.join(getTempDir(), "snap.discord", `discord-ipc-${id}`);
         }
     },
     {
         platform: ["linux"],
         format: (id: number): string => {
             // flatpak
-
-            const {
-                env: { XDG_RUNTIME_DIR, TMPDIR, TMP, TEMP }
-            } = process;
-
-            const prefix = fs.realpathSync(XDG_RUNTIME_DIR ?? TMPDIR ?? TMP ?? TEMP ?? `${path.sep}tmp`);
-            return path.join(prefix, "app", "com.discordapp.Discord", `discord-ipc-${id}`);
+            return path.join(getTempDir(), "app", "com.discordapp.Discord", `discord-ipc-${id}`);
         }
     }
 ];
@@ -69,7 +56,7 @@ const defaultPathList: PathData[] = [
 const createSocket = async (path: string): Promise<net.Socket> => {
     return new Promise((resolve, reject) => {
         const onError = () => {
-            socket.removeListener("conect", onConnect);
+            socket.removeListener("connect", onConnect);
             reject();
         };
 
@@ -86,11 +73,10 @@ const createSocket = async (path: string): Promise<net.Socket> => {
 };
 
 export class IPCTransport extends Transport {
-    pathList: PathData[];
-
+    public pathList: PathData[];
     private socket?: net.Socket;
 
-    override get isConnected() {
+    public override get isConnected() {
         return this.socket !== undefined && this.socket.readyState === "open";
     }
 
@@ -104,39 +90,46 @@ export class IPCTransport extends Transport {
         if (this.socket) return this.socket;
 
         const pathList = this.pathList ?? defaultPathList;
-
         const pipeId = this.client.pipeId;
 
         return new Promise(async (resolve, reject) => {
+            const useablePath: string[] = [];
+
             for (const pat of pathList) {
-                const tryCreateSocket = async (path: string) => {
-                    const socket = await createSocket(path).catch(() => undefined);
-                    return socket;
-                };
+                if (!pat.platform.includes(process.platform)) continue;
 
-                const handleSocketId = async (id: number): Promise<net.Socket | undefined> => {
-                    if (!pat.platform.includes(process.platform)) return;
-                    const socketPath = pat.format(id);
-                    if (process.platform !== "win32" && !fs.existsSync(path.dirname(socketPath))) return;
-                    return await tryCreateSocket(socketPath);
-                };
+                let pipeIdList = [];
 
-                if (pipeId) {
-                    const socket = await handleSocketId(pipeId);
-                    if (socket) return resolve(socket);
-                } else {
-                    for (let i = 0; i < 10; i++) {
-                        const socket = await handleSocketId(i);
-                        if (socket) return resolve(socket);
-                    }
+                if (pipeId) pipeIdList = [pipeId];
+                else for (let i = 0; i < 10; i++) pipeIdList.push(i);
+
+                for (const pipeId of pipeIdList) {
+                    const socketPath = pat.format(pipeId);
+                    if (process.platform !== "win32" && !fs.existsSync(socketPath)) continue;
+                    useablePath.push(socketPath);
                 }
             }
 
-            reject(new RPCError(CUSTOM_RPC_ERROR_CODE.COULD_NOT_CONNECT, "Could not connect"));
+            this.client.emit(
+                "debug",
+                `CLIENT | Found ${useablePath.length} Discord client path;\n${useablePath.join("\n")}`
+            );
+
+            if (useablePath.length < 0)
+                return reject(
+                    new RPCError(CUSTOM_RPC_ERROR_CODE.COULD_NOT_FIND_CLIENT, "Unable to find any Discord client")
+                );
+
+            for (const path of useablePath) {
+                const socket = await createSocket(path).catch(() => undefined);
+                if (socket) return resolve(socket);
+            }
+
+            return reject(new RPCError(CUSTOM_RPC_ERROR_CODE.COULD_NOT_CONNECT, "Could not connect to Discord client"));
         });
     }
 
-    async connect(): Promise<void> {
+    public async connect(): Promise<void> {
         if (!this.socket) this.socket = await this.getSocket();
 
         this.emit("open");
@@ -221,7 +214,7 @@ export class IPCTransport extends Transport {
         });
     }
 
-    send(message?: any, op: IPC_OPCODE = IPC_OPCODE.FRAME): void {
+    public send(message?: any, op: IPC_OPCODE = IPC_OPCODE.FRAME): void {
         this.client.emit("debug", `CLIENT => SERVER | OPCODE.${IPC_OPCODE[op]} |`, message);
 
         const dataBuffer = message ? Buffer.from(JSON.stringify(message)) : Buffer.alloc(0);
@@ -233,11 +226,11 @@ export class IPCTransport extends Transport {
         this.socket?.write(Buffer.concat([packet, dataBuffer]));
     }
 
-    ping(): void {
+    public ping(): void {
         this.send(crypto.randomUUID(), IPC_OPCODE.PING);
     }
 
-    close(): Promise<void> {
+    public close(): Promise<void> {
         if (!this.socket) return Promise.resolve();
 
         return new Promise((resolve) => {

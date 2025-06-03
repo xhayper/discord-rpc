@@ -1,10 +1,10 @@
 import { CUSTOM_RPC_ERROR_CODE, RPC_ERROR_CODE } from "../structures/Transport";
 
 export class RPCError extends Error {
-    code: RPC_ERROR_CODE | CUSTOM_RPC_ERROR_CODE;
-    override message: string = "";
+    public code: RPC_ERROR_CODE | CUSTOM_RPC_ERROR_CODE;
+    public override message: string = "";
 
-    override get name() {
+    public override get name() {
         return `${{ ...CUSTOM_RPC_ERROR_CODE, ...RPC_ERROR_CODE }[this.code]}`;
     }
 

@@ -6,22 +6,22 @@ export class Guild extends Base {
     /**
      * guild id
      */
-    id: string;
+    public id: string;
     /**
      * guild name (2-100 characters, excluding trailing and leading whitespace)
      */
-    name: string;
-    icon_url: string | null;
+    public name: string;
+    public icon_url: string | null;
     /**
      * guild member list
      * (always an empty array)
      * @deprecated
      */
-    members: User[] = []; // Always an empty array
+    public members: User[] = []; // Always an empty array
     /**
      * the vanity url code for the guild
      */
-    vanity_url_code: string | null;
+    public vanity_url_code: string | null;
 
     constructor(client: Client, props: Record<string, any>) {
         super(client);

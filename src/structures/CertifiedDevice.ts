@@ -33,39 +33,39 @@ export class CertifiedDevice extends Base {
     /**
      * the type of device
      */
-    type: DeviceType;
+    public type: DeviceType;
     /**
      * the device's Windows UUID
      */
-    id: string;
+    public id: string;
     /**
      * the hardware vendor
      */
-    vendor: Vendor;
+    public vendor: Vendor;
     /**
      * the model of the product
      */
-    model: Model;
+    public model: Model;
     /**
      * UUIDs of related devices
      */
-    related: string[];
+    public related: string[];
     /**
      * if the device's native echo cancellation is enabled
      */
-    echo_cancellation?: boolean;
+    public echo_cancellation?: boolean;
     /**
      * if the device's native noise suppression is enabled
      */
-    noise_suppression?: boolean;
+    public noise_suppression?: boolean;
     /**
      * if the device's native automatic gain control is enabled
      */
-    automatic_gain_control?: boolean;
+    public automatic_gain_control?: boolean;
     /**
      * if the device is hardware muted
      */
-    hardware_mute?: boolean;
+    public hardware_mute?: boolean;
 
     constructor(client: Client, props: Record<string, any>) {
         super(client);

@@ -85,43 +85,43 @@ export class VoiceSettings extends Base {
     /**
      * input settings
      */
-    input: VoiceInput;
+    public input: VoiceInput;
     /**
      * output settings
      */
-    output: VoiceOutput;
+    public output: VoiceOutput;
     /**
      * voice mode settings
      */
-    mode: any;
+    public mode: any;
     /**
      * state of automatic gain control
      */
-    automatic_gain_control: boolean;
+    public automatic_gain_control: boolean;
     /**
      * state of echo cancellation
      */
-    echo_cancellation: boolean;
+    public echo_cancellation: boolean;
     /**
      * state of noise suppression
      */
-    noise_suppression: boolean;
+    public noise_suppression: boolean;
     /**
      * state of voice quality of service
      */
-    qos: boolean;
+    public qos: boolean;
     /**
      * state of silence warning notice
      */
-    silence_warning: boolean;
+    public silence_warning: boolean;
     /**
      * state of self-deafen
      */
-    deaf: boolean;
+    public deaf: boolean;
     /**
      * state of self-mute
      */
-    mute: boolean;
+    public mute: boolean;
 
     constructor(client: Client, props: Record<string, any>) {
         super(client);

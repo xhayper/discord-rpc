@@ -28,7 +28,9 @@ export type SetActivity = {
     endTimestamp?: number | Date;
 
     largeImageKey?: string;
+    largeImageKeyAspectRatio?: number;
     smallImageKey?: string;
+    smallImageKeyAspectRatio?: number;
     largeImageText?: string;
     smallImageText?: string;
 
@@ -262,10 +264,21 @@ export class ClientUser extends User {
         }
 
         // Assets (only if any defined)
-        if (activity.largeImageKey || activity.smallImageKey || activity.largeImageText || activity.smallImageText) {
+        if (
+            activity.largeImageKey ||
+            activity.smallImageKey ||
+            activity.largeImageText ||
+            activity.smallImageText ||
+            activity.largeImageKeyAspectRatio ||
+            activity.smallImageKeyAspectRatio
+        ) {
             formattedActivity.assets = {};
             if (activity.largeImageKey) formattedActivity.assets.large_image = activity.largeImageKey;
+            if (activity.largeImageKeyAspectRatio)
+                formattedActivity.assets.large_image_aspect_ratio = activity.largeImageKeyAspectRatio;
             if (activity.smallImageKey) formattedActivity.assets.small_image = activity.smallImageKey;
+            if (activity.smallImageKeyAspectRatio)
+                formattedActivity.assets.small_image_aspect_ratio = activity.smallImageKeyAspectRatio;
             if (activity.largeImageText) formattedActivity.assets.large_text = activity.largeImageText;
             if (activity.smallImageText) formattedActivity.assets.small_text = activity.smallImageText;
         }

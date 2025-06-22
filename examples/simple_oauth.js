@@ -14,7 +14,11 @@ client.on("ready", async () => {
         details: "Pain and Suffering",
         startTimestamp: Date.now(),
         largeImageKey: "main",
-        largeImageText: "me irl"
+        largeImageKeyAspectRatio: 16 / 9,
+        largeImageText: "me irl",
+        smallImageKey: "ptb",
+        smallImageKeyAspectRatio: 1 / 1,
+        smallImageText: "Discord PTB"
     });
 });
 

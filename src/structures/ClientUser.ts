@@ -16,19 +16,29 @@ export enum ActivityPartyPrivacy {
     PUBLIC = 1
 }
 
+export enum StatusDisplayType {
+    ACTIVITY_NAME = 0,
+    ACTIVITY_STATE = 1,
+    ACTIVITY_DETAILS = 2
+}
+
 export type SetActivity = {
     name?: string;
     type?: ActivityType;
     url?: string;
 
     state?: string;
+    stateUrl?: string;
     details?: string;
+    detailsUrl?: string;
 
     startTimestamp?: number | Date;
     endTimestamp?: number | Date;
 
     largeImageKey?: string;
+    largeImageUrl?: string;
     smallImageKey?: string;
+    smallImageUrl?: string;
     largeImageText?: string;
     smallImageText?: string;
 
@@ -44,6 +54,7 @@ export type SetActivity = {
     buttons?: GatewayActivityButton[];
     supportedPlatforms?: (ActivitySupportedPlatform | `${ActivitySupportedPlatform}`)[];
 
+    statusDisplayType?: StatusDisplayType;
     applicationId?: string;
     flags?: number;
 
@@ -244,6 +255,8 @@ export class ClientUser extends User {
         // Details & state
         if (activity.details) formattedActivity.details = activity.details;
         if (activity.state) formattedActivity.state = activity.state;
+        if (activity.detailsUrl) formattedActivity.details_url = activity.detailsUrl;
+        if (activity.stateUrl) formattedActivity.state_url = activity.stateUrl;
 
         // Timestamps (only if any defined)
         if (activity.startTimestamp || activity.endTimestamp) {
@@ -262,12 +275,19 @@ export class ClientUser extends User {
         }
 
         // Assets (only if any defined)
-        if (activity.largeImageKey || activity.smallImageKey || activity.largeImageText || activity.smallImageText) {
+        if (activity.largeImageKey || activity.smallImageKey || activity.largeImageText || activity.smallImageText || activity.largeImageUrl || activity.smallImageUrl) {
             formattedActivity.assets = {};
             if (activity.largeImageKey) formattedActivity.assets.large_image = activity.largeImageKey;
             if (activity.smallImageKey) formattedActivity.assets.small_image = activity.smallImageKey;
             if (activity.largeImageText) formattedActivity.assets.large_text = activity.largeImageText;
             if (activity.smallImageText) formattedActivity.assets.small_text = activity.smallImageText;
+            if (activity.largeImageUrl) formattedActivity.assets.large_url = activity.largeImageUrl;
+            if (activity.smallImageUrl) formattedActivity.assets.small_url = activity.smallImageUrl;
+        }
+
+        // Status display type
+        if (activity.statusDisplayType !== undefined) {
+            formattedActivity.status_display_type = activity.statusDisplayType;
         }
 
         // Party (only if any defined)

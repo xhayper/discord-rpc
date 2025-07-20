@@ -1,6 +1,7 @@
 {
     "extends": ["@sapphire/ts-config/base", "@sapphire/ts-config/extra-strict"],
     "compilerOptions": {
+        "incremental": false,
         "outDir": "dist",
         "sourceMap": false,
         "declarationMap": false

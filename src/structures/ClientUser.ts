@@ -17,9 +17,9 @@ export enum ActivityPartyPrivacy {
 }
 
 export enum StatusDisplayType {
-    ACTIVITY_NAME = 0,
-    ACTIVITY_STATE = 1,
-    ACTIVITY_DETAILS = 2
+    NAME = 0,
+    STATE = 1,
+    DETAILS = 2
 }
 
 export type SetActivity = {
@@ -54,7 +54,7 @@ export type SetActivity = {
     buttons?: GatewayActivityButton[];
     supportedPlatforms?: (ActivitySupportedPlatform | `${ActivitySupportedPlatform}`)[];
 
-    statusDisplayType?: StatusDisplayType;
+    statusDisplayType?: StatusDisplayType | 0 | 1 | 2;
     applicationId?: string;
     flags?: number;
 
@@ -275,7 +275,14 @@ export class ClientUser extends User {
         }
 
         // Assets (only if any defined)
-        if (activity.largeImageKey || activity.smallImageKey || activity.largeImageText || activity.smallImageText || activity.largeImageUrl || activity.smallImageUrl) {
+        if (
+            activity.largeImageKey ||
+            activity.smallImageKey ||
+            activity.largeImageText ||
+            activity.smallImageText ||
+            activity.largeImageUrl ||
+            activity.smallImageUrl
+        ) {
             formattedActivity.assets = {};
             if (activity.largeImageKey) formattedActivity.assets.large_image = activity.largeImageKey;
             if (activity.smallImageKey) formattedActivity.assets.small_image = activity.smallImageKey;

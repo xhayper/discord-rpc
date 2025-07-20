@@ -214,7 +214,7 @@ export class IPCTransport extends Transport {
         });
     }
 
-    public send(message?: any, op: IPC_OPCODE = IPC_OPCODE.FRAME): void {
+    public send(message?: any, op: IPC_OPCODE | number = IPC_OPCODE.FRAME): void {
         this.client.emit("debug", `CLIENT => SERVER | OPCODE.${IPC_OPCODE[op]} |`, message);
 
         const dataBuffer = message ? Buffer.from(JSON.stringify(message)) : Buffer.alloc(0);

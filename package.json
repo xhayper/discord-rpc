@@ -35,12 +35,12 @@
     },
     "devDependencies": {
         "@sapphire/ts-config": "^5.0.2",
-        "@types/node": "^18.19.130",
+        "@types/node": "^20",
         "@types/ws": "^8.18.1",
         "rimraf": "^6.1.2",
         "typescript": "^5.9.3"
     },
     "engines": {
-        "node": ">=18.20.7"
+        "node": ">=20"
     }
 }

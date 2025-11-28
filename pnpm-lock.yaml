@@ -23,7 +23,7 @@ importers:
     devDependencies:
       '@sapphire/ts-config':
         specifier: ^5.0.2
-        version: 5.0.2
+        version: 5.0.3
       '@types/node':
         specifier: ^20
         version: 20.19.25
@@ -67,8 +67,8 @@ packages:
     resolution: {integrity: sha512-xzvBr1Q1c4lCe7i6sRnrofxeO1QTP/LKQ6A6qy0iB4x5yfiSfARMEQEghojzTNALDTcv8En04qYNIco9/K9eZQ==}
     engines: {node: '>=v14.0.0', npm: '>=7.0.0'}
 
-  '@sapphire/ts-config@5.0.2':
-    resolution: {integrity: sha512-6QhgaEoVGsyMf9VCuPy9S8p8cFCDbkClCu9P8RPvMaerpbx5K3FW8S3fE1ZIhN9QECwNtPqnxS6m4rzpo3/7ZA==}
+  '@sapphire/ts-config@5.0.3':
+    resolution: {integrity: sha512-bFyGYHFT3TpOf5Sg2P+zY2ad0t5IA2epc5HtewlghhL7MYvbZvxtKsdaNaMwAdNObBx7hpiQm5OcOhyzEwQvbQ==}
     engines: {node: '>=v16.0.0', npm: '>=8.0.0'}
 
   '@types/node@20.19.25':
@@ -177,7 +177,7 @@ snapshots:
 
   '@sapphire/snowflake@3.5.5': {}
 
-  '@sapphire/ts-config@5.0.2':
+  '@sapphire/ts-config@5.0.3':
     dependencies:
       tslib: 2.8.1
       typescript: 5.4.5
